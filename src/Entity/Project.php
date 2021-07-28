@@ -6,12 +6,13 @@ use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\IdGenerator\UlidGenerator;
-
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=ProjectRepository::class)
+ * @method string getUserIdentifier()
  */
-class Project
+class Project implements UserInterface
 {
     /**
      * @ORM\Id
@@ -60,5 +61,35 @@ class Project
         $this->apiKey = $apiKey;
 
         return $this;
+    }
+
+    public function getRoles(): array
+    {
+        return ["ROLE_API"];
+    }
+
+    public function getPassword()
+    {
+        return null;
+    }
+
+    public function getSalt()
+    {
+        return null;
+    }
+
+    public function eraseCredentials()
+    {
+        return null;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->apiKey;
+    }
+
+    public function __call(string $name, array $arguments)
+    {
+        return $this->apiKey;
     }
 }
