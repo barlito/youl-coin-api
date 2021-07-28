@@ -28,7 +28,7 @@ class Project
 
     /**
      * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\Column(type="ulid", unique=true)
      * @ORM\CustomIdGenerator(class=UlidGenerator::class)
      */
     private ?string $apiKey;
