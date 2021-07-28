@@ -1,0 +1,4 @@
+# api/fixtures/Wallet.yaml
+App\Entity\Wallet:
+  wallet_{1..10}:
+    amount: <numberBetween(1000, 9000)>

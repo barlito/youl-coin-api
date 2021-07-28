@@ -16,6 +16,11 @@ deploy:
 undeploy:
 	docker stack rm $(stack_name)
 
+.PHONY: fixtures
+fixtures:
+	docker exec -it $(app_container_id) bin/console hautelook:fixtures:load
+
+
 .PHONY: cs-fixer
 cs-fixer:
 	docker exec $(app_container_id) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v src

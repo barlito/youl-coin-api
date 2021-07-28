@@ -27,14 +27,12 @@ class Transaction
     private ?string $amount;
 
     /**
-     * @ORM\OneToOne(targetEntity=Wallet::class)
-     * @ORM\JoinColumn(nullable=false)
+    @ORM\ManyToOne(targetEntity=Wallet::class)
      */
     private ?Wallet $walletFrom;
 
     /**
-     * @ORM\OneToOne(targetEntity=Wallet::class)
-     * @ORM\JoinColumn(nullable=false)
+    @ORM\ManyToOne(targetEntity=Wallet::class)
      */
     private ?Wallet $walletTo;
 

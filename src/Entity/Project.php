@@ -28,9 +28,7 @@ class Project implements UserInterface
     private $name;
 
     /**
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\Column(type="ulid", unique=true)
-     * @ORM\CustomIdGenerator(class=UlidGenerator::class)
      */
     private ?string $apiKey;
 
