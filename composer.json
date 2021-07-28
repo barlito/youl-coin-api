@@ -78,6 +78,7 @@
     },
     "require-dev": {
         "behat/behat": "^3.8",
+        "friends-of-behat/symfony-extension": "^2.0",
         "hautelook/alice-bundle": "^2.9",
         "justinrainbow/json-schema": "^5.2",
         "phpunit/phpunit": "^9.5",

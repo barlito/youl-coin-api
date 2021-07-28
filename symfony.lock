@@ -111,6 +111,21 @@
     "fig/link-util": {
         "version": "1.2.0"
     },
+    "friends-of-behat/symfony-extension": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "3d21344765fd3440a85bdd27d4cada186ec628bd"
+        },
+        "files": [
+            "behat.yml.dist",
+            "config/services_test.yaml",
+            "features/demo.feature",
+            "tests/Behat/DemoContext.php"
+        ]
+    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
@@ -489,6 +504,9 @@
     },
     "symfony/string": {
         "version": "v5.3.3"
+    },
+    "symfony/test-pack": {
+        "version": "v1.0.8"
     },
     "symfony/translation": {
         "version": "5.3",
