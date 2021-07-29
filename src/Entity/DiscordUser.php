@@ -19,7 +19,7 @@ class DiscordUser
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\CustomIdGenerator(class=UuidGenerator::class)
      */
-    private $id;
+    private ?string $id;
 
     /**
      * @ORM\Column(type="bigint")
@@ -31,7 +31,7 @@ class DiscordUser
      */
     private $wallet;
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }

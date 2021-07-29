@@ -27,7 +27,7 @@ class Project implements UserInterface
     private $name;
 
     /**
-     * @ORM\Column(type="ulid", unique=true)
+     * @ORM\Column(type="uuid", unique=true)
      */
     private ?string $apiKey;
 
