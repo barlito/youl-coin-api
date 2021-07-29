@@ -1,0 +1,4 @@
+# api/fixtures/DiscordUser.yaml
+App\Entity\DiscordUser:
+  discord_user_{1..5}:
+    discordId: <numberBetween(1000000000, 9999999999)>

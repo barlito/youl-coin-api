@@ -44,7 +44,7 @@ class Transaction
     /**
      * @ORM\ManyToOne(targetEntity=Project::class)
      */
-    private $project;
+    private ?Project $project;
 
     public function getId(): ?string
     {
