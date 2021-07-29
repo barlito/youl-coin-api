@@ -3,6 +3,20 @@ default:
         default:
             contexts:
                 - App\Tests\Behat\DemoContext
+                - Behat\MinkExtension\Context\MinkContext
+                - Behatch\Context\RestContext
+                - behatch:context:rest
+                - behatch:context:json
+                - behatch:context:system
 
     extensions:
-        FriendsOfBehat\SymfonyExtension: null
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php
+            kernel:
+                class: App\Kernel
+        Behat\MinkExtension:
+            base_url: "http://yc.local.barlito.fr/"
+            sessions:
+                symfony:
+                    symfony: ~
+        Behatch\Extension: ~
