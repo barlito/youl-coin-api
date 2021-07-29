@@ -60,6 +60,11 @@ services:
         networks:
             - traefik_traefik_proxy
 
+    rabbitmq:
+        image: rabbitmq:3
+        networks:
+            - traefik_traefik_proxy
+
 volumes:
     db_data:
 
