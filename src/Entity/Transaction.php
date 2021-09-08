@@ -41,11 +41,6 @@ class Transaction
      */
     private ?string $message;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Project::class)
-     */
-    private ?Project $project;
-
     public function getId(): ?string
     {
         return $this->id;
@@ -95,18 +90,6 @@ class Transaction
     public function setMessage(?string $message): self
     {
         $this->message = $message;
-
-        return $this;
-    }
-
-    public function getProject(): ?Project
-    {
-        return $this->project;
-    }
-
-    public function setProject(?Project $project): self
-    {
-        $this->project = $project;
 
         return $this;
     }

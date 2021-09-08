@@ -31,11 +31,6 @@ class Wallet
      */
     private ?DiscordUser $discordUser;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Project::class, inversedBy="wallet", cascade={"persist"})
-     */
-    private ?Project $project;
-
     public function getId(): ?string
     {
         return $this->id;
@@ -61,18 +56,6 @@ class Wallet
     public function setDiscordUser(?DiscordUser $discordUser): self
     {
         $this->discordUser = $discordUser;
-
-        return $this;
-    }
-
-    public function getProject(): ?Project
-    {
-        return $this->project;
-    }
-
-    public function setProject(?Project $project): self
-    {
-        $this->project = $project;
 
         return $this;
     }

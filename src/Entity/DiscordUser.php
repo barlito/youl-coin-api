@@ -22,21 +22,21 @@ class DiscordUser
     private ?string $id;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(type="string", nullable=false)
      */
-    private $discordId;
+    private string $discordId;
 
     /**
-     * @ORM\OneToOne(targetEntity=Wallet::class, mappedBy="discordUser", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Wallet::class, mappedBy="discordUser")
      */
-    private $wallet;
+    private Wallet $wallet;
 
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getDiscordId(): ?string
+    public function getDiscordId(): string
     {
         return $this->discordId;
     }
@@ -48,12 +48,12 @@ class DiscordUser
         return $this;
     }
 
-    public function getWallet(): ?Wallet
+    public function getWallet(): Wallet
     {
         return $this->wallet;
     }
 
-    public function setWallet(?Wallet $wallet): self
+    public function setWallet(Wallet $wallet): self
     {
         // unset the owning side of the relation if necessary
         if ($wallet === null && $this->wallet !== null) {
