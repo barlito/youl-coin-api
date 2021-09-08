@@ -22,19 +22,19 @@ class Transaction
     private ?string $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
-    private ?string $amount;
+    private string $amount;
 
     /**
     @ORM\ManyToOne(targetEntity=Wallet::class)
      */
-    private ?Wallet $walletFrom;
+    private Wallet $walletFrom;
 
     /**
     @ORM\ManyToOne(targetEntity=Wallet::class)
      */
-    private ?Wallet $walletTo;
+    private Wallet $walletTo;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -46,7 +46,7 @@ class Transaction
         return $this->id;
     }
 
-    public function getAmount(): ?string
+    public function getAmount(): string
     {
         return $this->amount;
     }

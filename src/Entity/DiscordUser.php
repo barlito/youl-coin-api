@@ -55,13 +55,7 @@ class DiscordUser
 
     public function setWallet(Wallet $wallet): self
     {
-        // unset the owning side of the relation if necessary
-        if ($wallet === null && $this->wallet !== null) {
-            $this->wallet->setDiscordUser(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($wallet !== null && $wallet->getDiscordUser() !== $this) {
+        if ($wallet->getDiscordUser() !== $this) {
             $wallet->setDiscordUser($this);
         }
 

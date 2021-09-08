@@ -24,19 +24,19 @@ class Wallet
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private ?string $amount;
+    private string $amount;
 
     /**
-     * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet")
      */
-    private ?DiscordUser $discordUser;
+    private DiscordUser $discordUser;
 
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getAmount(): ?string
+    public function getAmount(): string
     {
         return $this->amount;
     }
@@ -48,12 +48,12 @@ class Wallet
         return $this;
     }
 
-    public function getDiscordUser(): ?DiscordUser
+    public function getDiscordUser(): DiscordUser
     {
         return $this->discordUser;
     }
 
-    public function setDiscordUser(?DiscordUser $discordUser): self
+    public function setDiscordUser(DiscordUser $discordUser): self
     {
         $this->discordUser = $discordUser;
 
