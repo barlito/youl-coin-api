@@ -19,23 +19,23 @@ class DashboardController extends AbstractDashboardController
     {
         return parent::index();
     }
-    
+
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
             ->setTitle('App');
     }
-    
+
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');
-        
+
         yield MenuItem::linkToCrud('Projects API Keys', 'fas fa-list', Project::class);
-    
+
         yield MenuItem::linkToCrud('Discord Users', 'fas fa-list', DiscordUser::class);
-        
+
         yield MenuItem::linkToCrud('Transactions', 'fas fa-list', Transaction::class);
-        
+
         yield MenuItem::linkToCrud('Wallets', 'fas fa-list', Wallet::class);
     }
 }

@@ -1,16 +1,15 @@
-stack_name= youl_coin
+stack_name=youl_coin
 
 # Container
 app_container_id = $(shell docker ps --filter name="$(stack_name)_nginx" -q)
 
 .PHONY: bash
 bash:
-	docker exec -it $(app_container_id) bash
+	docker exec -it -u root $(app_container_id) bash
 
 .PHONY: deploy
 deploy:
 	docker stack deploy -c docker-compose.yml $(stack_name)
-	docker exec $(app_container_id) composer install --working-dir=tools/php-cs-fixer
 
 .PHONY: undeploy
 undeploy:
@@ -19,7 +18,6 @@ undeploy:
 .PHONY: fixtures
 fixtures:
 	docker exec -it $(app_container_id) bin/console hautelook:fixtures:load
-
 
 .PHONY: cs-fixer
 cs-fixer:
