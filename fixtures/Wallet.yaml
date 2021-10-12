@@ -3,9 +3,7 @@ App\Entity\Wallet:
   wallet_1:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_1'
-    project: null
 
   wallet_2:
     amount: <numberBetween(1000, 9000)>
     discordUser: null
-    project: '@project_1'

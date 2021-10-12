@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\DiscordUser;
-use App\Entity\Project;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -29,8 +28,6 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');
-
-        yield MenuItem::linkToCrud('Projects API Keys', 'fas fa-list', Project::class);
 
         yield MenuItem::linkToCrud('Discord Users', 'fas fa-list', DiscordUser::class);
 

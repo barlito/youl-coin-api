@@ -3,6 +3,5 @@ App\Entity\Transaction:
   transaction_{1..100}:
     walletFrom: '@wallet*'
     walletTo: '@wallet*'
-    project: '@project*'
     amount: <numberBetween(10, 100)>
     message: <sentence(4)>

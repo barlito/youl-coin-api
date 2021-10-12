@@ -62,7 +62,15 @@ services:
             - traefik_traefik_proxy
 
     rabbitmq:
-        image: rabbitmq:3
+        image: rabbitmq:3-management
+        deploy:
+            labels:
+                - traefik.enable=true
+
+                - traefik.http.services.youlcoin_rabbitmq.loadbalancer.server.port=15672
+
+                - traefik.http.routers.youlcoin_rabbitmq.rule=Host(`yc-rabbitmq.local.barlito.fr`)
+                - traefik.http.routers.youlcoin_rabbitmq.entrypoints=http
         networks:
             - traefik_traefik_proxy
 

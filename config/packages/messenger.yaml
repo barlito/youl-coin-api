@@ -10,13 +10,19 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async:
+            async_transaction:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 retry_strategy:
-                    max_retries: 3
+                    max_retries: 0
                     delay: 200
+                options:
+                    exchange:
+                        name: messages_transaction
+                    queues:
+                        messages_transaction: ~
+
             failed: 'doctrine://default?queue_name=failed'
 
         routing:
             # Route your messages to the transports
-            'App\Message\TransactionMessage': async
+            'App\Message\TransactionMessage': async_transaction

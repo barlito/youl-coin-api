@@ -6,7 +6,7 @@ namespace App\Message;
 
 class TransactionMessage
 {
-    private $content;
+    private string $content;
 
     public function __construct(string $content)
     {

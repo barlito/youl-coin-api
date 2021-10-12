@@ -1,5 +1,0 @@
-# api/fixtures/Project.yaml
-App\Entity\Project:
-  project_{1..5}:
-    name: <word()>
-    apiKey: <uuid()>
