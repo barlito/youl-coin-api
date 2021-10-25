@@ -11,6 +11,7 @@ use App\Money\YoulCoinCurrency;
 use App\Money\YoulCoinFormatter;
 use App\Repository\WalletRepository;
 use App\Service\Builder\TransactionMessageDtoBuilder;
+use App\Service\Notifier\DiscordNotifier;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Money\Currencies\BitcoinCurrencies;
@@ -39,10 +40,12 @@ class TransactionMessageHandler implements MessageHandlerInterface
         private EntityManagerInterface       $entityManager,
         private TransactionMessageDtoBuilder $transactionMessageDtoBuilder,
         private LoggerInterface              $logger,
-        private ValidatorInterface           $validator
-    ) {
+        private ValidatorInterface           $validator,
+        private DiscordNotifier              $discordNotifier
+    )
+    {
     }
-
+    
     public function __invoke(TransactionMessage $message)
     {
         try {
@@ -51,12 +54,12 @@ class TransactionMessageHandler implements MessageHandlerInterface
             $this->processTransaction($transactionMessageDTO);
             $this->entityManager->flush();
         } catch (UnexpectedValueException | ConstraintDefinitionException $e) {
-            //todo send a webhook
+            $this->discordNotifier->notifyErrorOnTransaction($message->getContent());
             $this->logger->critical($e->getMessage(), [$message->getContent()]);
             return;
         }
     }
-
+    
     /**
      * @throws ConstraintDefinitionException
      */
@@ -64,27 +67,29 @@ class TransactionMessageHandler implements MessageHandlerInterface
     {
         /** @var ConstraintViolation[] $errors */
         $errors = $this->validator->validate($transactionMessageDTO);
-
+        
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
             throw new ConstraintDefinitionException($errorsString);
         }
     }
-
+    
     private function processTransaction(TransactionMessageDTO $transactionMessageDTO)
     {
         $walletFrom = $transactionMessageDTO->getWalletFrom();
         $walletTo = $transactionMessageDTO->getWalletTo();
-
+        
         $walletFrom->setAmount(bcsub($walletFrom->getAmount(), $transactionMessageDTO->getAmount()));
         $walletTo->setAmount(bcadd($walletTo->getAmount(), $transactionMessageDTO->getAmount()));
-
+        
         $transaction = new Transaction();
         $transaction
             ->setAmount($transactionMessageDTO->getAmount())
             ->setWalletFrom($walletFrom)
             ->setWalletTo($walletTo);
-
+        
         $this->entityManager->persist($transaction);
+        
+        $this->discordNotifier->notifyNewTransaction($transaction);
     }
 }

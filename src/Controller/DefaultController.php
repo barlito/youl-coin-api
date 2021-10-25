@@ -15,7 +15,7 @@ class DefaultController extends AbstractController
     public function index(SerializerInterface $serializer)
     {
         $messageContent = [
-            'amount' => "10000",
+            'amount' => rand(-100, 100),
             'walletIdFrom' => "1ebf09fc-b4ef-6856-88de-e3506d344f3f",
             'walletIdTo' => "1ebf09fc-b4ef-6ef0-8289-e3506d344f3f",
         ];

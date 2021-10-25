@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "06c48846308b3853bccf8b0e2f760802",
+    "content-hash": "d5d37f06b70fb8a4da369d09f0c44554",
     "packages": [
         {
             "name": "api-platform/core",
@@ -3185,6 +3185,77 @@
             "time": "2021-03-23T23:28:01+00:00"
         },
         {
+            "name": "symfony/discord-notifier",
+            "version": "v5.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/discord-notifier.git",
+                "reference": "369d688eedfa015ffc420cedaec9ef959b62776e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/discord-notifier/zipball/369d688eedfa015ffc420cedaec9ef959b62776e",
+                "reference": "369d688eedfa015ffc420cedaec9ef959b62776e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/http-client": "^4.3|^5.0",
+                "symfony/notifier": "^5.3",
+                "symfony/polyfill-mbstring": "^1.0"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher": "^4.3|^5.0"
+            },
+            "type": "symfony-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Notifier\\Bridge\\Discord\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Discord Notifier Bridge",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "discord",
+                "notifier"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/discord-notifier/tree/v5.3.4"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-07-19T05:56:13+00:00"
+        },
+        {
             "name": "symfony/doctrine-bridge",
             "version": "v5.3.8",
             "source": {
@@ -4183,6 +4254,93 @@
             "time": "2021-09-28T07:17:01+00:00"
         },
         {
+            "name": "symfony/http-client",
+            "version": "v5.3.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/http-client.git",
+                "reference": "c6370fe2c0a445aedc08f592a6a3149da1fea4c7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/http-client/zipball/c6370fe2c0a445aedc08f592a6a3149da1fea4c7",
+                "reference": "c6370fe2c0a445aedc08f592a6a3149da1fea4c7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "psr/log": "^1|^2|^3",
+                "symfony/deprecation-contracts": "^2.1",
+                "symfony/http-client-contracts": "^2.4",
+                "symfony/polyfill-php73": "^1.11",
+                "symfony/polyfill-php80": "^1.16",
+                "symfony/service-contracts": "^1.0|^2"
+            },
+            "provide": {
+                "php-http/async-client-implementation": "*",
+                "php-http/client-implementation": "*",
+                "psr/http-client-implementation": "1.0",
+                "symfony/http-client-implementation": "2.4"
+            },
+            "require-dev": {
+                "amphp/amp": "^2.5",
+                "amphp/http-client": "^4.2.1",
+                "amphp/http-tunnel": "^1.0",
+                "amphp/socket": "^1.1",
+                "guzzlehttp/promises": "^1.4",
+                "nyholm/psr7": "^1.0",
+                "php-http/httplug": "^1.0|^2.0",
+                "psr/http-client": "^1.0",
+                "symfony/dependency-injection": "^4.4|^5.0",
+                "symfony/http-kernel": "^4.4.13|^5.1.5",
+                "symfony/process": "^4.4|^5.0",
+                "symfony/stopwatch": "^4.4|^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\HttpClient\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides powerful methods to fetch HTTP resources synchronously or asynchronously",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/http-client/tree/v5.3.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-09-07T10:45:28+00:00"
+        },
+        {
             "name": "symfony/http-client-contracts",
             "version": "v2.4.0",
             "source": {
@@ -4787,6 +4945,100 @@
                 }
             ],
             "time": "2021-03-31T07:20:47+00:00"
+        },
+        {
+            "name": "symfony/notifier",
+            "version": "v5.3.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/notifier.git",
+                "reference": "71d3d7f35a7d5706a200a6b9516c7c2922ee4dd7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/notifier/zipball/71d3d7f35a7d5706a200a6b9516c7c2922ee4dd7",
+                "reference": "71d3d7f35a7d5706a200a6b9516c7c2922ee4dd7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "psr/log": "^1|^2|^3",
+                "symfony/polyfill-php80": "^1.15"
+            },
+            "conflict": {
+                "symfony/discord-notifier": "<5.3",
+                "symfony/esendex-notifier": "<5.3",
+                "symfony/firebase-notifier": "<5.3",
+                "symfony/free-mobile-notifier": "<5.3",
+                "symfony/google-chat-notifier": "<5.3",
+                "symfony/http-kernel": "<4.4",
+                "symfony/infobip-notifier": "<5.3",
+                "symfony/linked-in-notifier": "<5.3",
+                "symfony/mattermost-notifier": "<5.3",
+                "symfony/mobyt-notifier": "<5.3",
+                "symfony/nexmo-notifier": "<5.3",
+                "symfony/ovh-cloud-notifier": "<5.3",
+                "symfony/rocket-chat-notifier": "<5.3",
+                "symfony/sendinblue-notifier": "<5.3",
+                "symfony/sinch-notifier": "<5.3",
+                "symfony/slack-notifier": "<5.3",
+                "symfony/smsapi-notifier": "<5.3",
+                "symfony/telegram-notifier": "<5.3",
+                "symfony/twilio-notifier": "<5.3",
+                "symfony/zulip-notifier": "<5.3"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher-contracts": "^2",
+                "symfony/http-client-contracts": "^2",
+                "symfony/messenger": "^4.4 || ^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Notifier\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Sends notifications via one or more channels (email, SMS, ...)",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "notification",
+                "notifier"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/notifier/tree/v5.3.9"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-07-19T06:02:01+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -10613,93 +10865,6 @@
             "time": "2021-08-29T19:32:13+00:00"
         },
         {
-            "name": "symfony/http-client",
-            "version": "v5.3.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/http-client.git",
-                "reference": "c6370fe2c0a445aedc08f592a6a3149da1fea4c7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client/zipball/c6370fe2c0a445aedc08f592a6a3149da1fea4c7",
-                "reference": "c6370fe2c0a445aedc08f592a6a3149da1fea4c7",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2.5",
-                "psr/log": "^1|^2|^3",
-                "symfony/deprecation-contracts": "^2.1",
-                "symfony/http-client-contracts": "^2.4",
-                "symfony/polyfill-php73": "^1.11",
-                "symfony/polyfill-php80": "^1.16",
-                "symfony/service-contracts": "^1.0|^2"
-            },
-            "provide": {
-                "php-http/async-client-implementation": "*",
-                "php-http/client-implementation": "*",
-                "psr/http-client-implementation": "1.0",
-                "symfony/http-client-implementation": "2.4"
-            },
-            "require-dev": {
-                "amphp/amp": "^2.5",
-                "amphp/http-client": "^4.2.1",
-                "amphp/http-tunnel": "^1.0",
-                "amphp/socket": "^1.1",
-                "guzzlehttp/promises": "^1.4",
-                "nyholm/psr7": "^1.0",
-                "php-http/httplug": "^1.0|^2.0",
-                "psr/http-client": "^1.0",
-                "symfony/dependency-injection": "^4.4|^5.0",
-                "symfony/http-kernel": "^4.4.13|^5.1.5",
-                "symfony/process": "^4.4|^5.0",
-                "symfony/stopwatch": "^4.4|^5.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\HttpClient\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Provides powerful methods to fetch HTTP resources synchronously or asynchronously",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/http-client/tree/v5.3.8"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2021-09-07T10:45:28+00:00"
-        },
-        {
             "name": "symfony/maker-bundle",
             "version": "v1.34.0",
             "source": {
@@ -11098,9 +11263,9 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.0",
+        "ext-bcmath": "*",
         "ext-ctype": "*",
-        "ext-iconv": "*",
-        "ext-bcmath": "*"
+        "ext-iconv": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.1.0"

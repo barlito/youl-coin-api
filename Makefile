@@ -15,6 +15,10 @@ deploy:
 undeploy:
 	docker stack rm $(stack_name)
 
+.PHONY: restart-messenger-worker
+restart-messenger-worker:
+	docker exec -it -u root $(app_container_id) supervisorctl restart messenger-consume:*
+
 .PHONY: fixtures
 fixtures:
 	docker exec -it $(app_container_id) bin/console hautelook:fixtures:load

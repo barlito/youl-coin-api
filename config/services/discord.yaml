@@ -1,0 +1,9 @@
+parameters:
+  app.discord:
+    transaction:
+      username: TransactionBot zob
+      avatar_url: https://st3.depositphotos.com/27847728/34610/v/1600/depositphotos_346108992-stock-illustration-initial-logo-design-vector-template.jpg
+      success_color: 2021216
+      error_color: 14685473
+      success_title: New transaction
+      error_title: Error on transaction
