@@ -54,8 +54,8 @@ class TransactionMessageHandler implements MessageHandlerInterface
             $this->processTransaction($transactionMessageDTO);
             $this->entityManager->flush();
         } catch (UnexpectedValueException | ConstraintDefinitionException $e) {
-            $this->discordNotifier->notifyErrorOnTransaction($message->getContent());
-            $this->logger->critical($e->getMessage(), [$message->getContent()]);
+            $this->discordNotifier->notifyErrorOnTransaction($e->getMessage(), $message->getContent());
+            $this->logger->critical($e->getMessage(), [$e->getMessage(), $message->getContent()]);
             return;
         }
     }

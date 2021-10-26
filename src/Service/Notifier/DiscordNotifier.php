@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Notifier;
 
 use App\Entity\Transaction;
+use App\Money\YoulCoinFormatter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Bridge\Discord\DiscordOptions;
 use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordEmbed;
@@ -38,12 +39,12 @@ class DiscordNotifier
                     ->color($this->discordOptionsParams['transaction']['success_color'])
                     ->timestamp(new \DateTime())
                     ->addField((new DiscordFieldEmbedObject())
-                        ->name("-{$transaction->getAmount()}")
+                        ->name('-' . YoulCoinFormatter::format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
                     ->addField((new DiscordFieldEmbedObject())
-                        ->name("+{$transaction->getAmount()}")
+                        ->name('+' . YoulCoinFormatter::format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
@@ -60,7 +61,7 @@ class DiscordNotifier
         }
     }
     
-    public function notifyErrorOnTransaction(string $errorMessage)
+    public function notifyErrorOnTransaction(string $errorMessage, string $messageContent)
     {
         try {
             $chatMessage = new ChatMessage('');
@@ -74,6 +75,10 @@ class DiscordNotifier
                     ->addField((new DiscordFieldEmbedObject())
                         ->name("Error on transaction")
                         ->value($errorMessage)
+                    )
+                    ->addField((new DiscordFieldEmbedObject())
+                        ->name("Message content")
+                        ->value($messageContent)
                     )
                     ->footer((new DiscordFooterEmbedObject())
                         ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
