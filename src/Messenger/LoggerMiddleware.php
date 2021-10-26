@@ -8,6 +8,9 @@ use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
+/**
+ * @SuppressWarnings(PHPMD)
+ */
 class LoggerMiddleware implements MiddlewareInterface
 {
     private LoggerInterface $logger;

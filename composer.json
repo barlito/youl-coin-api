@@ -17,6 +17,7 @@
         "easycorp/easyadmin-bundle": "^3.4",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
+        "phpmd/phpmd": "^2.10",
         "symfony/amqp-messenger": "5.3.*",
         "symfony/asset": "5.3.*",
         "symfony/console": "5.3.*",

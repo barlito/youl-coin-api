@@ -6,6 +6,7 @@ namespace App\Service\Notifier;
 
 use App\Entity\Transaction;
 use App\Money\YoulCoinFormatter;
+use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Bridge\Discord\DiscordOptions;
 use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordEmbed;
@@ -21,6 +22,7 @@ class DiscordNotifier
     public function __construct(
         private ChatterInterface $chatter,
         private LoggerInterface $logger,
+        private YoulCoinFormatter $youlCoinFormatter,
         private array $discordOptionsParams,
     ) {
     }
@@ -36,16 +38,16 @@ class DiscordNotifier
                     (new DiscordEmbed())
                     ->title($this->discordOptionsParams['transaction']['success_title'])
                     ->color($this->discordOptionsParams['transaction']['success_color'])
-                    ->timestamp(new \DateTime())
+                    ->timestamp(new DateTime())
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name('-'.YoulCoinFormatter::format($transaction->getAmount()))
+                        ->name('-'.$this->youlCoinFormatter->format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name('+'.YoulCoinFormatter::format($transaction->getAmount()))
+                        ->name('+'.$this->youlCoinFormatter->format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
@@ -74,7 +76,7 @@ class DiscordNotifier
                     (new DiscordEmbed())
                     ->title($this->discordOptionsParams['transaction']['error_title'])
                     ->color($this->discordOptionsParams['transaction']['error_color'])
-                    ->timestamp(new \DateTime())
+                    ->timestamp(new DateTime())
                     ->addField(
                         (new DiscordFieldEmbedObject())
                         ->name('Error on transaction')

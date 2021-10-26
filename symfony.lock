@@ -25,6 +25,9 @@
     "behatch/contexts": {
         "version": "3.3.0"
     },
+    "composer/xdebug-handler": {
+        "version": "2.0.2"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -210,6 +213,9 @@
     "nikic/php-parser": {
         "version": "v4.12.0"
     },
+    "pdepend/pdepend": {
+        "version": "2.10.1"
+    },
     "phar-io/manifest": {
         "version": "2.0.3"
     },
@@ -224,6 +230,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.4.0"
+    },
+    "phpmd/phpmd": {
+        "version": "2.10.2"
     },
     "phpspec/prophecy": {
         "version": "1.13.0"

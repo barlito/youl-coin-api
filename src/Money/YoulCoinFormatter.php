@@ -6,7 +6,7 @@ namespace App\Money;
 
 final class YoulCoinFormatter
 {
-    public static function format(string $amount): string
+    public function format(string $amount): string
     {
         return YoulCoinCurrency::SYMBOL.$amount;
     }

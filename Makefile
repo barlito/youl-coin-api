@@ -26,3 +26,7 @@ fixtures:
 .PHONY: cs-fixer
 cs-fixer:
 	docker exec $(app_container_id) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v src --rules=@Symfony
+
+.PHONY: check-style
+check-style:
+	docker exec $(app_container_id) vendor/phpmd/phpmd/src/bin/phpmd src ansi cleancode,codesize,controversial,design,naming,unusedcode
