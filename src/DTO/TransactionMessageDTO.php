@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\DTO;
 
 use App\Entity\Wallet;
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator as CustomAssert;
 use App\Enum\TransactionTypeEnum;
+use App\Validator as CustomAssert;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @CustomAssert\Transaction

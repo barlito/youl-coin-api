@@ -6,12 +6,9 @@ namespace App\Validator;
 
 use App\DTO\TransactionMessageDTO;
 use App\Entity\Wallet;
-use App\Money\YoulCoinCurrency;
-use Money\Money;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
-use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class TransactionValidator extends ConstraintValidator
 {

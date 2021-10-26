@@ -27,8 +27,8 @@ class TransactionMessageDtoBuilder
 
         return new TransactionMessageDTO(
             $content['amount'] ?? null,
-            $this->walletRepository->find($content['walletIdFrom'] ?? ""),
-            $this->walletRepository->find($content['walletIdTo'] ?? ""),
+            $this->walletRepository->find($content['walletIdFrom'] ?? ''),
+            $this->walletRepository->find($content['walletIdTo'] ?? ''),
             $content['type'] ?? null,
             $content['message'] ?? null
         );

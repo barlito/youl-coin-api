@@ -25,4 +25,4 @@ fixtures:
 
 .PHONY: cs-fixer
 cs-fixer:
-	docker exec $(app_container_id) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v src
+	docker exec $(app_container_id) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v src --rules=@Symfony

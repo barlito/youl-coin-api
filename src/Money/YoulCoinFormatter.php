@@ -8,6 +8,6 @@ final class YoulCoinFormatter
 {
     public static function format(string $amount): string
     {
-        return YoulCoinCurrency::SYMBOL . $amount;
+        return YoulCoinCurrency::SYMBOL.$amount;
     }
 }

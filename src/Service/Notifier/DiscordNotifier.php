@@ -20,7 +20,7 @@ class DiscordNotifier
 {
     public function __construct(
         private ChatterInterface $chatter,
-        private LoggerInterface  $logger,
+        private LoggerInterface $logger,
         private array $discordOptionsParams,
     ) {
     }
@@ -39,13 +39,13 @@ class DiscordNotifier
                     ->timestamp(new \DateTime())
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name('-' . YoulCoinFormatter::format($transaction->getAmount()))
+                        ->name('-'.YoulCoinFormatter::format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name('+' . YoulCoinFormatter::format($transaction->getAmount()))
+                        ->name('+'.YoulCoinFormatter::format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
@@ -77,12 +77,12 @@ class DiscordNotifier
                     ->timestamp(new \DateTime())
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name("Error on transaction")
+                        ->name('Error on transaction')
                         ->value($errorMessage)
                     )
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name("Message content")
+                        ->name('Message content')
                         ->value($messageContent)
                     )
                     ->footer(

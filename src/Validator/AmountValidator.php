@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
-use App\Money\YoulCoinCurrency;
-use Money\Money;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;

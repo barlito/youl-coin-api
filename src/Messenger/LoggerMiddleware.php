@@ -20,7 +20,7 @@ class LoggerMiddleware implements MiddlewareInterface
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
         $context = [
-            'class' => get_class($envelope->getMessage())
+            'class' => get_class($envelope->getMessage()),
         ];
         $envelope = $stack->next()->handle($envelope, $stack);
         if ($envelope->last(ReceivedStamp::class)) {
@@ -28,6 +28,7 @@ class LoggerMiddleware implements MiddlewareInterface
         } else {
             $this->logger->info('[{id}] Handling sync {class}', $context);
         }
+
         return $envelope;
     }
 }
