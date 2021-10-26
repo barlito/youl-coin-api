@@ -18,15 +18,13 @@ use Symfony\Component\Notifier\Message\ChatMessage;
 
 class DiscordNotifier
 {
-    
     public function __construct(
         private ChatterInterface $chatter,
         private LoggerInterface  $logger,
         private array $discordOptionsParams,
-    )
-    {
+    ) {
     }
-    
+
     public function notifyNewTransaction(Transaction $transaction)
     {
         try {
@@ -34,33 +32,37 @@ class DiscordNotifier
             $discordOptions = (new DiscordOptions())
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                ->addEmbed((new DiscordEmbed())
+                ->addEmbed(
+                    (new DiscordEmbed())
                     ->title($this->discordOptionsParams['transaction']['success_title'])
                     ->color($this->discordOptionsParams['transaction']['success_color'])
                     ->timestamp(new \DateTime())
-                    ->addField((new DiscordFieldEmbedObject())
+                    ->addField(
+                        (new DiscordFieldEmbedObject())
                         ->name('-' . YoulCoinFormatter::format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
-                    ->addField((new DiscordFieldEmbedObject())
+                    ->addField(
+                        (new DiscordFieldEmbedObject())
                         ->name('+' . YoulCoinFormatter::format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
                         ->inline(true)
                     )
-                    ->footer((new DiscordFooterEmbedObject())
+                    ->footer(
+                        (new DiscordFooterEmbedObject())
                         ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
                     )
                 );
-            
+
             $chatMessage->options($discordOptions);
-            
+
             $this->chatter->send($chatMessage);
         } catch (TransportExceptionInterface | LogicException $e) {
             $this->logger->critical($e->getMessage(), [json_encode($e)]);
         }
     }
-    
+
     public function notifyErrorOnTransaction(string $errorMessage, string $messageContent)
     {
         try {
@@ -68,25 +70,29 @@ class DiscordNotifier
             $discordOptions = (new DiscordOptions())
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                ->addEmbed((new DiscordEmbed())
+                ->addEmbed(
+                    (new DiscordEmbed())
                     ->title($this->discordOptionsParams['transaction']['error_title'])
                     ->color($this->discordOptionsParams['transaction']['error_color'])
                     ->timestamp(new \DateTime())
-                    ->addField((new DiscordFieldEmbedObject())
+                    ->addField(
+                        (new DiscordFieldEmbedObject())
                         ->name("Error on transaction")
                         ->value($errorMessage)
                     )
-                    ->addField((new DiscordFieldEmbedObject())
+                    ->addField(
+                        (new DiscordFieldEmbedObject())
                         ->name("Message content")
                         ->value($messageContent)
                     )
-                    ->footer((new DiscordFooterEmbedObject())
+                    ->footer(
+                        (new DiscordFooterEmbedObject())
                         ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
                     )
                 );
-        
+
             $chatMessage->options($discordOptions);
-        
+
             $this->chatter->send($chatMessage);
         } catch (TransportExceptionInterface | LogicException $e) {
             $this->logger->critical($e->getMessage(), [json_encode($e)]);

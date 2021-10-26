@@ -49,7 +49,7 @@ class Transaction
      * @Assert\Choice(TransactionTypeEnum::VALUES)
      */
     private string $type;
-    
+
     public function getId(): ?string
     {
         return $this->id;
@@ -102,16 +102,16 @@ class Transaction
 
         return $this;
     }
-    
+
     public function getType(): string
     {
         return $this->type;
     }
-    
+
     public function setType(string $type): self
     {
         $this->type = $type;
-        
+
         return $this;
     }
 }
