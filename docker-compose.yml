@@ -47,6 +47,8 @@ services:
             - traefik_traefik_proxy
         volumes:
             - db_data:/var/lib/postgresql/data:rw
+        ports:
+            - "5432:5432"
 
     adminer:
         image: adminer

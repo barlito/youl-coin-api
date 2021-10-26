@@ -86,7 +86,9 @@ class TransactionMessageHandler implements MessageHandlerInterface
         $transaction
             ->setAmount($transactionMessageDTO->getAmount())
             ->setWalletFrom($walletFrom)
-            ->setWalletTo($walletTo);
+            ->setWalletTo($walletTo)
+            ->setType($transactionMessageDTO->getType())
+            ->setMessage($transactionMessageDTO->getMessage());
         
         $this->entityManager->persist($transaction);
         

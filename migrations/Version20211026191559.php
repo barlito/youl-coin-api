@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20210729192016 extends AbstractMigration
+final class Version20211026191559 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,17 +20,15 @@ final class Version20210729192016 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE project ALTER api_key TYPE UUID');
-        $this->addSql('ALTER TABLE project ALTER api_key DROP DEFAULT');
-        $this->addSql('COMMENT ON COLUMN project.api_key IS \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE transaction ALTER type TYPE VARCHAR(255)');
+        $this->addSql('ALTER TABLE transaction ALTER type DROP DEFAULT');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('ALTER TABLE project ALTER api_key TYPE UUID');
-        $this->addSql('ALTER TABLE project ALTER api_key DROP DEFAULT');
-        $this->addSql('COMMENT ON COLUMN project.api_key IS \'(DC2Type:ulid)\'');
+        $this->addSql('ALTER TABLE transaction ALTER type TYPE SMALLINT');
+        $this->addSql('ALTER TABLE transaction ALTER type DROP DEFAULT');
     }
 }

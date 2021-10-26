@@ -1,9 +1,25 @@
 # api/fixtures/Wallet.yaml
 App\Entity\Wallet:
-  wallet_1:
+  wallet_barlito:
     amount: <numberBetween(1000, 9000)>
-    discordUser: '@discord_user_1'
+    discordUser: '@discord_user_barlito'
 
-  wallet_2:
+  wallet_juju:
     amount: <numberBetween(1000, 9000)>
-    discordUser: null
+    discordUser: '@discord_user_juju'
+
+  wallet_farph:
+    amount: <numberBetween(1000, 9000)>
+    discordUser: '@discord_user_farph'
+
+  wallet_benj:
+    amount: <numberBetween(1000, 9000)>
+    discordUser: '@discord_user_benj'
+
+  wallet_weeby:
+    amount: <numberBetween(1000, 9000)>
+    discordUser: '@discord_user_weeby'
+
+  wallet_veli:
+    amount: <numberBetween(1000, 9000)>
+    discordUser: '@discord_user_veli'

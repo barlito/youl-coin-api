@@ -15,9 +15,11 @@ class DefaultController extends AbstractController
     public function index(SerializerInterface $serializer)
     {
         $messageContent = [
-            'amount' => rand(-100, 100),
-            'walletIdFrom' => "1ebf09fc-b4ef-6856-88de-e3506d344f3f",
-            'walletIdTo' => "1ebf09fc-b4ef-6ef0-8289-e3506d344f3f",
+            'amount' => rand(1, 10),
+            'walletIdFrom' => "1ec368f7-dcfe-6960-b6c1-3dde5955f27c",
+            'walletIdTo' => "1ec368f7-dcff-6c8e-aec4-3dde5955f27c",
+            'type' => 'classic',
+            'message' => 'test',
         ];
 
         $this->dispatchMessage(new TransactionMessage($serializer->serialize($messageContent, 'json')));

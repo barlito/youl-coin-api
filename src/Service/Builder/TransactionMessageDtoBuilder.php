@@ -5,7 +5,6 @@ namespace App\Service\Builder;
 use App\DTO\TransactionMessageDTO;
 use App\Message\TransactionMessage;
 use App\Repository\WalletRepository;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
@@ -30,6 +29,8 @@ class TransactionMessageDtoBuilder
             $content['amount'] ?? null,
             $this->walletRepository->find($content['walletIdFrom'] ?? ""),
             $this->walletRepository->find($content['walletIdTo'] ?? ""),
+            $content['type'] ?? null,
+            $content['message'] ?? null
         );
     }
 
