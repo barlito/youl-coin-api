@@ -10,7 +10,10 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 /**
  * @ORM\Entity(repositoryClass=DiscordUserRepository::class)
  */
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ['get'],
+    itemOperations: ['get'],
+)]
 class DiscordUser
 {
     /**

@@ -3,23 +3,29 @@ App\Entity\Wallet:
   wallet_barlito:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_barlito'
+    type: user
 
   wallet_juju:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_juju'
+    type: user
 
   wallet_farph:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_farph'
+    type: user
 
   wallet_benj:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_benj'
+    type: user
 
   wallet_weeby:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_weeby'
+    type: user
 
   wallet_veli:
     amount: <numberBetween(1000, 9000)>
     discordUser: '@discord_user_veli'
+    type: user

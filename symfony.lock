@@ -156,6 +156,18 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
+    "friendsofsymfony/rest-bundle": {
+        "version": "3.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.2",
+            "ref": "fa845143b7e0a4c70aedd1a88c549e6d977e9ae5"
+        },
+        "files": [
+            "config/packages/fos_rest.yaml"
+        ]
+    },
     "hautelook/alice-bundle": {
         "version": "2.1",
         "recipe": {
@@ -168,6 +180,26 @@
             "config/packages/dev/hautelook_alice.yaml",
             "config/packages/test/hautelook_alice.yaml",
             "fixtures/.gitignore"
+        ]
+    },
+    "jms/metadata": {
+        "version": "2.5.1"
+    },
+    "jms/serializer": {
+        "version": "3.15.0"
+    },
+    "jms/serializer-bundle": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "384cec52df45f3bfd46a09930d6960a58872b268"
+        },
+        "files": [
+            "config/packages/prod/jms_serializer.yaml",
+            "config/packages/dev/jms_serializer.yaml",
+            "config/packages/jms_serializer.yaml"
         ]
     },
     "justinrainbow/json-schema": {
@@ -236,6 +268,9 @@
     },
     "phpspec/prophecy": {
         "version": "1.13.0"
+    },
+    "phpstan/phpdoc-parser": {
+        "version": "1.2.0"
     },
     "phpunit/php-code-coverage": {
         "version": "9.2.6"
@@ -728,6 +763,9 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
+    },
+    "willdurand/jsonp-callback-validator": {
+        "version": "v1.1.0"
     },
     "willdurand/negotiation": {
         "version": "3.0.0"
