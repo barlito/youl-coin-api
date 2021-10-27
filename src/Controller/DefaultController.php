@@ -16,8 +16,8 @@ class DefaultController extends AbstractController
     {
         $messageContent = [
             'amount' => rand(-10, 10),
-            'walletIdFrom' => '1ec368f7-dcfe-6960-b6c1-3dde5955f27c',
-            'walletIdTo' => '1ec368f7-dcff-6c8e-aec4-3dde5955f27c',
+            'discordUserIdFrom' => '1ec37378-b221-614e-bbe9-1f315163a541',
+            'discordUserIdTo' => '1ec37378-b221-62d4-b21c-1f315163a541',
             'type' => 'classic',
             'message' => 'test',
         ];
