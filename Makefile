@@ -3,6 +3,9 @@ stack_name=youl_coin
 # Container
 app_container_id = $(shell docker ps --filter name="$(stack_name)_nginx" -q)
 
+# Include rules to check code style
+include make/code_style.mk
+
 .PHONY: bash
 bash:
 	docker exec -it -u root $(app_container_id) bash
@@ -22,15 +25,3 @@ restart-messenger-worker:
 .PHONY: fixtures
 fixtures:
 	docker exec -it $(app_container_id) bin/console hautelook:fixtures:load
-
-.PHONY: cs-fixer
-cs-fixer:
-	docker exec $(app_container_id) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v src --rules=@Symfony
-
-.PHONY: cs-fixer-dry-run
-cs-fixer-dry-run:
-	docker exec $(app_container_id) tools/php-cs-fixer/vendor/bin/php-cs-fixer fix -v src --rules=@Symfony --dry-run
-
-.PHONY: check-style
-check-style:
-	docker exec $(app_container_id) vendor/phpmd/phpmd/src/bin/phpmd src ansi cleancode,codesize,controversial,design,naming,unusedcode

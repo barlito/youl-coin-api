@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Messenger;
 
 use Psr\Log\LoggerInterface;
@@ -23,7 +25,7 @@ class LoggerMiddleware implements MiddlewareInterface
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
         $context = [
-            'class' => get_class($envelope->getMessage()),
+            'class' => \get_class($envelope->getMessage()),
         ];
         $envelope = $stack->next()->handle($envelope, $stack);
         if ($envelope->last(ReceivedStamp::class)) {

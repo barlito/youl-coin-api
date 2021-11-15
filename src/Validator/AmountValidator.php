@@ -24,13 +24,14 @@ class AmountValidator extends ConstraintValidator
             return;
         }
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             throw new UnexpectedValueException($value, 'string');
         }
 
         if (!is_numeric($value) || !$this->isPositive($value)) {
             $this->context->buildViolation($constraint::AMOUNT_NOT_POSITIVE_INTEGER_MESSAGE)
-                ->addViolation();
+                ->addViolation()
+            ;
         }
     }
 

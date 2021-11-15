@@ -26,16 +26,17 @@ class TransactionValidator extends ConstraintValidator
         }
 
         if (
-            !$value->getWalletFrom() instanceof Wallet ||
-            !is_string($value->getAmount()) ||
-            !is_numeric($value->getAmount())
+            !$value->getWalletFrom() instanceof Wallet
+            || !\is_string($value->getAmount())
+            || !is_numeric($value->getAmount())
         ) {
             return;
         }
 
         if (!$this->isPositive($value)) {
             $this->context->buildViolation($constraint::NOT_ENOUGH_IN_WALLET)
-                ->addViolation();
+                ->addViolation()
+            ;
         }
     }
 

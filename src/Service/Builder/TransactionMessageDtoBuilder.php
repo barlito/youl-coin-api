@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Builder;
 
 use App\DTO\TransactionMessageDTO;
 use App\Entity\Wallet;
 use App\Message\TransactionMessage;
 use App\Repository\DiscordUserRepository;
-use App\Repository\WalletRepository;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
@@ -32,7 +33,7 @@ class TransactionMessageDtoBuilder
             $this->getDiscordUserWallet($content['discordUserIdFrom'] ?? ''),
             $this->getDiscordUserWallet($content['discordUserIdTo'] ?? ''),
             $content['type'] ?? null,
-            $content['message'] ?? null
+            $content['message'] ?? null,
         );
     }
 
@@ -48,14 +49,14 @@ class TransactionMessageDtoBuilder
     {
         return new Serializer([new GetSetMethodNormalizer()], ['json' => new JsonEncoder()]);
     }
-    
+
     private function getDiscordUserWallet(mixed $discordUserIdFrom): ?Wallet
     {
         $discordUser = $this->discordUserRepository->find($discordUserIdFrom);
-        if(null !== $discordUser){
+        if (null !== $discordUser) {
             return $discordUser->getWallet();
         }
-        
+
         return null;
     }
 }

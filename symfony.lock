@@ -25,6 +25,9 @@
     "behatch/contexts": {
         "version": "3.3.0"
     },
+    "composer/semver": {
+        "version": "3.2.6"
+    },
     "composer/xdebug-handler": {
         "version": "2.0.2"
     },
@@ -153,6 +156,18 @@
             "tests/Behat/DemoContext.php"
         ]
     },
+    "friendsofphp/php-cs-fixer": {
+        "version": "3.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "be2103eb4a20942e28a6dd87736669b757132435"
+        },
+        "files": [
+            ".php-cs-fixer.dist.php"
+        ]
+    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
@@ -253,6 +268,9 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
+    },
+    "php-cs-fixer/diff": {
+        "version": "v2.0.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -363,6 +381,18 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
+    },
+    "squizlabs/php_codesniffer": {
+        "version": "3.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.6",
+            "ref": "1019e5c08d4821cb9b77f4891f8e9c31ff20ac6f"
+        },
+        "files": [
+            "phpcs.xml.dist"
+        ]
     },
     "symfony/amqp-messenger": {
         "version": "v5.3.4"
@@ -604,6 +634,9 @@
     },
     "symfony/polyfill-uuid": {
         "version": "v1.23.0"
+    },
+    "symfony/process": {
+        "version": "v5.3.7"
     },
     "symfony/property-access": {
         "version": "v5.3.4"

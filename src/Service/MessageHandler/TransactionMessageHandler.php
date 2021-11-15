@@ -24,7 +24,7 @@ class TransactionMessageHandler implements MessageHandlerInterface
         private TransactionMessageDtoBuilder $transactionMessageDtoBuilder,
         private LoggerInterface $logger,
         private ValidatorInterface $validator,
-        private DiscordNotifier $discordNotifier
+        private DiscordNotifier $discordNotifier,
     ) {
     }
 
@@ -51,7 +51,7 @@ class TransactionMessageHandler implements MessageHandlerInterface
         /** @var ConstraintViolation[] $errors */
         $errors = $this->validator->validate($transactionMessageDTO);
 
-        if (count($errors) > 0) {
+        if (\count($errors) > 0) {
             $errorsString = (string) $errors;
             throw new ConstraintDefinitionException($errorsString);
         }
@@ -71,7 +71,8 @@ class TransactionMessageHandler implements MessageHandlerInterface
             ->setWalletFrom($walletFrom)
             ->setWalletTo($walletTo)
             ->setType($transactionMessageDTO->getType())
-            ->setMessage($transactionMessageDTO->getMessage());
+            ->setMessage($transactionMessageDTO->getMessage())
+        ;
 
         $this->entityManager->persist($transaction);
 

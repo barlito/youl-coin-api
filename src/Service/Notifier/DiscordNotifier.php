@@ -41,21 +41,22 @@ class DiscordNotifier
                     ->timestamp(new DateTime())
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name('-'.$this->youlCoinFormatter->format($transaction->getAmount()))
+                        ->name('-' . $this->youlCoinFormatter->format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
-                        ->inline(true)
+                        ->inline(true),
                     )
                     ->addField(
                         (new DiscordFieldEmbedObject())
-                        ->name('+'.$this->youlCoinFormatter->format($transaction->getAmount()))
+                        ->name('+' . $this->youlCoinFormatter->format($transaction->getAmount()))
                         ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
-                        ->inline(true)
+                        ->inline(true),
                     )
                     ->footer(
                         (new DiscordFooterEmbedObject())
-                        ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                    )
-                );
+                        ->iconUrl($this->discordOptionsParams['transaction']['avatar_url']),
+                    ),
+                )
+            ;
 
             $chatMessage->options($discordOptions);
 
@@ -80,18 +81,19 @@ class DiscordNotifier
                     ->addField(
                         (new DiscordFieldEmbedObject())
                         ->name('Error on transaction')
-                        ->value($errorMessage)
+                        ->value($errorMessage),
                     )
                     ->addField(
                         (new DiscordFieldEmbedObject())
                         ->name('Message content')
-                        ->value($messageContent)
+                        ->value($messageContent),
                     )
                     ->footer(
                         (new DiscordFooterEmbedObject())
-                        ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                    )
-                );
+                        ->iconUrl($this->discordOptionsParams['transaction']['avatar_url']),
+                    ),
+                )
+            ;
 
             $chatMessage->options($discordOptions);
 
