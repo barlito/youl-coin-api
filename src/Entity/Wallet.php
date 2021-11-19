@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\Api\CreateWalletController;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,17 +13,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=WalletRepository::class)
  */
-#[ApiResource(
-    collectionOperations: [
-        'get',
-        'post' => [
-            'method' => 'POST',
-            'path' => '/wallets',
-            'controller' => CreateWalletController::class,
-        ],
-    ],
-    itemOperations: ['get'],
-)]
 class Wallet
 {
     /**

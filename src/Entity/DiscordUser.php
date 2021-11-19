@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\DiscordUserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
@@ -12,10 +11,6 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 /**
  * @ORM\Entity(repositoryClass=DiscordUserRepository::class)
  */
-#[ApiResource(
-    collectionOperations: ['get'],
-    itemOperations: ['get'],
-)]
 class DiscordUser
 {
     /**

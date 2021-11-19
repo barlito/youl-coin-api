@@ -6,13 +6,21 @@ app_container_id = $(shell docker ps --filter name="$(stack_name)_nginx" -q)
 # Include rules to check code style
 include make/code_style.mk
 
+# Include utilities rules
+include make/utils.mk
+
 .PHONY: bash
 bash:
 	docker exec -it -u root $(app_container_id) bash
 
 .PHONY: deploy
 deploy:
-	docker stack deploy -c docker-compose.yml $(stack_name)
+	# Sleep 5 is to wait the container
+	docker stack deploy -c docker-compose.yml $(stack_name) && sleep 5
+	make composer_install
+	make doctrine_migrate
+	make doctrine_load_fixtures
+	make security_check
 
 .PHONY: undeploy
 undeploy:
