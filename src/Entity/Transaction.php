@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,13 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Transaction
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     */
-    private ?string $id;
+    use IdUuidTrait;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
@@ -29,12 +23,12 @@ class Transaction
     private string $amount;
 
     /**
-    @ORM\ManyToOne(targetEntity=Wallet::class)
+     * @ORM\ManyToOne(targetEntity=Wallet::class)
      */
     private ?Wallet $walletFrom;
 
     /**
-    @ORM\ManyToOne(targetEntity=Wallet::class)
+     * @ORM\ManyToOne(targetEntity=Wallet::class)
      */
     private ?Wallet $walletTo;
 
@@ -49,11 +43,6 @@ class Transaction
      * @Assert\Choice(TransactionTypeEnum::VALUES)
      */
     private string $type;
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getAmount(): string
     {

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\IdUlidTrait;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,13 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Wallet
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     */
-    private ?string $id;
+    use IdUlidTrait;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -30,6 +24,7 @@ class Wallet
 
     /**
      * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet")
+     * @ORM\JoinColumn(referencedColumnName="discord_id")
      */
     private ?DiscordUser $discordUser;
 
@@ -39,11 +34,6 @@ class Wallet
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
     private string $type;
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getAmount(): string
     {

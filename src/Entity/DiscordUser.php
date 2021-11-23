@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use App\Repository\DiscordUserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 /**
  * @ORM\Entity(repositoryClass=DiscordUserRepository::class)
@@ -15,14 +14,7 @@ class DiscordUser
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     */
-    private ?string $id;
-
-    /**
-     * @ORM\Column(type="string", nullable=false)
+     * @ORM\Column(type="string", unique=true)
      */
     private string $discordId;
 
@@ -30,11 +22,6 @@ class DiscordUser
      * @ORM\OneToOne(targetEntity=Wallet::class, mappedBy="discordUser")
      */
     private Wallet $wallet;
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getDiscordId(): string
     {
