@@ -16,15 +16,15 @@ class DefaultController extends AbstractController
     {
         $messageContent = [
             'amount' => rand(-10, 10),
-            'discordUserIdFrom' => '1ec37378-b221-614e-bbe9-1f315163a541',
-            'discordUserIdTo' => '1ec37378-b221-62d4-b21c-1f315163a541',
+            'discordUserIdFrom' => '188967649332428800',
+            'discordUserIdTo' => '232457563910832129',
             'type' => 'classic',
             'message' => 'test',
         ];
 
         $this->dispatchMessage(new TransactionMessage($serializer->serialize($messageContent, 'json')));
 
-        exit('ok');
+        dd('ok');
         // ...
     }
 }

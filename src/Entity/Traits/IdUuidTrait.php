@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity\Traits;
 
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 trait IdUuidTrait
@@ -23,5 +23,12 @@ trait IdUuidTrait
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 }

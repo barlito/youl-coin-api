@@ -2,9 +2,9 @@ CSFIXER_OPT ?=
 RECTOR_OPT ?=
 
 check_style:
-	make app.phpcs
-	make app.phpmd
-	make app.cs_fixer.dry_run
+	make phpcs
+	make phpmd
+	make cs_fixer.dry_run
 
 phpcs:
 	docker exec -t $(app_container_id) vendor/bin/phpcs --standard=make/phpcs.xml.dist src/ tests/

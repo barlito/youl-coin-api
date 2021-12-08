@@ -11,6 +11,9 @@
     "behatch/contexts": {
         "version": "3.3.0"
     },
+    "composer/pcre": {
+        "version": "1.0.0"
+    },
     "composer/semver": {
         "version": "3.2.6"
     },

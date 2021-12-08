@@ -16,11 +16,13 @@ bash:
 .PHONY: deploy
 deploy:
 	# Sleep 5 is to wait the container
+	docker-compose pull
 	docker stack deploy -c docker-compose.yml $(stack_name) && sleep 5
 	make composer_install
 	make doctrine_migrate
 	make doctrine_load_fixtures
 	make security_check
+#launch messenger consumer
 
 .PHONY: undeploy
 undeploy:

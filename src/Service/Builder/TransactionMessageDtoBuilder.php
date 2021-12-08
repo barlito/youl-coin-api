@@ -29,7 +29,7 @@ class TransactionMessageDtoBuilder
         $content = $this->decodeMessageContent($transactionMessage);
 
         return new TransactionMessageDTO(
-            $content['amount'] ?? null,
+            (string) $content['amount'] ?? null,
             $this->getDiscordUserWallet($content['discordUserIdFrom'] ?? ''),
             $this->getDiscordUserWallet($content['discordUserIdTo'] ?? ''),
             $content['type'] ?? null,

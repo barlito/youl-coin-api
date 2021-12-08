@@ -19,7 +19,7 @@
         "jms/serializer-bundle": "^4.0",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
-        "phpmd/phpmd": "^2.10",
+        "phpmd/phpmd": "^2.11",
         "squizlabs/php_codesniffer": "^3.6",
         "symfony/amqp-messenger": "5.3.*",
         "symfony/asset": "5.3.*",
