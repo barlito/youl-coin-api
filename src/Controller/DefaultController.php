@@ -6,11 +6,16 @@ namespace App\Controller;
 
 use App\Message\TransactionMessage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class DefaultController extends AbstractController
 {
+    public function __construct(private MessageBusInterface $messageBus)
+    {
+    }
+
     #[Route('/default', name: 'default')]
     public function index(SerializerInterface $serializer)
     {
@@ -22,7 +27,7 @@ class DefaultController extends AbstractController
             'message' => 'test',
         ];
 
-        $this->dispatchMessage(new TransactionMessage($serializer->serialize($messageContent, 'json')));
+        $this->messageBus->dispatch(new TransactionMessage($serializer->serialize($messageContent, 'json')));
 
         dd('ok');
         // ...
