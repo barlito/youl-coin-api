@@ -8,9 +8,6 @@
     "behat/transliterator": {
         "version": "v1.3.0"
     },
-    "behatch/contexts": {
-        "version": "3.3.0"
-    },
     "composer/pcre": {
         "version": "1.0.0"
     },
@@ -259,7 +256,7 @@
         "version": "v4.12.0"
     },
     "pdepend/pdepend": {
-        "version": "2.10.1"
+        "version": "2.x-dev"
     },
     "phar-io/manifest": {
         "version": "2.0.3"
@@ -280,7 +277,7 @@
         "version": "1.4.0"
     },
     "phpmd/phpmd": {
-        "version": "2.10.2"
+        "version": "2.11.1"
     },
     "phpspec/prophecy": {
         "version": "1.13.0"
@@ -438,9 +435,6 @@
         }
     },
     "symfony/doctrine-bridge": {
-        "version": "v5.3.4"
-    },
-    "symfony/doctrine-messenger": {
         "version": "v5.3.4"
     },
     "symfony/dom-crawler": {
@@ -618,9 +612,6 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.23.0"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.23.0"
-    },
     "symfony/polyfill-php80": {
         "version": "v1.23.0"
     },
@@ -640,9 +631,6 @@
         "version": "v5.3.4"
     },
     "symfony/proxy-manager-bridge": {
-        "version": "v5.3.4"
-    },
-    "symfony/redis-messenger": {
         "version": "v5.3.4"
     },
     "symfony/routing": {
@@ -677,9 +665,6 @@
         "version": "v5.3.4"
     },
     "symfony/security-csrf": {
-        "version": "v5.3.4"
-    },
-    "symfony/security-guard": {
         "version": "v5.3.4"
     },
     "symfony/security-http": {
