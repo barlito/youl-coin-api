@@ -39,8 +39,8 @@ class TransactionMessageHandler implements MessageHandlerInterface
                     'amount'     => $transactionMessage->getAmount(),
                     'type'       => $transactionMessage->getType(),
                     'message'    => $transactionMessage->getMessage(),
-                    'walletFrom' => $transactionMessage->getWalletFrom()->getId(),
-                    'walletTo'   => $transactionMessage->getWalletTo()->getId(),
+                    'walletFrom' => $transactionMessage->getWalletFrom() ? $transactionMessage->getWalletFrom()->getId() : null,
+                    'walletTo' => $transactionMessage->getWalletTo() ? $transactionMessage->getWalletTo()->getId() : null,
                 ],
                 'json'
             );
