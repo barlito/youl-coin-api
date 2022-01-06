@@ -39,9 +39,6 @@ return (new PhpCsFixer\Config())
         'multiline_whitespace_before_semicolons' => ['strategy' => 'new_line_for_chained_calls'],
         'operator_linebreak' => ['position' => 'beginning', 'only_booleans' => true],
         'types_spaces' => ['space' => 'single'],
-        'class_definition' => [
-            'single_line' => true,
-            'space_before_parenthesis' => true,
-        ],
+        'class_definition' => ['single_line' => true,'space_before_parenthesis' => true,],
     ])
 ;

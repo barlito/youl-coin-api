@@ -1,6 +1,6 @@
 framework:
     messenger:
-        failure_transport: failed
+#        failure_transport: failed
 
         buses:
             messenger.bus.default:
@@ -11,16 +11,14 @@ framework:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             async_transaction:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Service\Messenger\Serializer\TransactionMessageSerializer
                 retry_strategy:
                     max_retries: 0
-                    delay: 200
                 options:
-                    exchange:
-                        name: messages_transaction
                     queues:
                         messages_transaction: ~
 
-            failed: 'doctrine://default?queue_name=failed'
+#            failed: 'doctrine://default?queue_name=failed'
 
         routing:
             # Route your messages to the transports

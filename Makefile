@@ -24,6 +24,9 @@ deploy:
 	make security_check
 #launch messenger consumer
 
+phpunit:
+	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit
+
 .PHONY: undeploy
 undeploy:
 	docker stack rm $(stack_name)
