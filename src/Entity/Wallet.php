@@ -35,6 +35,11 @@ class Wallet
      */
     private string $type;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private string $notes;
+
     public function getAmount(): string
     {
         return $this->amount;
@@ -67,6 +72,18 @@ class Wallet
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getNotes(): string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(string $notes): self
+    {
+        $this->notes = $notes;
 
         return $this;
     }

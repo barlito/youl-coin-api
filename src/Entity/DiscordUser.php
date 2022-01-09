@@ -23,6 +23,16 @@ class DiscordUser
      */
     private Wallet $wallet;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private string $notes;
+
+    public function __toString(): string
+    {
+        return $this->getDiscordId() . ' | ' . $this->getNotes();
+    }
+
     public function getDiscordId(): string
     {
         return $this->discordId;
@@ -47,6 +57,18 @@ class DiscordUser
         }
 
         $this->wallet = $wallet;
+
+        return $this;
+    }
+
+    public function getNotes(): string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(string $notes): self
+    {
+        $this->notes = $notes;
 
         return $this;
     }

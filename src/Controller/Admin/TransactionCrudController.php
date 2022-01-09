@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Transaction;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 class TransactionCrudController extends AbstractCrudController
@@ -12,6 +13,11 @@ class TransactionCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Transaction::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud->renderContentMaximized();
     }
 
     /*
