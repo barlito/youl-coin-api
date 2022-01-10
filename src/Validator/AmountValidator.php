@@ -16,16 +16,8 @@ class AmountValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
-        if (!$constraint instanceof Amount) {
-            throw new UnexpectedTypeException($constraint, Amount::class);
-        }
-
         if (null === $value || '' === $value) {
             return;
-        }
-
-        if (!\is_string($value)) {
-            throw new UnexpectedValueException($value, 'string');
         }
 
         if (!is_numeric($value) || !$this->isPositive($value)) {

@@ -2,6 +2,13 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        public: true
 
     App\Tests\Behat\:
         resource: '../tests/Behat/*'
+
+    App\Tests\Functional\:
+        resource: '../tests/Functional/*'
+
+    App\Tests\Unit\:
+        resource: '../tests/Unit/*'

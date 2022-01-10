@@ -6,24 +6,27 @@ namespace App\Service\Messenger\Handler;
 
 use App\Entity\Transaction;
 use App\Message\TransactionMessage;
+use App\Service\Builder\TransactionBuilder;
 use App\Service\Notifier\DiscordNotifier;
+use App\Service\Handler\TransactionHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TransactionMessageHandler implements MessageHandlerInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private LoggerInterface        $logger,
-        private ValidatorInterface     $validator,
-        private DiscordNotifier        $discordNotifier,
-        private SerializerInterface    $serializer
+        private LoggerInterface $logger,
+        private ValidatorInterface $validator,
+        private DiscordNotifier $discordNotifier,
+        private SerializerInterface $serializer,
+        private TransactionBuilder $transactionBuilder,
+        private TransactionHandler $transactionHandler
     ) {
     }
 
@@ -31,61 +34,44 @@ class TransactionMessageHandler implements MessageHandlerInterface
     {
         try {
             $this->validate($transactionMessage);
-            $this->processTransaction($transactionMessage);
-            $this->entityManager->flush();
-        } catch (UnexpectedValueException|ConstraintDefinitionException $e) {
-            $jsonMessage = $this->serializer->serialize(
-                [
-                    'amount'     => $transactionMessage->getAmount(),
-                    'type'       => $transactionMessage->getType(),
-                    'message'    => $transactionMessage->getMessage(),
-                    'walletFrom' => $transactionMessage->getWalletFrom()?->getId(),
-                    'walletTo' => $transactionMessage->getWalletTo()?->getId(),
-                ],
-                'json'
-            );
-
-            //TODO dispatch an event too for the discord notifier and maybe the error log
-            $this->discordNotifier->notifyErrorOnTransaction($e->getMessage(), $jsonMessage);
-            $this->logger->critical($e->getMessage(), [$e->getMessage(), $jsonMessage]);
-
-            return;
+            $transaction = $this->transactionBuilder->build($transactionMessage);
+            $this->transactionHandler->handleTransaction($transaction);
+        } catch (ConstraintDefinitionException $exception) {
+            $this->handleException($exception, $transactionMessage);
         }
     }
 
     /**
      * @throws ConstraintDefinitionException
      */
-    private function validate(TransactionMessage $transactionMessage)
+    private function validate(TransactionMessage $transactionMessage): void
     {
-        /** @var ConstraintViolation[] $errors */
+        /** @var ConstraintViolationList $errors */
         $errors = $this->validator->validate($transactionMessage);
 
         if (\count($errors) > 0) {
-            $errorsString = (string)$errors;
+            $errorsString = (string) $errors;
             throw new ConstraintDefinitionException($errorsString);
         }
     }
 
-    private function processTransaction(TransactionMessage $transactionMessage)
+    private function handleException(ConstraintDefinitionException $exception, TransactionMessage $transactionMessage)
     {
-        $walletFrom = $transactionMessage->getWalletFrom();
-        $walletTo   = $transactionMessage->getWalletTo();
+        $jsonMessage = $this->serializer->serialize(
+            [
+                'amount' => $transactionMessage->getAmount(),
+                'type' => $transactionMessage->getType(),
+                'message' => $transactionMessage->getMessage(),
+                'walletFrom' => $transactionMessage->getWalletFrom()?->getId(),
+                'walletTo' => $transactionMessage->getWalletTo()?->getId(),
+            ],
+            'json',
+        );
 
-        $walletFrom->setAmount(bcsub($walletFrom->getAmount(), $transactionMessage->getAmount()));
-        $walletTo->setAmount(bcadd($walletTo->getAmount(), $transactionMessage->getAmount()));
+        //TODO dispatch an event too for the discord notifier and maybe the error log
+        $this->discordNotifier->notifyErrorOnTransaction($exception->getMessage(), $jsonMessage);
+        $this->logger->critical($exception->getMessage(), [$exception->getMessage(), $jsonMessage]);
 
-        $transaction = new Transaction();
-        $transaction
-            ->setAmount($transactionMessage->getAmount())
-            ->setWalletFrom($walletFrom)
-            ->setWalletTo($walletTo)
-            ->setType($transactionMessage->getType())
-            ->setMessage($transactionMessage->getMessage());
-
-        $this->entityManager->persist($transaction);
-
-        //TODO dispatch an event and handle the discord notif with a subscriber
-        $this->discordNotifier->notifyNewTransaction($transaction);
+        throw $exception;
     }
 }

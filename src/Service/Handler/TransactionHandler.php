@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Processor;
+namespace App\Service\Handler;
 
 use App\Entity\Transaction;
 use App\Service\Notifier\DiscordNotifier;

@@ -34,18 +34,18 @@ class TransactionMessage
 
     /**
      * @Assert\NotNull(message="The type value should not be null.")
-     * @Assert\Choice(TransactionTypeEnum::VALUES)
+     * @Assert\Choice(TransactionTypeEnum::VALUES, message="The type value you selected is not a valid choice.")
      */
     private ?string $type;
 
     private ?string $message;
 
     public function __construct(
-        ?string $amount,
-        ?Wallet $walletFrom,
-        ?Wallet $walletTo,
-        ?string $type,
-        ?string $message,
+        ?string $amount = null,
+        ?Wallet $walletFrom = null,
+        ?Wallet $walletTo = null,
+        ?string $type = null,
+        ?string $message = null,
     ) {
         $this->amount = $amount;
         $this->walletFrom = $walletFrom;

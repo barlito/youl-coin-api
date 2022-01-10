@@ -10,6 +10,7 @@ use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
+use JMS\Serializer\Visitor\DeserializationVisitorInterface;
 
 class TransactionMessageSerializerHandler implements SubscribingHandlerInterface
 {
@@ -18,7 +19,7 @@ class TransactionMessageSerializerHandler implements SubscribingHandlerInterface
     ) {
     }
 
-    public static function getSubscribingMethods()
+    public static function getSubscribingMethods(): array
     {
         return [
             [
@@ -30,7 +31,7 @@ class TransactionMessageSerializerHandler implements SubscribingHandlerInterface
         ];
     }
 
-    public function deserializeTransactionMessageFromJson(JsonDeserializationVisitor $visitor, mixed $data, array $type, Context $context): TransactionMessage
+    public function deserializeTransactionMessageFromJson(DeserializationVisitorInterface $visitor, mixed $data, array $type, Context $context): TransactionMessage
     {
         //TODO log the JSON data
         if (\is_array($data)) {

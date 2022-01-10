@@ -11,7 +11,9 @@ use Symfony\Component\Validator\Constraint;
  */
 class Transaction extends Constraint
 {
-    public const NOT_ENOUGH_IN_WALLET = 'Not enough coins in from wallet';
+    public const NOT_ENOUGH_CURRENCY_IN_WALLET = 'Not enough coins in from wallet.';
+
+    public const SAME_WALLET_FOR_TRANSACTION = 'WalletFrom and WalletTo are the same.';
 
     public function getTargets(): string
     {

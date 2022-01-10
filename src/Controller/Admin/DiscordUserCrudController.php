@@ -10,8 +10,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class DiscordUserCrudController extends AbstractCrudController
 {
@@ -30,7 +28,7 @@ class DiscordUserCrudController extends AbstractCrudController
         return [
             IdField::new('discordId'),
 //            AssociationField::new('wallet'),
-            Field::new('notes')
+            Field::new('notes'),
         ];
     }
 }

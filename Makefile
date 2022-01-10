@@ -27,6 +27,12 @@ deploy:
 phpunit:
 	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit
 
+test_unit:
+	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit --filter Unit
+
+test_func:
+	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit --filter Functional
+
 .PHONY: undeploy
 undeploy:
 	docker stack rm $(stack_name)

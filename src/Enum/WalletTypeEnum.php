@@ -17,7 +17,7 @@ class WalletTypeEnum
     public static function getValuesForEasyAdmin(): array
     {
         return [
-            self::USER       => self::USER,
+            self::USER => self::USER,
             self::PREDICTION => self::PREDICTION,
         ];
     }
