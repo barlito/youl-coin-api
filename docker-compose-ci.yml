@@ -39,3 +39,6 @@ services:
 
     rabbitmq:
         image: rabbitmq:3-management
+        
+volumes:
+    db_data:
