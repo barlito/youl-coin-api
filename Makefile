@@ -32,7 +32,7 @@ deploy-ci:
 	dockerize -wait http://localhost:80 -timeout 1m
 	make composer_install
 	make doctrine_migrate_ci
-	make doctrine_load_fixtures
+	make doctrine_load_fixtures_ci
 	make security_check
 #launch messenger consumer
 
