@@ -6,9 +6,10 @@ jobs:
       image: ubuntu-2004:202111-02
     steps:
       - checkout
-      - run: composer install -n --prefer-dist
       - run: mkdir -p var/data
       - run: make-deploy
+
       - run: make check_style
       - run: make phpunit
+      
       - run: make undeploy
