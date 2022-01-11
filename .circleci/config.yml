@@ -9,7 +9,7 @@ jobs:
 
       - run: docker swarm init
       - run: mkdir -p var/data
-      - run: make deploy
+      - run: make deploy-ci
 
       - run: make check_style
       - run: make phpunit
