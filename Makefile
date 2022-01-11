@@ -31,7 +31,7 @@ deploy-ci:
 	docker stack deploy -c docker-compose-ci.yml $(stack_name)
 	dockerize -wait http://localhost:80 -timeout 1m
 	make composer_install
-	make doctrine_migrate
+	make doctrine_migrate_ci
 	make doctrine_load_fixtures
 	make security_check
 #launch messenger consumer
