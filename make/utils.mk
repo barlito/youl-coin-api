@@ -18,5 +18,8 @@ doctrine_reset_db:
 doctrine_load_fixtures:
 	docker exec -t $(app_container_id) bin/console hautelook:fixtures:load -n
 
+doctrine_load_fixtures_ci:
+	docker exec -t $(app_container_id) bin/console hautelook:fixtures:load -n --env=test
+
 security_check:
 	docker run --rm -v $(shell pwd):$(shell pwd) -w $(shell pwd) symfonycorp/cli security:check
