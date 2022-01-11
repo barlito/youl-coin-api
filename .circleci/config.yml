@@ -1,0 +1,27 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: cimg/php:8.1
+    steps:
+      - checkout
+
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "composer.json" }}
+            - v1-dependencies-
+
+      - run: composer install -n --prefer-dist
+
+      - save_cache:
+          key: v1-dependencies-{{ checksum "composer.json" }}
+          paths:
+            - ./vendor
+
+      - run: touch var/data/test.sqlite
+      - run: make check_style
+      - run: make phpunit
