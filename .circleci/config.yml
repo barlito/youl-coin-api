@@ -19,6 +19,6 @@ jobs:
           paths:
             - ./vendor
 
-      - run: touch var/data/test.sqlite
+      - run: mkdir -p var/data
       - run: make check_style
       - run: make phpunit
