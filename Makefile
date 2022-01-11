@@ -29,7 +29,7 @@ deploy-ci:
 	docker-compose -f docker-compose-ci.yml pull
 	# Sleep 5 is to wait the container
 	docker stack deploy -c docker-compose-ci.yml $(stack_name)
-	dockerize -wait http://nginx:80 -timeout 1m
+	dockerize -wait http://localhost:80 -timeout 1m
 	make composer_install
 	make doctrine_migrate
 	make doctrine_load_fixtures
