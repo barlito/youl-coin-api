@@ -2,8 +2,8 @@ version: 2
 
 jobs:
   build:
-    docker:
-      - image: webdevops/php-nginx-dev:8.1
+    machine:
+      image: ubuntu-2004:202111-02
     steps:
       - checkout
 
@@ -20,5 +20,7 @@ jobs:
             - ./vendor
 
       - run: mkdir -p var/data
+      - run: make-deploy
       - run: make check_style
       - run: make phpunit
+      - run: make undeploy
