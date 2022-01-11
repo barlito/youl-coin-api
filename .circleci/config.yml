@@ -1,11 +1,16 @@
 version: 2
 
+orbs:
+  docker: circleci/docker@2.0.1
+
 jobs:
   build:
     machine:
       image: ubuntu-2004:202111-02
     steps:
       - checkout
+
+      - docker/install-dockerize
 
       - run: docker swarm init
       - run: mkdir -p var/data
