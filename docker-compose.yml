@@ -6,9 +6,10 @@ services:
         image: webdevops/php-nginx-dev:8.1
         user: "1000:1000"
         volumes:
-            - ./:/app
+            - ./app:/app
             - ./.docker/nginx/conf.d/default.conf:/opt/docker/etc/nginx/vhost.conf
-            - ./config/messenger-worker.conf:/opt/docker/etc/supervisor.d/messenger-worker.conf
+#            todo add this config file under ./.docker
+            - ./app/config/messenger-worker.conf:/opt/docker/etc/supervisor.d/messenger-worker.conf
         working_dir: /app
         environment:
             # PHP config

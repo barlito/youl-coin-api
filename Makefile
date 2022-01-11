@@ -1,58 +1,12 @@
+# Vars
 stack_name=youl_coin
-
-# Container
+project_url=yc.local.barlito.fr
 app_container_id = $(shell docker ps --filter name="$(stack_name)_nginx" -q)
 
-# Include rules to check code style
-include make/code_style.mk
+# Config paths
+config_cs_fixer=vendor/barlito/utils/config/.php-cs-fixer.dist.php
+config_phpcs=vendor/barlito/utils/config/phpcs.xml.dist
+config_phpmd=vendor/barlito/utils/config/phpmd.xml
 
-# Include utilities rules
-include make/utils.mk
-
-.PHONY: bash
-bash:
-	docker exec -it -u root $(app_container_id) bash
-
-.PHONY: deploy
-deploy:
-	docker-compose pull
-	# Sleep 5 is to wait the container
-	docker stack deploy -c docker-compose.yml $(stack_name) && sleep 5
-	make composer_install
-	make doctrine_migrate
-	make doctrine_load_fixtures
-	make security_check
-#launch messenger consumer
-
-.PHONY: deploy-ci
-deploy-ci:
-	docker-compose -f docker-compose-ci.yml pull
-	# Sleep 5 is to wait the container
-	docker stack deploy -c docker-compose-ci.yml $(stack_name)
-	dockerize -wait http://localhost:80 -timeout 1m
-	make composer_install
-	make doctrine_migrate_ci
-	make doctrine_load_fixtures_ci
-	make security_check
-#launch messenger consumer
-
-phpunit:
-	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit
-
-test_unit:
-	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit --filter Unit
-
-test_func:
-	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit --filter Functional
-
-.PHONY: undeploy
-undeploy:
-	docker stack rm $(stack_name)
-
-.PHONY: restart-messenger-worker
-restart-messenger-worker:
-	docker exec -it -u root $(app_container_id) supervisorctl restart messenger-consume:*
-
-.PHONY: fixtures
-fixtures:
-	docker exec -it $(app_container_id) bin/console hautelook:fixtures:load
+# Include all make rules from submodule
+include make/entrypoint.mk
