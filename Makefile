@@ -24,6 +24,18 @@ deploy:
 	make security_check
 #launch messenger consumer
 
+.PHONY: deploy-ci
+deploy-ci:
+	docker-compose -f docker-compose-ci.yml pull
+	# Sleep 5 is to wait the container
+	docker stack deploy -c docker-compose-ci.yml $(stack_name)
+	dockerize -wait http://localhost:80 -timeout 1m
+	make composer_install
+	make doctrine_migrate_ci
+	make doctrine_load_fixtures_ci
+	make security_check
+#launch messenger consumer
+
 phpunit:
 	docker exec -it -u root $(app_container_id) ./vendor/bin/simple-phpunit
 
