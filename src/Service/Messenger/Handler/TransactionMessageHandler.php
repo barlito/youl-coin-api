@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Service\Messenger\Handler;
 
-use App\Entity\Transaction;
 use App\Message\TransactionMessage;
 use App\Service\Builder\TransactionBuilder;
-use App\Service\Notifier\DiscordNotifier;
 use App\Service\Handler\TransactionHandler;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Notifier\DiscordNotifier;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
@@ -26,7 +23,7 @@ class TransactionMessageHandler implements MessageHandlerInterface
         private DiscordNotifier $discordNotifier,
         private SerializerInterface $serializer,
         private TransactionBuilder $transactionBuilder,
-        private TransactionHandler $transactionHandler
+        private TransactionHandler $transactionHandler,
     ) {
     }
 

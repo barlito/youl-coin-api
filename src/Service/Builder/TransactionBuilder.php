@@ -9,7 +9,6 @@ use App\Message\TransactionMessage;
 
 class TransactionBuilder
 {
-
     public function build(TransactionMessage $transactionMessage): Transaction
     {
         return (new Transaction())
@@ -17,6 +16,7 @@ class TransactionBuilder
             ->setWalletFrom($transactionMessage->getWalletFrom())
             ->setWalletTo($transactionMessage->getWalletTo())
             ->setType($transactionMessage->getType())
-            ->setMessage($transactionMessage->getMessage());
+            ->setMessage($transactionMessage->getMessage())
+        ;
     }
 }

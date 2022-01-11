@@ -6,14 +6,13 @@ namespace App\Tests\Unit\Service\Handler;
 
 use App\Entity\Transaction;
 use App\Entity\Wallet;
-use App\Service\Notifier\DiscordNotifier;
 use App\Service\Handler\TransactionHandler;
+use App\Service\Notifier\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class TransactionHandlerTest extends TestCase
 {
-
     /**
      * @dataProvider getTransactions()
      */
@@ -21,41 +20,42 @@ class TransactionHandlerTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
 
-        $entityManager->expects($this->once())
+        $entityManager->expects(self::once())
             ->method('persist')
-            ->with($this->isInstanceOf(Transaction::class));
+            ->with(self::isInstanceOf(Transaction::class))
+        ;
 
-        $entityManager->expects($this->atLeastOnce())
-            ->method('flush');
+        $entityManager->expects(self::atLeastOnce())
+            ->method('flush')
+        ;
 
         $transactionProcessor = $this->getTransactionProcessor($entityManager);
 
         $transactionProcessor->handleTransaction($transaction);
 
-        $this->assertSame($transaction->getWalletFrom()->getAmount(), $amountWalletFrom);
-        $this->assertSame($transaction->getWalletTo()->getAmount(), $amountWalletTo);
+        self::assertSame($transaction->getWalletFrom()->getAmount(), $amountWalletFrom);
+        self::assertSame($transaction->getWalletTo()->getAmount(), $amountWalletTo);
     }
-
 
     private function getTransactions(): array
     {
         $walletFrom = (new Wallet())->setAmount('1000');
-        $walletTo   = (new Wallet())->setAmount('2000');
+        $walletTo = (new Wallet())->setAmount('2000');
 
         return [
             [
                 (new Transaction())
                     ->setAmount('500')
-                    ->setWalletFrom(clone($walletFrom))
-                    ->setWalletTo(clone($walletTo)),
-                '500', '2500'
+                    ->setWalletFrom(clone $walletFrom)
+                    ->setWalletTo(clone $walletTo),
+                '500', '2500',
             ],
             [
                 (new Transaction())
                     ->setAmount('1000')
-                    ->setWalletFrom(clone($walletFrom))
-                    ->setWalletTo(clone($walletTo)),
-                '0', '3000'
+                    ->setWalletFrom(clone $walletFrom)
+                    ->setWalletTo(clone $walletTo),
+                '0', '3000',
             ],
         ];
     }
@@ -64,7 +64,7 @@ class TransactionHandlerTest extends TestCase
     {
         return new TransactionHandler(
             $entityManager,
-            $this->createMock(DiscordNotifier::class)
+            $this->createMock(DiscordNotifier::class),
         );
     }
 }

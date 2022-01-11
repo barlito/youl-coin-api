@@ -25,7 +25,7 @@ class TransactionValidator extends ConstraintValidator
             return;
         }
 
-        if($value->getWalletFrom() === $value->getWalletTo()){
+        if ($value->getWalletFrom() === $value->getWalletTo()) {
             $this->context->buildViolation($constraint::SAME_WALLET_FOR_TRANSACTION)
                 ->addViolation()
             ;

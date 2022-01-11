@@ -10,10 +10,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionHandler
 {
-
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private DiscordNotifier        $discordNotifier,
+        private DiscordNotifier $discordNotifier,
     ) {
     }
 
@@ -22,8 +21,8 @@ class TransactionHandler
         //TODO need to lock and unlock Wallets during the calculation
 
         $walletFrom = $transaction->getWalletFrom();
-        $walletTo   = $transaction->getWalletTo();
-        $amount     = $transaction->getAmount();
+        $walletTo = $transaction->getWalletTo();
+        $amount = $transaction->getAmount();
 
         $walletFrom->setAmount(bcsub($walletFrom->getAmount(), $amount));
         $walletTo->setAmount(bcadd($walletTo->getAmount(), $amount));

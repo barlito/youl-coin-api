@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use PHPMD\PHPMD;
 
 class DiscordUserCrudController extends AbstractCrudController
 {
@@ -23,6 +24,9 @@ class DiscordUserCrudController extends AbstractCrudController
         return $crud->renderContentMaximized();
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function configureFields(string $pageName): iterable
     {
         return [

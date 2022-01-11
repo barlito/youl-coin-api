@@ -19,8 +19,12 @@ use Symfony\Component\Notifier\Message\ChatMessage;
 
 class DiscordNotifier
 {
-    public function __construct(private ChatterInterface $chatter, private LoggerInterface $logger, private YoulCoinFormatter $youlCoinFormatter, private array $discordOptionsParams, )
-    {
+    public function __construct(
+        private ChatterInterface $chatter,
+        private LoggerInterface $logger,
+        private YoulCoinFormatter $youlCoinFormatter,
+        private array $discordOptionsParams,
+    ) {
     }
 
     public function notifyNewTransaction(Transaction $transaction)
@@ -30,21 +34,29 @@ class DiscordNotifier
             $discordOptions = (new DiscordOptions())
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                ->addEmbed((new DiscordEmbed())
+                ->addEmbed(
+                    (new DiscordEmbed())
                         ->title($this->discordOptionsParams['transaction']['success_title'])
-                        ->author((new DiscordAuthorEmbedObject())
+                        ->author(
+                            (new DiscordAuthorEmbedObject())
                                 ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                                ->name($this->discordOptionsParams['transaction']['username']), )
+                                ->name($this->discordOptionsParams['transaction']['username']),
+                        )
                         ->color($this->discordOptionsParams['transaction']['success_color'])
                         ->timestamp(new DateTime())
-                        ->addField((new DiscordFieldEmbedObject())
+                        ->addField(
+                            (new DiscordFieldEmbedObject())
                                 ->name('-' . $this->youlCoinFormatter->format($transaction->getAmount()))
                                 ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
-                                ->inline(true), )
-                        ->addField((new DiscordFieldEmbedObject())
+                                ->inline(true),
+                        )
+                        ->addField(
+                            (new DiscordFieldEmbedObject())
                                 ->name('+' . $this->youlCoinFormatter->format($transaction->getAmount()))
                                 ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
-                                ->inline(true), ), )
+                                ->inline(true),
+                        ),
+                )
             ;
 
             $chatMessage->options($discordOptions);
@@ -62,19 +74,27 @@ class DiscordNotifier
             $discordOptions = (new DiscordOptions())
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                ->addEmbed((new DiscordEmbed())
+                ->addEmbed(
+                    (new DiscordEmbed())
                         ->title($this->discordOptionsParams['transaction']['error_title'])
-                        ->author((new DiscordAuthorEmbedObject())
+                        ->author(
+                            (new DiscordAuthorEmbedObject())
                                 ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                                ->name($this->discordOptionsParams['transaction']['username']), )
+                                ->name($this->discordOptionsParams['transaction']['username']),
+                        )
                         ->color($this->discordOptionsParams['transaction']['error_color'])
                         ->timestamp(new DateTime())
-                        ->addField((new DiscordFieldEmbedObject())
+                        ->addField(
+                            (new DiscordFieldEmbedObject())
                                 ->name('Error on transaction')
-                                ->value($errorMessage), )
-                        ->addField((new DiscordFieldEmbedObject())
+                                ->value($errorMessage),
+                        )
+                        ->addField(
+                            (new DiscordFieldEmbedObject())
                                 ->name('Message content')
-                                ->value($messageContent), ), )
+                                ->value($messageContent),
+                        ),
+                )
             ;
 
             $chatMessage->options($discordOptions);
