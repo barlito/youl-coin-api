@@ -6,7 +6,8 @@ jobs:
       image: ubuntu-2004:202111-02
     steps:
       - checkout
-      
+
+      - run: docker swarm init
       - run: mkdir -p var/data
       - run: make deploy
 
