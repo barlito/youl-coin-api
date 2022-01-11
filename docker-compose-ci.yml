@@ -4,7 +4,6 @@ services:
     nginx:
         # @see https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html#customization
         image: webdevops/php-nginx-dev:8.1
-        user: "1000:1000"
         ports:
             - "80:80"
         volumes:
