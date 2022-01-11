@@ -29,7 +29,6 @@ class WalletCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
             IntegerField::new('amount'),
             AssociationField::new('discordUser'),
             ChoiceField::new('type')->setChoices(WalletTypeEnum::getValuesForEasyAdmin())->autocomplete(),
