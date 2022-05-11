@@ -8,6 +8,7 @@ use App\Entity\Traits\IdUlidTrait;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -16,6 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Wallet
 {
     use IdUlidTrait;
+    use TimestampableEntity;
 
     /**
      * @ORM\Column(type="string", length=255)
