@@ -65,7 +65,7 @@ class TransactionMessageHandler implements MessageHandlerInterface
             'json',
         );
 
-        //TODO dispatch an event too for the discord notifier and maybe the error log
+        // TODO dispatch an event too for the discord notifier and maybe the error log
         $this->discordNotifier->notifyErrorOnTransaction($exception->getMessage(), $jsonMessage);
         $this->logger->critical($exception->getMessage(), [$exception->getMessage(), $jsonMessage]);
 

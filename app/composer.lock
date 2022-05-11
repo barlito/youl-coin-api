@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6dd3bc1314ce7c7ba15cf81ea716c668",
+    "content-hash": "1e93912a73c5312a918c195fa624f3b9",
     "packages": [
+        {
+            "name": "barlito/utils",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barlito/utils.git",
+                "reference": "6b7e9eb71d02cd7399923824d05c3c1ef9ee822f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barlito/utils/zipball/6b7e9eb71d02cd7399923824d05c3c1ef9ee822f",
+                "reference": "6b7e9eb71d02cd7399923824d05c3c1ef9ee822f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.2"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "Barlito\\Utils\\": "src/"
+                }
+            },
+            "license": [
+                "mit"
+            ],
+            "authors": [
+                {
+                    "name": "barlito",
+                    "email": "axelbarlet16@gmail.com",
+                    "homepage": "https://github.com/barlito"
+                }
+            ],
+            "description": "My personal library of utilities",
+            "support": {
+                "source": "https://github.com/barlito/utils/tree/v1.0.0",
+                "issues": "https://github.com/barlito/utils/issues"
+            },
+            "time": "2022-05-09T17:54:45+00:00"
+        },
         {
             "name": "composer/package-versions-deprecated",
             "version": "1.11.99.2",
@@ -11648,5 +11688,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

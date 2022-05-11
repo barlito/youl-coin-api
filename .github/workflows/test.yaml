@@ -8,9 +8,6 @@ concurrency:
 
 jobs:
 
-  test:
-    uses: ./.github/workflows/app_setup.yaml
-
   code_quality:
 
     runs-on: ubuntu-latest
@@ -21,5 +18,16 @@ jobs:
           submodules: 'true'
 
       - name: Deploy stack
-        run: make docker.deploy.ci
+        run: make deploy.ci args=${{ secrets.GITHUB_TOKEN }}
 
+      - name: Run php cs fixer
+        run: make cs_fixer.dry_run
+
+      - name: Run php cs
+        run: make phpcs
+
+      - name: Run phpmd
+        run: make phpmd
+
+      - name: Undeploy stack
+        run: make docker.undeploy.ci

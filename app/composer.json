@@ -8,6 +8,7 @@
         "ext-bcmath": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "barlito/utils": "^1.0",
         "composer/package-versions-deprecated": "1.11.99.2",
         "doctrine/annotations": "^1.13",
         "doctrine/doctrine-bundle": "^2.4",
@@ -108,5 +109,11 @@
         "symfony/http-client": "6.0.*",
         "symfony/maker-bundle": "^1.33",
         "symfony/phpunit-bridge": "^5.3"
+    },
+    "repositories": {
+        "barlito/utils": {
+            "type": "vcs",
+            "url": "https://github.com/barlito/utils"
+        }
     }
 }
