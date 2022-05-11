@@ -50,7 +50,10 @@ services:
         volumes:
             - db_data:/var/lib/postgresql/data:rw
         ports:
-            - "5432:5432"
+            - target: 5432
+              published: 5432
+              protocol: tcp
+              mode: host
 
     adminer:
         image: adminer
@@ -62,6 +65,10 @@ services:
 
                 - traefik.http.routers.youlcoin_adminer.rule=Host(`yc-adminer.local.barlito.fr`)
                 - traefik.http.routers.youlcoin_adminer.entrypoints=http
+
+                - traefik.http.routers.youlcoin_adminer-secure.rule=Host(`yc-adminer.local.barlito.fr`)
+                - traefik.http.routers.youlcoin_adminer-secure.entrypoints=https
+                - traefik.http.routers.youlcoin_adminer-secure.tls=true
         networks:
             - traefik_traefik_proxy
 
@@ -75,6 +82,10 @@ services:
 
                 - traefik.http.routers.youlcoin_rabbitmq.rule=Host(`yc-rabbitmq.local.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq.entrypoints=http
+
+                - traefik.http.routers.youlcoin_rabbitmq-secure.rule=Host(`yc-rabbitmq.local.barlito.fr`)
+                - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https
+                - traefik.http.routers.youlcoin_rabbitmq-secure.tls=true
         networks:
             - traefik_traefik_proxy
 

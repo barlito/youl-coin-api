@@ -1,0 +1,25 @@
+name: Starter workflow
+
+on: push
+
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  test:
+    uses: ./.github/workflows/app_setup.yaml
+
+  code_quality:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+
+      - name: Deploy stack
+        run: make docker.deploy.ci
+
