@@ -8,8 +8,6 @@ use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Timestampable\Traits\Timestampable;
-use Gedmo\Timestampable\Traits\TimestampableDocument;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
