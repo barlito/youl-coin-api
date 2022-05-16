@@ -20,21 +20,20 @@ class TransactionHandlerTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
 
-        $entityManager->expects(self::once())
+        $entityManager->expects($this->once())
             ->method('persist')
-            ->with(self::isInstanceOf(Transaction::class))
+            ->with($this->isInstanceOf(Transaction::class))
         ;
 
-        $entityManager->expects(self::atLeastOnce())
+        $entityManager->expects($this->once())
             ->method('flush')
         ;
 
-        $transactionProcessor = $this->getTransactionProcessor($entityManager);
+        $transactionHandler = $this->getTransactionHandler($entityManager);
+        $transactionHandler->handleTransaction($transaction);
 
-        $transactionProcessor->handleTransaction($transaction);
-
-        self::assertSame($transaction->getWalletFrom()->getAmount(), $amountWalletFrom);
-        self::assertSame($transaction->getWalletTo()->getAmount(), $amountWalletTo);
+        $this->assertSame($transaction->getWalletFrom()->getAmount(), $amountWalletFrom);
+        $this->assertSame($transaction->getWalletTo()->getAmount(), $amountWalletTo);
     }
 
     private function getTransactions(): array
@@ -60,7 +59,7 @@ class TransactionHandlerTest extends TestCase
         ];
     }
 
-    private function getTransactionProcessor($entityManager): TransactionHandler
+    private function getTransactionHandler($entityManager): TransactionHandler
     {
         return new TransactionHandler(
             $entityManager,

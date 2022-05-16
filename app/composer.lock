@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "barlito/utils",
-            "version": "v1.0.0",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barlito/utils.git",
-                "reference": "6b7e9eb71d02cd7399923824d05c3c1ef9ee822f"
+                "reference": "f41ff1abd34983ebc25125f0ac4dce3ffaed4c7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barlito/utils/zipball/6b7e9eb71d02cd7399923824d05c3c1ef9ee822f",
-                "reference": "6b7e9eb71d02cd7399923824d05c3c1ef9ee822f",
+                "url": "https://api.github.com/repos/barlito/utils/zipball/f41ff1abd34983ebc25125f0ac4dce3ffaed4c7d",
+                "reference": "f41ff1abd34983ebc25125f0ac4dce3ffaed4c7d",
                 "shasum": ""
             },
             "require": {
@@ -41,10 +41,10 @@
             ],
             "description": "My personal library of utilities",
             "support": {
-                "source": "https://github.com/barlito/utils/tree/v1.0.0",
+                "source": "https://github.com/barlito/utils/tree/v1.0.2",
                 "issues": "https://github.com/barlito/utils/issues"
             },
-            "time": "2022-05-09T17:54:45+00:00"
+            "time": "2022-05-16T16:59:34+00:00"
         },
         {
             "name": "behat/transliterator",

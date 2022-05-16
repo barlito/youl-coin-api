@@ -24,7 +24,7 @@ class TransactionMessageHandlerTest extends KernelTestCase
 
     public function setUp(): void
     {
-        self::bootKernel();
+        $this->bootKernel();
     }
 
     /** @dataProvider getErrorMessages */

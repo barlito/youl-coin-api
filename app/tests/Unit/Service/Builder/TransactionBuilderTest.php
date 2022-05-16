@@ -17,15 +17,15 @@ class TransactionBuilderTest extends TestCase
      */
     public function testBuildTransactionWithValidMessage(TransactionMessage $transactionMessage)
     {
-        $transactionBuilder = $this->getTransactionBuidler();
+        $transactionBuilder = $this->getTransactionBuilder();
 
         $transaction = $transactionBuilder->build($transactionMessage);
 
-        self::assertSame($transaction->getAmount(), $transactionMessage->getAmount());
-        self::assertSame($transaction->getWalletFrom()->getId(), $transactionMessage->getWalletFrom()->getId());
-        self::assertSame($transaction->getWalletTo()->getId(), $transactionMessage->getWalletTo()->getId());
-        self::assertSame($transaction->getType(), $transactionMessage->getType());
-        self::assertSame($transaction->getMessage(), $transactionMessage->getMessage());
+        $this->assertSame($transaction->getAmount(), $transactionMessage->getAmount());
+        $this->assertSame($transaction->getWalletFrom()->getId(), $transactionMessage->getWalletFrom()->getId());
+        $this->assertSame($transaction->getWalletTo()->getId(), $transactionMessage->getWalletTo()->getId());
+        $this->assertSame($transaction->getType(), $transactionMessage->getType());
+        $this->assertSame($transaction->getMessage(), $transactionMessage->getMessage());
     }
 
     private function getTransactionMessages(): array
@@ -38,7 +38,7 @@ class TransactionBuilderTest extends TestCase
         ];
     }
 
-    private function getTransactionBuidler(): TransactionBuilder
+    private function getTransactionBuilder(): TransactionBuilder
     {
         return new TransactionBuilder();
     }

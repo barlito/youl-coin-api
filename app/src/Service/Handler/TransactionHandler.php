@@ -16,7 +16,7 @@ class TransactionHandler
     ) {
     }
 
-    public function handleTransaction(Transaction $transaction)
+    public function handleTransaction(Transaction $transaction): void
     {
         // TODO need to lock and unlock Wallets during the calculation
 
@@ -33,7 +33,7 @@ class TransactionHandler
         $this->notify($transaction);
     }
 
-    private function notify(Transaction $transaction)
+    private function notify(Transaction $transaction): void
     {
         // TODO dispatch an event and handle the discord notif with a subscriber
         $this->discordNotifier->notifyNewTransaction($transaction);
