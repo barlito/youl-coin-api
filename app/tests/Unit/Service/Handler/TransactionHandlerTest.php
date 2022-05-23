@@ -24,7 +24,6 @@ class TransactionHandlerTest extends TestCase
             ->method('persist')
             ->with($this->isInstanceOf(Transaction::class))
         ;
-
         $entityManager->expects($this->once())
             ->method('flush')
         ;

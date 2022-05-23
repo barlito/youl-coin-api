@@ -11,8 +11,10 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
 class TransactionMessageSerializer implements SerializerInterface
 {
-    public function __construct(private \JMS\Serializer\SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly \JMS\Serializer\SerializerInterface $serializer,
+        private readonly string $env,
+    ) {
     }
 
     public function decode(array $encodedEnvelope): Envelope
@@ -29,6 +31,21 @@ class TransactionMessageSerializer implements SerializerInterface
      */
     public function encode(Envelope $envelope): array
     {
+        if ('test' === $this->env) {
+            /** @var TransactionMessage $message */
+            $message = $envelope->getMessage();
+
+            return [
+                'body' => json_encode([
+                                          'amount' => $message->getAmount(),
+                                          'discordUserIdFrom' => $message->getWalletFrom()->getDiscordUser()->getDiscordId(),
+                                          'discordUserIdTo' => $message->getWalletTo()->getDiscordUser()->getDiscordId(),
+                                          'type' => $message->getType(),
+                                          'message' => $message->getMessage(),
+                                      ]),
+            ];
+        }
+
         throw new Exception('Transport & serializer not meant for sending messages');
     }
 

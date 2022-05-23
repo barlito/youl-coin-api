@@ -29,6 +29,30 @@ final class DemoContext implements Context
     }
 
     /**
+     * Ensure to fully reset the test database fixtures features, allowing easy knowledge of the current
+     * database state at the beginning of each features
+     *
+     * @Given I reload the fixtures
+     * @BeforeFeature
+     */
+    public static function prepareFixtures()
+    {
+        system(sprintf('bin/console hautelook:fixtures:load -n --env="test"'));
+        system(sprintf('supervisorctl stop messenger-consume:*'));
+        system(sprintf('supervisorctl stop messenger-consume-test:*'));
+    }
+
+    /**
+     * Clean cache before feature
+     *
+     * @BeforeFeature @needCleanCachePool
+     */
+    public static function clearCachePool(): void
+    {
+        system(sprintf('bin/console cache:pool:clear cache.app --env="test"'));
+    }
+
+    /**
      * @When a demo scenario sends a request to :path
      */
     public function aDemoScenarioSendsARequestTo(string $path): void
@@ -44,5 +68,13 @@ final class DemoContext implements Context
         if (null === $this->response) {
             throw new \RuntimeException('No response received');
         }
+    }
+
+    /**
+     * @Then /^I wait "([^"]*)" seconds$/
+     */
+    public function iWaitSeconds(int $seconds)
+    {
+        sleep($seconds);
     }
 }

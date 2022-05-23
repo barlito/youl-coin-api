@@ -96,20 +96,24 @@
         }
     },
     "require-dev": {
-        "behat/behat": "^3.8",
+        "behat/behat": "^3.10",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friends-of-behat/mink": "^1.9",
         "friends-of-behat/mink-browserkit-driver": "^1.5",
         "friends-of-behat/mink-extension": "^2.5",
         "friends-of-behat/symfony-extension": "^2.0",
+        "guzzlehttp/psr7": "^2.2",
         "hautelook/alice-bundle": "^2.9",
         "justinrainbow/json-schema": "^5.2",
+        "php-http/curl-client": "^2.2",
         "phpunit/phpunit": "^9.5",
+        "soyuka/contexts": "dev-main",
         "symfony/browser-kit": "6.0.*",
         "symfony/css-selector": "6.0.*",
         "symfony/http-client": "6.0.*",
         "symfony/maker-bundle": "^1.33",
-        "symfony/phpunit-bridge": "^5.3"
+        "symfony/phpunit-bridge": "^5.3",
+        "ubirak/rest-api-behat-extension": "^8.2"
     },
     "repositories": {
         "barlito/utils": {

@@ -2,21 +2,21 @@
 App\Entity\Wallet:
   wallet_barlito:
     id: 01FPD1DHMWPV4BHJQ82TSJEBJC
-    amount: <numberBetween(1000, 9000)>
+    amount: 9000
     discordUser: '@discord_user_barlito'
     type: user
     notes: "Wallet Barlito"
 
   wallet_juju:
     id: 01FPD1DNKVFS5GGBPVXBT3YQ01
-    amount: <numberBetween(1000, 9000)>
+    amount: 8000
     discordUser: '@discord_user_juju'
     type: user
     notes: "Wallet Juju"
 
   wallet_farph:
     id: 01FPD1DRHVBMZEM5EGS95F5N3E
-    amount: <numberBetween(1000, 9000)>
+    amount: 7000
     discordUser: '@discord_user_farph'
     type: user
     notes: "Wallet Farph"

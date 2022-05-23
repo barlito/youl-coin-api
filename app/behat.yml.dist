@@ -3,11 +3,11 @@ default:
         default:
             contexts:
                 - App\Tests\Behat\DemoContext
+                - App\Tests\Behat\MessengerContext
+                - App\Tests\Behat\EntityManagerContext
                 - Behat\MinkExtension\Context\MinkContext
-                - Behatch\Context\RestContext
-                - behatch:context:rest
-                - behatch:context:json
-                - behatch:context:system
+                - Ubirak\RestApiBehatExtension\RestApiContext
+                - Ubirak\RestApiBehatExtension\Json\JsonContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:
@@ -15,8 +15,10 @@ default:
             kernel:
                 class: App\Kernel
         Behat\MinkExtension:
-            base_url: "http://yc.local.barlito.fr/"
+            base_url: "http://localhost"
             sessions:
                 symfony:
                     symfony: ~
-        Behatch\Extension: ~
+        Ubirak\RestApiBehatExtension\Extension:
+            rest:
+                base_url: http://localhost

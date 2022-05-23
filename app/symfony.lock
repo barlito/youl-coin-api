@@ -1,4 +1,7 @@
 {
+    "atoum/atoum": {
+        "version": "4.0.3"
+    },
     "barlito/utils": {
         "version": "v1.0.0"
     },
@@ -10,6 +13,9 @@
     },
     "behat/transliterator": {
         "version": "v1.3.0"
+    },
+    "clue/stream-filter": {
+        "version": "v1.6.0"
     },
     "composer/package-versions-deprecated": {
         "version": "1.11.99.2"
@@ -184,6 +190,9 @@
     "gedmo/doctrine-extensions": {
         "version": "v3.6.0"
     },
+    "guzzlehttp/psr7": {
+        "version": "2.2.1"
+    },
     "hautelook/alice-bundle": {
         "version": "2.9",
         "recipe": {
@@ -227,6 +236,9 @@
     "monolog/monolog": {
         "version": "2.3.2"
     },
+    "mtdowling/jmespath.php": {
+        "version": "2.6.1"
+    },
     "myclabs/deep-copy": {
         "version": "1.10.2"
     },
@@ -269,6 +281,27 @@
     },
     "php-cs-fixer/diff": {
         "version": "v2.0.2"
+    },
+    "php-http/client-common": {
+        "version": "2.5.0"
+    },
+    "php-http/curl-client": {
+        "version": "2.2.1"
+    },
+    "php-http/discovery": {
+        "version": "1.14.1"
+    },
+    "php-http/httplug": {
+        "version": "2.3.0"
+    },
+    "php-http/message": {
+        "version": "1.13.0"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
+    },
+    "php-http/promise": {
+        "version": "1.1.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -326,8 +359,20 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
+        "version": "1.0.1"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
+    },
     "psr/log": {
         "version": "1.1.4"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
@@ -376,6 +421,9 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
+    },
+    "soyuka/contexts": {
+        "version": "3.0.x-dev"
     },
     "squizlabs/php_codesniffer": {
         "version": "3.6",
@@ -751,8 +799,14 @@
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
+    "tolerance/tolerance": {
+        "version": "0.4.2"
+    },
     "twig/twig": {
         "version": "v3.3.2"
+    },
+    "ubirak/rest-api-behat-extension": {
+        "version": "v8.2.0"
     },
     "webmozart/assert": {
         "version": "1.10.0"

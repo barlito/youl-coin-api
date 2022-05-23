@@ -12,3 +12,8 @@ services:
 
     App\Tests\Unit\:
         resource: '../tests/Unit/*'
+
+    # Services
+
+    App\Tests\Behat\EntityManagerContext:
+        $entityNamespace: App\Entity
