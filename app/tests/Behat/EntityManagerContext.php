@@ -6,22 +6,21 @@ namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
-use Behatch\Asserter;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\PropertyAccess\Exception\AccessException;
 use Symfony\Component\PropertyAccess\Exception\NoSuchIndexException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-final class EntityManagerContext implements Context
+final class EntityManagerContext extends TestCase implements Context
 {
-    use Asserter;
-
     public function __construct(protected EntityManagerInterface $entityManager, protected string $entityNamespace)
     {
+        parent::__construct();
     }
 
     /**

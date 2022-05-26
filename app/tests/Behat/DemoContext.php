@@ -29,6 +29,14 @@ final class DemoContext implements Context
     }
 
     /**
+     * @BeforeSuite
+     */
+    public static function behatBeforeSuite()
+    {
+        system(sprintf('supervisorctl stop messenger-consume:*'));
+    }
+
+    /**
      * Ensure to fully reset the test database fixtures features, allowing easy knowledge of the current
      * database state at the beginning of each features
      *
@@ -38,8 +46,6 @@ final class DemoContext implements Context
     public static function prepareFixtures()
     {
         system(sprintf('bin/console hautelook:fixtures:load -n --env="test"'));
-        system(sprintf('supervisorctl stop messenger-consume:*'));
-        system(sprintf('supervisorctl stop messenger-consume-test:*'));
     }
 
     /**
@@ -68,13 +74,5 @@ final class DemoContext implements Context
         if (null === $this->response) {
             throw new \RuntimeException('No response received');
         }
-    }
-
-    /**
-     * @Then /^I wait "([^"]*)" seconds$/
-     */
-    public function iWaitSeconds(int $seconds)
-    {
-        sleep($seconds);
     }
 }
