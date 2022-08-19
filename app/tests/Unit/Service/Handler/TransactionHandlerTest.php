@@ -10,6 +10,7 @@ use App\Service\Handler\TransactionHandler;
 use App\Service\Notifier\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TransactionHandlerTest extends TestCase
 {
@@ -18,17 +19,17 @@ class TransactionHandlerTest extends TestCase
      */
     public function testHandleTransactionWithValidTransactionObject(Transaction $transaction, string $amountWalletFrom, string $amountWalletTo)
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManagerMock = $this->createMock(EntityManagerInterface::class);
 
-        $entityManager->expects($this->once())
+        $entityManagerMock->expects($this->once())
             ->method('persist')
             ->with($this->isInstanceOf(Transaction::class))
         ;
-        $entityManager->expects($this->once())
+        $entityManagerMock->expects($this->once())
             ->method('flush')
         ;
 
-        $transactionHandler = $this->getTransactionHandler($entityManager);
+        $transactionHandler = $this->getTransactionHandler($entityManagerMock);
         $transactionHandler->handleTransaction($transaction);
 
         $this->assertSame($transaction->getWalletFrom()->getAmount(), $amountWalletFrom);
@@ -58,11 +59,12 @@ class TransactionHandlerTest extends TestCase
         ];
     }
 
-    private function getTransactionHandler($entityManager): TransactionHandler
+    private function getTransactionHandler($entityManagerMock): TransactionHandler
     {
         return new TransactionHandler(
-            $entityManager,
             $this->createMock(DiscordNotifier::class),
+            $entityManagerMock,
+            $this->createMock(ValidatorInterface::class),
         );
     }
 }

@@ -11,6 +11,7 @@ use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\TransactionHandler;
 use App\Service\Messenger\Handler\TransactionMessageHandler;
 use App\Service\Notifier\DiscordNotifier;
+use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\RecreateDatabaseTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -88,14 +89,15 @@ class TransactionMessageHandlerTest extends KernelTestCase
     {
         return new TransactionMessageHandler(
             $this->createMock(LoggerInterface::class),
-            Validation::createValidatorBuilder()
-                ->enableAnnotationMapping()
-                ->addDefaultDoctrineAnnotationReader()
-                ->getValidator(),
             $this->createMock(DiscordNotifier::class),
             $this->createMock(SerializerInterface::class),
             $this->getContainer()->get(TransactionBuilder::class),
             $this->getContainer()->get(TransactionHandler::class),
+            $this->createMock(EntityManagerInterface::class),
+            Validation::createValidatorBuilder()
+                ->enableAnnotationMapping()
+                ->addDefaultDoctrineAnnotationReader()
+                ->getValidator(),
         );
     }
 }
