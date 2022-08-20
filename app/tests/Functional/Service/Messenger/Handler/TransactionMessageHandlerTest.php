@@ -19,6 +19,9 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validation;
 
+/**
+ * Todo test que le logger et le notifier sont bien called
+ */
 class TransactionMessageHandlerTest extends KernelTestCase
 {
     use RecreateDatabaseTrait;

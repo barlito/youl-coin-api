@@ -29,9 +29,7 @@ class LoggerMiddleware implements MiddlewareInterface
         ];
         $envelope = $stack->next()->handle($envelope, $stack);
         if ($envelope->last(ReceivedStamp::class)) {
-            $this->logger->info('[{id}] Received {class}', $context);
-        } else {
-            $this->logger->info('[{id}] Handling sync {class}', $context);
+            $this->logger->info('Received {class}', $context);
         }
 
         return $envelope;

@@ -25,6 +25,22 @@ final class MessengerContext extends KernelTestCase implements Context
     }
 
     /**
+     * @BeforeFeature @messenger
+     */
+    public static function behatBeforeMessengerFeature()
+    {
+        system(sprintf('supervisorctl stop messenger-consume:*'));
+    }
+
+    /**
+     * @AfterFeature @messenger
+     */
+    public static function behatAfterMessengerFeature()
+    {
+        system(sprintf('supervisorctl start messenger-consume:*'));
+    }
+
+    /**
      * @When /^I send a TransactionMessage to the queue with body:$/
      */
     public function iSendATransactionMessageToTheQueueWithBody(PyStringNode $string)
@@ -45,7 +61,7 @@ final class MessengerContext extends KernelTestCase implements Context
     }
 
     /**
-     * @Then /^I start the messenger consumer and consume "([^"]*)" messages$/
+     * @Then /^I run the messenger consumer command and consume "([^"]*)" messages$/
      */
     public function iStartTheMessengerConsumerAndConsumeMessages(int $limit)
     {
@@ -61,14 +77,6 @@ final class MessengerContext extends KernelTestCase implements Context
                 '--env' => 'test',
             ],
         );
-    }
-
-    /**
-     * @Given /^I stop the messenger consumer$/
-     */
-    public function iStopTheMessengerConsumer()
-    {
-        system(sprintf('supervisorctl stop messenger-consume-test:*'));
     }
 
     /**

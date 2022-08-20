@@ -29,14 +29,6 @@ final class DemoContext implements Context
     }
 
     /**
-     * @BeforeSuite
-     */
-    public static function behatBeforeSuite()
-    {
-        system(sprintf('supervisorctl stop messenger-consume:*'));
-    }
-
-    /**
      * Ensure to fully reset the test database fixtures features, allowing easy knowledge of the current
      * database state at the beginning of each features
      *

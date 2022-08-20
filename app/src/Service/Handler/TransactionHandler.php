@@ -38,8 +38,6 @@ class TransactionHandler extends AbstractHandler
 
     private function notify(Transaction $transaction): void
     {
-        // TODO dispatch an event and handle the discord notification with a subscriber
-        // TODO Do not use and event, call the discord notifier directly
         $this->discordNotifier->notifyNewTransaction($transaction);
     }
 }

@@ -3,7 +3,7 @@ name: Starter workflow
 on: push
 
 concurrency:
-  group: environment-${{ github.ref }}
+  group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

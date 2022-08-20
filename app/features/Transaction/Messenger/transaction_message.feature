@@ -1,3 +1,5 @@
+@messenger
+
 Feature:
   I want to test when a TransactionMessage is received
   A Transaction is created and Wallets are updated
@@ -27,7 +29,7 @@ Feature:
     }
     """
 
-    Then I start the messenger consumer and consume "1" messages
+    Then I run the messenger consumer command and consume "1" messages
 
     And a "Wallet" entity found by "id=01FPD1DHMWPV4BHJQ82TSJEBJC" should match:
       | amount | 8990 |
@@ -37,4 +39,3 @@ Feature:
       | amount  | 10           |
       | type    | classic      |
       | message | test message |
-    And I stop the messenger consumer
