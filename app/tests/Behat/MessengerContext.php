@@ -4,23 +4,20 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat;
 
-use App\Entity\Wallet;
-use App\Message\TransactionMessage;
+use App\Service\Messenger\Serializer\TransactionMessageSerializer;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use JsonException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class MessengerContext extends KernelTestCase implements Context
 {
     public function __construct(
-        private MessageBusInterface $messageBus,
-        private EntityManagerInterface $entityManager,
+        private readonly MessageBusInterface $messageBus,
+        private readonly TransactionMessageSerializer $transactionMessageSerializer,
     ) {
     }
 
@@ -45,19 +42,8 @@ final class MessengerContext extends KernelTestCase implements Context
      */
     public function iSendATransactionMessageToTheQueueWithBody(PyStringNode $string)
     {
-        $payload = $this->decodeString($string);
-
-        $walletRepository = $this->entityManager->getRepository(Wallet::class);
-
-        $this->messageBus->dispatch(
-            new TransactionMessage(
-                (string) $payload['amount'],
-                $walletRepository->findOneBy(['id' => $payload['walletFrom']]),
-                $walletRepository->findOneBy(['id' => $payload['walletTo']]),
-                (string) $payload['type'] ?? null,
-                (string) $payload['message'] ?? null,
-            ),
-        );
+        $envelope = $this->decodeString($string);
+        $this->messageBus->dispatch($envelope);
     }
 
     /**
@@ -79,15 +65,8 @@ final class MessengerContext extends KernelTestCase implements Context
         );
     }
 
-    /**
-     * @throws Exception
-     */
-    private function decodeString(PyStringNode $string): array
+    private function decodeString(PyStringNode $string): Envelope
     {
-        try {
-            return json_decode($string->getRaw(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new Exception('Malformed JSON');
-        }
+        return $this->transactionMessageSerializer->decode(['body' => $string->getRaw()]);
     }
 }

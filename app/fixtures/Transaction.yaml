@@ -1,0 +1,8 @@
+# api/fixtures/Transaction.yaml
+App\Entity\Transaction:
+  transaction_1:
+    amount: 10
+    walletFrom: '@wallet_barlito'
+    walletTo: '@wallet_juju'
+    message: 'test'
+    type: 'user'

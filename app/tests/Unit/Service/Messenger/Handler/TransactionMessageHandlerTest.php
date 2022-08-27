@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Messenger\Handler;
 
+use App\Entity\Transaction;
 use App\Message\TransactionMessage;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\TransactionHandler;
@@ -13,27 +14,37 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Errors already tested in the @App\Tests\Functional\Service\Messenger\Handler\TransactionMessageHandlerTest
  */
 class TransactionMessageHandlerTest extends TestCase
 {
-    private function getTransactionMessageHandler(): TransactionMessageHandler
+    public function testTransactionMessageHandler()
     {
+        $transactionMock = $this->createMock(Transaction::class);
+
         $transactionBuilderMock = $this->createMock(TransactionBuilder::class);
         $transactionBuilderMock->expects($this->once())
             ->method('build')
             ->with($this->isInstanceOf(TransactionMessage::class))
+            ->willReturn($transactionMock)
         ;
 
         $transactionHandlerMock = $this->createMock(TransactionHandler::class);
         $transactionHandlerMock->expects($this->once())
             ->method('handleTransaction')
-            ->with($this->isInstanceOf(TransactionMessage::class))
+            ->with($transactionMock)
         ;
 
+        $transactionMessageHandler = $this->getTransactionMessageHandler($transactionBuilderMock, $transactionHandlerMock);
+
+        $transactionMessageHandler($this->createMock(TransactionMessage::class));
+    }
+
+    private function getTransactionMessageHandler(TransactionBuilder $transactionBuilderMock, TransactionHandler $transactionHandlerMock): TransactionMessageHandler
+    {
         return new TransactionMessageHandler(
             $this->createMock(LoggerInterface::class),
             $this->createMock(DiscordNotifier::class),
@@ -41,10 +52,7 @@ class TransactionMessageHandlerTest extends TestCase
             $transactionBuilderMock,
             $transactionHandlerMock,
             $this->createMock(EntityManagerInterface::class),
-            Validation::createValidatorBuilder()
-                ->enableAnnotationMapping()
-                ->addDefaultDoctrineAnnotationReader()
-                ->getValidator(),
+            $this->createMock(ValidatorInterface::class),
         );
     }
 }

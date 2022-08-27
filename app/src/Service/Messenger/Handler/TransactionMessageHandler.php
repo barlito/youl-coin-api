@@ -43,6 +43,7 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
 
     private function handleException(ConstraintDefinitionException $exception, TransactionMessage $transactionMessage)
     {
+        // todo use JMS and serialization groups
         $jsonMessage = $this->serializer->serialize(
             [
                 'amount' => $transactionMessage->getAmount(),
@@ -54,7 +55,6 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
             'json',
         );
 
-        // TODO dispatch an event too for the discord notifier and maybe the error log
         $this->discordNotifier->notifyErrorOnTransaction($exception->getMessage(), $jsonMessage);
         $this->logger->critical($exception->getMessage(), [$exception->getMessage(), $jsonMessage]);
 

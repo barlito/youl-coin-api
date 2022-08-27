@@ -6,6 +6,10 @@ Feature:
   Notifications are send correctly
   Errors are raised if the message is bad
 
+#  todo test logs
+#  todo test broken messages with an Outline scenario to test errors and logs
+#  todo add a Discord notifier mock to test discord notification but without sending them
+
   Scenario: I send a correct Message
   TransactionMessage should be processed
   A Transaction entity should be created in database
@@ -17,13 +21,12 @@ Feature:
     Given a "Wallet" entity found by "id=01FPD1DNKVFS5GGBPVXBT3YQ01" should match:
       | amount | 8000 |
 
-#   When I send a TransactionMessage to the queue with WalletFrom ID:"01FPD1DHMWPV4BHJQ82TSJEBJC" and WalletTo ID :"01FPD1DNKVFS5GGBPVXBT3YQ01"
     When I send a TransactionMessage to the queue with body:
     """
     {
       "amount": 10,
-      "walletFrom": "01FPD1DHMWPV4BHJQ82TSJEBJC",
-      "walletTo": "01FPD1DNKVFS5GGBPVXBT3YQ01",
+      "discordUserIdFrom": "188967649332428800",
+      "discordUserIdTo": "195659530363731968",
       "type": "classic",
       "message": "test message"
     }

@@ -27,6 +27,8 @@ class TransactionMessageSerializer implements SerializerInterface
 
     /**
      * @throws Exception
+     *
+     * @codeCoverageIgnore
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function encode(Envelope $envelope): array

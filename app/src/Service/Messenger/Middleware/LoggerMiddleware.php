@@ -27,6 +27,7 @@ class LoggerMiddleware implements MiddlewareInterface
         $context = [
             'class' => \get_class($envelope->getMessage()),
         ];
+        // Call other middlewares if we need something from another middleware job
         $envelope = $stack->next()->handle($envelope, $stack);
         if ($envelope->last(ReceivedStamp::class)) {
             $this->logger->info('Received {class}', $context);

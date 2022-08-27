@@ -19,12 +19,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Todo test que le logger et le notifier sont bien called
- */
 class TransactionMessageHandlerTest extends KernelTestCase
 {
     use RecreateDatabaseTrait;
+
+    private ?Wallet $walletFrom = null;
+    private ?Wallet $walletTo = null;
 
     public function setUp(): void
     {
@@ -34,7 +34,17 @@ class TransactionMessageHandlerTest extends KernelTestCase
     /** @dataProvider getErrorMessages */
     public function testTransactionErrorMessageValidation(TransactionMessage $transactionMessage, string $exceptionMessage)
     {
-        $transactionMessageHandler = $this->getTransactionMessageHandler();
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->once())
+            ->method('critical')
+        ;
+
+        $discordNotifierMock = $this->createMock(DiscordNotifier::class);
+        $discordNotifierMock->expects($this->once())
+            ->method('notifyErrorOnTransaction')
+        ;
+
+        $transactionMessageHandler = $this->getTransactionMessageHandler(logger: $loggerMock, discordNotifierMock: $discordNotifierMock);
         $this->expectException(ConstraintDefinitionException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
@@ -43,56 +53,54 @@ class TransactionMessageHandlerTest extends KernelTestCase
 
     private function getErrorMessages(): array
     {
-        $walletRepository = $this->getContainer()->get('doctrine')->getRepository(Wallet::class);
-        $walletFrom = $walletRepository->findOneBy(['id' => '01FPD1DHMWPV4BHJQ82TSJEBJC']);
-        $walletTo = $walletRepository->findOneBy(['id' => '01FPD1DNKVFS5GGBPVXBT3YQ01']);
-
         return
             [
                 [
-                    new TransactionMessage(null, $walletFrom, $walletTo, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage(null, $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
                     'The amount value should not be blank.',
                 ],
                 [
-                    new TransactionMessage('-300', $walletFrom, $walletTo, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('-300', $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
                     'The amount value is not a positive integer',
                 ],
                 [
-                    new TransactionMessage('', $walletFrom, $walletTo, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('', $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
                     'The amount value should not be blank.',
                 ],
                 [
-                    new TransactionMessage('9999999', $walletFrom, $walletTo, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('9999999', $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
                     'Not enough coins in from wallet.',
                 ],
                 [
-                    new TransactionMessage('10', null, $walletFrom, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('10', null, $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
                     'The walletFrom value should not be null.',
                 ],
                 [
-                    new TransactionMessage('10', $walletFrom, null, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('10', $this->getWalletFrom(), null, TransactionTypeEnum::CLASSIC),
                     'The walletTo value should not be null.',
                 ],
                 [
-                    new TransactionMessage('10', $walletFrom, $walletFrom, TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('10', $this->getWalletFrom(), $this->getWalletFrom(), TransactionTypeEnum::CLASSIC),
                     'WalletFrom and WalletTo are the same.',
                 ],
                 [
-                    new TransactionMessage('10', $walletFrom, $walletTo, null),
+                    new TransactionMessage('10', $this->getWalletFrom(), $this->getWalletTo(), null),
                     'The type value should not be null.',
                 ],
                 [
-                    new TransactionMessage('10', $walletFrom, $walletTo, 'wrong'),
+                    new TransactionMessage('10', $this->getWalletFrom(), $this->getWalletTo(), 'wrong'),
                     'The type value you selected is not a valid choice.',
                 ],
             ];
     }
 
-    private function getTransactionMessageHandler(): TransactionMessageHandler
-    {
+    private function getTransactionMessageHandler(
+        LoggerInterface $logger = null,
+        DiscordNotifier $discordNotifierMock = null,
+    ): TransactionMessageHandler {
         return new TransactionMessageHandler(
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(DiscordNotifier::class),
+            $logger ?? $this->createMock(LoggerInterface::class),
+            $discordNotifierMock ?? $this->createMock(DiscordNotifier::class),
             $this->createMock(SerializerInterface::class),
             $this->getContainer()->get(TransactionBuilder::class),
             $this->getContainer()->get(TransactionHandler::class),
@@ -102,5 +110,23 @@ class TransactionMessageHandlerTest extends KernelTestCase
                 ->addDefaultDoctrineAnnotationReader()
                 ->getValidator(),
         );
+    }
+
+    private function getWalletFrom(): Wallet
+    {
+        return $this->walletFrom ?? $this->walletFrom = (new Wallet())
+            ->setId('01FPD1DHMWPV4BHJQ82TSJEBJC')
+            ->setAmount('9000')
+            ->setType('user')
+        ;
+    }
+
+    private function getWalletTo(): Wallet
+    {
+        return $this->walletTo ?? $this->walletTo = (new Wallet())
+            ->setId('01FPD1DNKVFS5GGBPVXBT3YQ01')
+            ->setAmount('8000')
+            ->setType('user')
+        ;
     }
 }
