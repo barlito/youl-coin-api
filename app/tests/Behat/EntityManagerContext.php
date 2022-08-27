@@ -125,7 +125,7 @@ final class EntityManagerContext extends TestCase implements Context
         return \is_array($input) && false !== json_encode($input) ?
             json_encode($input) :
             (string) $input
-            ;
+        ;
     }
 
     /**
@@ -140,7 +140,7 @@ final class EntityManagerContext extends TestCase implements Context
                 ->enableExceptionOnInvalidIndex()
                 ->getPropertyAccessor()
                 ->getValue($entity, $path)
-                ;
+            ;
         } catch (AccessException | NoSuchIndexException $e) {
             if (!$allowMissingPath) {
                 throw $e;
