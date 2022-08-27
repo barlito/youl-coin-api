@@ -20,7 +20,7 @@ class DiscordNotifierTest extends KernelTestCase
         $chatterMock = $this->createMock(ChatterInterface::class);
         $chatterMock->expects($this->once())
             ->method('send')
-            ->willThrowException((new TransportException('test failed', $this->createMock(ResponseInterface::class))))
+            ->willThrowException(new TransportException('test failed', $this->createMock(ResponseInterface::class)))
         ;
 
         $loggerMock = $this->createMock(LoggerInterface::class);
@@ -43,7 +43,7 @@ class DiscordNotifierTest extends KernelTestCase
         $chatterMock = $this->createMock(ChatterInterface::class);
         $chatterMock->expects($this->once())
             ->method('send')
-            ->willThrowException((new TransportException('test failed', $this->createMock(ResponseInterface::class))))
+            ->willThrowException(new TransportException('test failed', $this->createMock(ResponseInterface::class)))
         ;
 
         $loggerMock = $this->createMock(LoggerInterface::class);

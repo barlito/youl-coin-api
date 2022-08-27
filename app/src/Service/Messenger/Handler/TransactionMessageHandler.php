@@ -12,6 +12,7 @@ use App\Service\Notifier\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -43,17 +44,12 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
 
     private function handleException(ConstraintDefinitionException $exception, TransactionMessage $transactionMessage)
     {
-        // todo use JMS and serialization groups
-        $jsonMessage = $this->serializer->serialize(
-            [
-                'amount' => $transactionMessage->getAmount(),
-                'type' => $transactionMessage->getType(),
-                'message' => $transactionMessage->getMessage(),
-                'walletFrom' => $transactionMessage->getWalletFrom()?->getId(),
-                'walletTo' => $transactionMessage->getWalletTo()?->getId(),
-            ],
-            'json',
-        );
+        //todo create a class on barlito/utils and move this
+        $serializerContext = (new ObjectNormalizerContextBuilder())
+            ->withGroups(['default', 'test'])
+            ->toArray()
+        ;
+        $jsonMessage = $this->serializer->serialize($transactionMessage, 'json', $serializerContext);
 
         $this->discordNotifier->notifyErrorOnTransaction($exception->getMessage(), $jsonMessage);
         $this->logger->critical($exception->getMessage(), [$exception->getMessage(), $jsonMessage]);
