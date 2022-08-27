@@ -28,7 +28,7 @@ Feature:
       "discordUserIdFrom": "188967649332428800",
       "discordUserIdTo": "195659530363731968",
       "type": "classic",
-      "message": "test message"
+      "message": "1a5b2d53-b5b5-4880-9a96-591638359184"
     }
     """
 
@@ -38,7 +38,7 @@ Feature:
       | amount | 8990 |
     And a "Wallet" entity found by "id=01FPD1DNKVFS5GGBPVXBT3YQ01" should match:
       | amount | 8010 |
-    And a "Transaction" entity found by "amount=10&walletFrom=01FPD1DHMWPV4BHJQ82TSJEBJC&walletTo=01FPD1DNKVFS5GGBPVXBT3YQ01" should match:
+    And a "Transaction" entity found by "amount=10&walletFrom=01FPD1DHMWPV4BHJQ82TSJEBJC&walletTo=01FPD1DNKVFS5GGBPVXBT3YQ01&message=1a5b2d53-b5b5-4880-9a96-591638359184" should match:
       | amount  | 10           |
       | type    | classic      |
-      | message | test message |
+      | message | 1a5b2d53-b5b5-4880-9a96-591638359184 |
