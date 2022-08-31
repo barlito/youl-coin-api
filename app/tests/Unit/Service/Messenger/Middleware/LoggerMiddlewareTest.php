@@ -18,7 +18,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class LoggerMiddlewareTest extends TestCase
 {
-
     /**
      * It should log the message only if it's a Received message
      */

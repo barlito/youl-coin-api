@@ -29,37 +29,40 @@ class LoggerMiddlewareTest extends KernelTestCase
             ->with(
                 'Received {class}',
                 [
-                    'class'   => 'App\Message\TransactionMessage',
-                    'message' => '{"amount":"10","walletFrom":null,"walletTo":null,"type":"classic","message":"a84d8473-26b4-46e7-b184-19cf4751ff28"}'
-                ]
-            );
+                    'class' => 'App\Message\TransactionMessage',
+                    'message' => '{"amount":"10","walletFrom":null,"walletTo":null,"type":"classic","message":"a84d8473-26b4-46e7-b184-19cf4751ff28"}',
+                ],
+            )
+        ;
 
         $loggerMiddleware = (new LoggerMiddleware($loggerMock, $this->getContainer()->get(SerializerInterface::class)));
 
         $envelope = new Envelope(
             $this->getMessage(),
-            [new ReceivedStamp('testTransport')]
+            [new ReceivedStamp('testTransport')],
         );
 
         $middlewareMock = $this->createMock(MiddlewareInterface::class);
         $middlewareMock->expects($this->once())
             ->method('handle')
-            ->willReturn($envelope);
+            ->willReturn($envelope)
+        ;
 
         $stackMock = $this->createMock(StackInterface::class);
         $stackMock->expects($this->once())
             ->method('next')
-            ->willReturn($middlewareMock);
+            ->willReturn($middlewareMock)
+        ;
 
         $loggerMiddleware->handle($envelope, $stackMock);
     }
 
     private function getMessage(): TransactionMessage
     {
-        return (new TransactionMessage(
+        return new TransactionMessage(
             amount : '10',
             type   : TransactionTypeEnum::CLASSIC,
-            message: 'a84d8473-26b4-46e7-b184-19cf4751ff28'
-        ));
+            message: 'a84d8473-26b4-46e7-b184-19cf4751ff28',
+        );
     }
 }

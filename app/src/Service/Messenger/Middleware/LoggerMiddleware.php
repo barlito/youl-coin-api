@@ -28,7 +28,7 @@ class LoggerMiddleware implements MiddlewareInterface
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
-        //todo create a class on barlito/utils and move this
+        // todo create a class on barlito/utils and move this
         $serializerContext = (new ObjectNormalizerContextBuilder())
             ->withGroups(['default', 'test'])
             ->toArray()
