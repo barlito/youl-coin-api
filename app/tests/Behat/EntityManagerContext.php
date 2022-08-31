@@ -34,6 +34,17 @@ final class EntityManagerContext extends TestCase implements Context
         $this->valueShouldMatch($entity, $table);
     }
 
+    /**
+     * @Given /^a "([^"]*)" entity found by "([^"]*)" should not exist$/
+     */
+    public function aEntityFoundByShouldNotBeFound(string $entityClass, string $findByQueryString)
+    {
+        $findBy = $this->parseFindByQueryString($findByQueryString);
+        $this->entityManager->clear();
+        $entity = $this->getRepository($entityClass)->findOneBy($findBy);
+        $this->assertSame($entity, null, 'Entity found.');
+    }
+
     private function valueShouldMatch(object $entity, TableNode $table)
     {
         foreach ($table->getRowsHash() as $path => $expected) {

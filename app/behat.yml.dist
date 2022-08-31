@@ -5,6 +5,7 @@ default:
                 - App\Tests\Behat\DemoContext
                 - App\Tests\Behat\MessengerContext
                 - App\Tests\Behat\EntityManagerContext
+                - App\Tests\Behat\LoggerContext
                 - Behat\MinkExtension\Context\MinkContext
                 - Ubirak\RestApiBehatExtension\RestApiContext
                 - Ubirak\RestApiBehatExtension\Json\JsonContext

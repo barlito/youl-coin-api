@@ -17,3 +17,8 @@ services:
 
     App\Tests\Behat\EntityManagerContext:
         $entityNamespace: App\Entity
+
+    App\Tests\Behat\Mock\LoggerMock:
+        decorates: Psr\Log\LoggerInterface
+        arguments:
+            - '@App\Tests\Behat\Mock\LoggerMock.inner'

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service\Handler\Abstraction;
 
-use App\Message\TransactionMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -20,12 +21,12 @@ abstract class AbstractHandler
     /**
      * @throws ConstraintDefinitionException
      */
-    protected function validate(TransactionMessage $transactionMessage): void
+    protected function validate(mixed $data, Constraint | array $constraints = null, string | GroupSequence | array $groups = []): void
     {
-        $errors = $this->validator->validate($transactionMessage);
+        $violations = $this->validator->validate($data, $constraints, $groups);
 
-        if (\count($errors) > 0) {
-            $errorsString = (string) $errors;
+        if (\count($violations) > 0) {
+            $errorsString = (string) $violations;
             throw new ConstraintDefinitionException($errorsString);
         }
     }
