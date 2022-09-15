@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Notifier;
+namespace App\Service\Notifier\Transaction;
 
 use App\Entity\Transaction;
 use App\Money\YoulCoinFormatter;
+use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Bridge\Discord\DiscordOptions;
@@ -15,7 +16,7 @@ use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordFieldEmbedObject;
 use Symfony\Component\Notifier\ChatterInterface;
 use Symfony\Component\Notifier\Message\ChatMessage;
 
-class DiscordNotifier
+class DiscordNotifier implements TransactionNotifierInterface
 {
     public function __construct(
         private readonly ChatterInterface $chatter,

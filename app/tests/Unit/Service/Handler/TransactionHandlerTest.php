@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Service\Handler;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Service\Handler\TransactionHandler;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

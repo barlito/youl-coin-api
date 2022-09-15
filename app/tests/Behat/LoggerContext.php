@@ -20,7 +20,7 @@ class LoggerContext extends KernelTestCase implements Context
     }
 
     /**
-     * @Then /^the logger logged the error with message "([^"]*)"$/
+     * @Then the logger logged the error with message :message
      */
     public function theLoggerLoggedTheErrorWithMessage(string $message): void
     {
@@ -31,7 +31,7 @@ class LoggerContext extends KernelTestCase implements Context
     }
 
     /**
-     * @Then /^the logger logged an error containing "([^"]*)"$/
+     * @Then the logger logged an error containing :message
      */
     public function theLoggerLoggedAnErrorContaining(string $message): void
     {

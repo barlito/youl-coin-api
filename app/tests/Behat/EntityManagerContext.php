@@ -24,7 +24,7 @@ final class EntityManagerContext extends TestCase implements Context
     }
 
     /**
-     * @Given /^a "([^"]*)" entity found by "([^"]*)" should match:$/
+     * @Given a :entityClass entity found by :findByQueryString should match:
      */
     public function aEntityFoundByShouldMatch(string $entityClass, string $findByQueryString, TableNode $table)
     {
@@ -35,7 +35,7 @@ final class EntityManagerContext extends TestCase implements Context
     }
 
     /**
-     * @Given /^a "([^"]*)" entity found by "([^"]*)" should not exist$/
+     * @Given a :entityClass entity found by :findByQueryString should not exist
      */
     public function aEntityFoundByShouldNotBeFound(string $entityClass, string $findByQueryString)
     {

@@ -8,7 +8,7 @@ use App\Message\TransactionMessage;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\Abstraction\AbstractHandler;
 use App\Service\Handler\TransactionHandler;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -21,7 +21,7 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
 {
     public function __construct(
         private readonly LoggerInterface $logger,
-        private readonly DiscordNotifier $discordNotifier,
+        private readonly TransactionNotifierInterface $discordNotifier,
         private readonly SerializerInterface $serializer,
         private readonly TransactionBuilder $transactionBuilder,
         private readonly TransactionHandler $transactionHandler,

@@ -38,7 +38,7 @@ final class MessengerContext extends KernelTestCase implements Context
     }
 
     /**
-     * @When /^I send a TransactionMessage to the queue with body:$/
+     * @When I send a TransactionMessage to the queue with body:
      */
     public function iSendATransactionMessageToTheQueueWithBody(PyStringNode $string)
     {
@@ -47,7 +47,7 @@ final class MessengerContext extends KernelTestCase implements Context
     }
 
     /**
-     * @Then /^I run the messenger consumer command and consume "([^"]*)" messages$/
+     * @Then I run the messenger consumer command and consume :limit messages
      */
     public function iStartTheMessengerConsumerAndConsumeMessages(int $limit)
     {

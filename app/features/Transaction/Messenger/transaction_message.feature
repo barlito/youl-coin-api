@@ -9,7 +9,7 @@ Feature:
 #  todo add a Discord notifier mock to test discord notification but without sending them
 
   Scenario Outline:
-  I send uncorrect Messages
+  I send incorrect Messages
   Errors should be logged and notified on discord
   Transaction entity should not be created
   Wallets shouldn't be updated
@@ -25,11 +25,13 @@ Feature:
     }
     """
 
-    Then I run the messenger consumer command and consume "1" messages
+    Then I run the messenger consumer command and consume 1 messages
 
     And a "Transaction" entity found by "message=e588239e-f47a-4864-9f23-d09838dc00a8" should not exist
 
-    Then the logger logged an error containing "<message>"
+    And the logger logged an error containing "<message>"
+
+    And the Discord notifier should have notified "1" error
 
     Examples:
       | amount | discordUserIdFrom  | discordUserIdTo    | type    | message                                            |
@@ -72,3 +74,6 @@ Feature:
       | amount  | 10                                   |
       | type    | classic                              |
       | message | 1a5b2d53-b5b5-4880-9a96-591638359184 |
+
+    And the Discord notifier should have notified "1" notifications
+

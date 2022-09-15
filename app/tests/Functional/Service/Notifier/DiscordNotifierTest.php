@@ -6,7 +6,7 @@ namespace App\Tests\Functional\Service\Notifier;
 
 use App\Money\YoulCoinFormatter;
 use App\Repository\TransactionRepository;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\DiscordNotifier;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Notifier\ChatterInterface;

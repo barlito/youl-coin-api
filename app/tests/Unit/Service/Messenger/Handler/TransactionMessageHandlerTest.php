@@ -9,7 +9,7 @@ use App\Message\TransactionMessage;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\TransactionHandler;
 use App\Service\Messenger\Handler\TransactionMessageHandler;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

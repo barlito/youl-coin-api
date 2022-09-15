@@ -6,14 +6,14 @@ namespace App\Service\Handler;
 
 use App\Entity\Transaction;
 use App\Service\Handler\Abstraction\AbstractHandler;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TransactionHandler extends AbstractHandler
 {
     public function __construct(
-        private readonly DiscordNotifier $discordNotifier,
+        private readonly TransactionNotifierInterface $discordNotifier,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
     ) {

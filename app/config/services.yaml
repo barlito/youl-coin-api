@@ -28,7 +28,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
 
-    App\Service\Notifier\DiscordNotifier:
+    App\Service\Notifier\Transaction\DiscordNotifier:
         arguments:
             $discordOptionsParams: '%app.discord%'
 

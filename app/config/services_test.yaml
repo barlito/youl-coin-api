@@ -22,3 +22,8 @@ services:
         decorates: Psr\Log\LoggerInterface
         arguments:
             - '@App\Tests\Behat\Mock\LoggerMock.inner'
+
+    App\Tests\Behat\Mock\TransactionNotifierMock:
+        decorates: App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface
+        arguments:
+            - '@App\Tests\Behat\Mock\TransactionNotifierMock.inner'
