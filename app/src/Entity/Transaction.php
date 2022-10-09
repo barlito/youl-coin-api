@@ -41,7 +41,6 @@ class Transaction
 
     /**
      * @ORM\Column(type="string")
-     *
      * @Assert\Choice(TransactionTypeEnum::VALUES)
      */
     private string $type;

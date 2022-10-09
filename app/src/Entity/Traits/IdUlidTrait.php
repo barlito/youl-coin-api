@@ -16,7 +16,6 @@ trait IdUlidTrait
      * @ORM\Column(type="ulid", unique=true, name="id")
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class=UlidGenerator::class)
-     *
      * @Assert\Ulid()
      */
     #[Groups(['default'])]

@@ -32,7 +32,6 @@ class Wallet
 
     /**
      * @ORM\Column(type="string")
-     *
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
     private string $type;

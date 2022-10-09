@@ -33,6 +33,7 @@ final class DemoContext implements Context
      * database state at the beginning of each features
      *
      * @Given I reload the fixtures
+     *
      * @BeforeFeature
      */
     public static function prepareFixtures()
