@@ -416,9 +416,6 @@
     "sebastian/version": {
         "version": "3.0.2"
     },
-    "soyuka/contexts": {
-        "version": "3.0.x-dev"
-    },
     "squizlabs/php_codesniffer": {
         "version": "3.6",
         "recipe": {

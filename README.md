@@ -46,3 +46,18 @@ doctrine migration and fixtures with:
   `make deploy`   
 Before run this rule you will need to set up the doctrine bundle,
 connection to the DB in env and a fixtures bundle.
+
+How I test the app
+-------
+
+### Behat
+I use behat to test the application with the whole environment (BD & RabbitMq).
+
+### PhpUnit
+
+- Functional tests:  
+  My functional tests are used to test the interaction of my Services between them or some specifics Services like validator.
+
+
+- Unit tests:  
+  My Unit tests are used to test only one Service at a time.

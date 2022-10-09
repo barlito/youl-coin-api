@@ -5,7 +5,7 @@ framework:
         buses:
             messenger.bus.default:
                 middleware:
-                    - App\Messenger\LoggerMiddleware
+                    - App\Service\Messenger\Middleware\LoggerMiddleware
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration

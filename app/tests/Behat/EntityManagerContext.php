@@ -24,7 +24,7 @@ final class EntityManagerContext extends TestCase implements Context
     }
 
     /**
-     * @Given /^a "([^"]*)" entity found by "([^"]*)" should match:$/
+     * @Given a :entityClass entity found by :findByQueryString should match:
      */
     public function aEntityFoundByShouldMatch(string $entityClass, string $findByQueryString, TableNode $table)
     {
@@ -32,6 +32,17 @@ final class EntityManagerContext extends TestCase implements Context
         $this->entityManager->clear();
         $entity = $this->getRepository($entityClass)->findOneBy($findBy);
         $this->valueShouldMatch($entity, $table);
+    }
+
+    /**
+     * @Given a :entityClass entity found by :findByQueryString should not exist
+     */
+    public function aEntityFoundByShouldNotBeFound(string $entityClass, string $findByQueryString)
+    {
+        $findBy = $this->parseFindByQueryString($findByQueryString);
+        $this->entityManager->clear();
+        $entity = $this->getRepository($entityClass)->findOneBy($findBy);
+        $this->assertSame($entity, null, 'Entity found.');
     }
 
     private function valueShouldMatch(object $entity, TableNode $table)

@@ -27,9 +27,21 @@
     </testsuites>
 
     <coverage processUncoveredFiles="true">
+        <exclude>
+            <directory suffix=".php">src/Entity</directory>
+            <directory suffix=".php">src/Enum</directory>
+            <directory suffix=".php">src/Repository</directory>
+            <directory suffix=".php">src/Controller</directory>
+            <file>src/Kernel.php</file>
+        </exclude>
+
         <include>
             <directory suffix=".php">src</directory>
         </include>
+
+        <report>
+            <html outputDirectory="code-coverage/phpunit/html-coverage"/>
+        </report>
     </coverage>
 
     <listeners>

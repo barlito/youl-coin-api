@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Money;
 
-final class YoulCoinFormatter
+class YoulCoinFormatter
 {
     public function format(string $amount): string
     {

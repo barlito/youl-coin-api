@@ -7,9 +7,11 @@ namespace App\Tests\Unit\Service\Handler;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Service\Handler\TransactionHandler;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TransactionHandlerTest extends TestCase
 {
@@ -18,17 +20,8 @@ class TransactionHandlerTest extends TestCase
      */
     public function testHandleTransactionWithValidTransactionObject(Transaction $transaction, string $amountWalletFrom, string $amountWalletTo)
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $transactionHandler = $this->getTransactionHandler();
 
-        $entityManager->expects($this->once())
-            ->method('persist')
-            ->with($this->isInstanceOf(Transaction::class))
-        ;
-        $entityManager->expects($this->once())
-            ->method('flush')
-        ;
-
-        $transactionHandler = $this->getTransactionHandler($entityManager);
         $transactionHandler->handleTransaction($transaction);
 
         $this->assertSame($transaction->getWalletFrom()->getAmount(), $amountWalletFrom);
@@ -58,11 +51,38 @@ class TransactionHandlerTest extends TestCase
         ];
     }
 
-    private function getTransactionHandler($entityManager): TransactionHandler
+    private function getTransactionHandler(): TransactionHandler
     {
         return new TransactionHandler(
-            $entityManager,
-            $this->createMock(DiscordNotifier::class),
+            $this->getDiscordNotifierMock(),
+            $this->getEntityManagerMockPersistingOnce(),
+            $this->createMock(ValidatorInterface::class),
         );
+    }
+
+    private function getDiscordNotifierMock(): MockObject | DiscordNotifier
+    {
+        $discordNotifierMock = $this->createMock(DiscordNotifier::class);
+
+        $discordNotifierMock->expects($this->once())
+            ->method('notifyNewTransaction')
+        ;
+
+        return $discordNotifierMock;
+    }
+
+    private function getEntityManagerMockPersistingOnce(): MockObject | EntityManagerInterface
+    {
+        $entityManagerMock = $this->createMock(EntityManagerInterface::class);
+
+        $entityManagerMock->expects($this->once())
+            ->method('persist')
+            ->with($this->isInstanceOf(Transaction::class))
+        ;
+        $entityManagerMock->expects($this->once())
+            ->method('flush')
+        ;
+
+        return $entityManagerMock;
     }
 }

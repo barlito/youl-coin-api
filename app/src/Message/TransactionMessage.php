@@ -7,6 +7,7 @@ namespace App\Message;
 use App\Entity\Wallet;
 use App\Enum\TransactionTypeEnum;
 use App\Validator as CustomAssert;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -14,30 +15,27 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class TransactionMessage
 {
-    /**
-     * @Assert\NotBlank(message="The amount value should not be blank.")
-     * @CustomAssert\Amount()
-     */
+    #[Groups('test')]
+    #[Assert\NotBlank(message: 'The amount value should not be blank.')]
+    #[CustomAssert\Amount]
     private ?string $amount;
 
-    /**
-     * @Assert\NotNull(message="The walletFrom value should not be null.")
-     * @Assert\Valid()
-     */
+    #[Groups('test')]
+    #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
+    #[Assert\Valid]
     private ?Wallet $walletFrom;
 
-    /**
-     * @Assert\NotNull(message="The walletTo value should not be null.")
-     * @Assert\Valid()
-     */
+    #[Groups('test')]
+    #[Assert\NotNull(message: 'The walletTo value should not be null.')]
+    #[Assert\Valid]
     private ?Wallet $walletTo;
 
-    /**
-     * @Assert\NotNull(message="The type value should not be null.")
-     * @Assert\Choice(TransactionTypeEnum::VALUES, message="The type value you selected is not a valid choice.")
-     */
+    #[Groups('test')]
+    #[Assert\NotNull(message: 'The type value should not be null.')]
+    #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
     private ?string $type;
 
+    #[Groups('test')]
     private ?string $message;
 
     public function __construct(

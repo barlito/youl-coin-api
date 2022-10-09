@@ -27,6 +27,9 @@ class TransactionMessageSerializer implements SerializerInterface
 
     /**
      * @throws Exception
+     *
+     * @codeCoverageIgnore
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function encode(Envelope $envelope): array
@@ -37,12 +40,12 @@ class TransactionMessageSerializer implements SerializerInterface
 
             return [
                 'body' => json_encode([
-                                          'amount' => $message->getAmount(),
-                                          'discordUserIdFrom' => $message->getWalletFrom()->getDiscordUser()->getDiscordId(),
-                                          'discordUserIdTo' => $message->getWalletTo()->getDiscordUser()->getDiscordId(),
-                                          'type' => $message->getType(),
-                                          'message' => $message->getMessage(),
-                                      ]),
+                    'amount' => $message->getAmount(),
+                    'discordUserIdFrom' => $message->getWalletFrom()?->getDiscordUser()->getDiscordId(),
+                    'discordUserIdTo' => $message->getWalletTo()?->getDiscordUser()->getDiscordId(),
+                    'type' => $message->getType(),
+                    'message' => $message->getMessage(),
+                ]),
             ];
         }
 

@@ -35,7 +35,6 @@ class TransactionMessageSerializerHandler implements SubscribingHandlerInterface
      */
     public function deserializeTransactionMessageFromJson(DeserializationVisitorInterface $visitor, mixed $data, array $type, Context $context): TransactionMessage
     {
-        // TODO log the JSON data
         if (\is_array($data)) {
             $this->addWallets($data);
         }

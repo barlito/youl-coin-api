@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Notifier;
+namespace App\Service\Notifier\Transaction;
 
 use App\Entity\Transaction;
 use App\Money\YoulCoinFormatter;
+use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Bridge\Discord\DiscordOptions;
@@ -13,21 +14,19 @@ use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordAuthorEmbedObject;
 use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordEmbed;
 use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordFieldEmbedObject;
 use Symfony\Component\Notifier\ChatterInterface;
-use Symfony\Component\Notifier\Exception\LogicException;
-use Symfony\Component\Notifier\Exception\TransportExceptionInterface;
 use Symfony\Component\Notifier\Message\ChatMessage;
 
-class DiscordNotifier
+class DiscordNotifier implements TransactionNotifierInterface
 {
     public function __construct(
-        private ChatterInterface $chatter,
-        private LoggerInterface $logger,
-        private YoulCoinFormatter $youlCoinFormatter,
-        private array $discordOptionsParams,
+        private readonly ChatterInterface $chatter,
+        private readonly LoggerInterface $logger,
+        private readonly YoulCoinFormatter $youlCoinFormatter,
+        private readonly array $discordOptionsParams,
     ) {
     }
 
-    public function notifyNewTransaction(Transaction $transaction)
+    public function notifyNewTransaction(Transaction $transaction): void
     {
         try {
             $chatMessage = new ChatMessage('');
@@ -62,12 +61,12 @@ class DiscordNotifier
             $chatMessage->options($discordOptions);
 
             $this->chatter->send($chatMessage);
-        } catch (TransportExceptionInterface | LogicException $e) {
+        } catch (\Throwable $e) {
             $this->logger->critical($e->getMessage(), [json_encode($e)]);
         }
     }
 
-    public function notifyErrorOnTransaction(string $errorMessage, string $messageContent)
+    public function notifyErrorOnTransaction(string $errorMessage, string $messageContent): void
     {
         try {
             $chatMessage = new ChatMessage('');
@@ -100,7 +99,7 @@ class DiscordNotifier
             $chatMessage->options($discordOptions);
 
             $this->chatter->send($chatMessage);
-        } catch (TransportExceptionInterface | LogicException $e) {
+        } catch (\Throwable $e) {
             $this->logger->critical($e->getMessage(), [json_encode($e)]);
         }
     }

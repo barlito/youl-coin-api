@@ -1,3 +1,7 @@
 ###> IDE ###
 .idea
 ###< IDE ###
+
+###> Code Coverage ###
+app/code-coverage/phpunit/html-coverage
+###< Code Coverage ###

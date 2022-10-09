@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Service\Handler;
 
 use App\Entity\Transaction;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Handler\Abstraction\AbstractHandler;
+use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class TransactionHandler
+class TransactionHandler extends AbstractHandler
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private DiscordNotifier $discordNotifier,
+        private readonly TransactionNotifierInterface $discordNotifier,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
     ) {
+        parent::__construct($entityManager, $validator);
     }
 
     public function handleTransaction(Transaction $transaction): void
@@ -27,15 +31,13 @@ class TransactionHandler
         $walletFrom->setAmount(bcsub($walletFrom->getAmount(), $amount));
         $walletTo->setAmount(bcadd($walletTo->getAmount(), $amount));
 
-        $this->entityManager->persist($transaction);
-        $this->entityManager->flush();
+        $this->persistOneEntity($transaction);
 
         $this->notify($transaction);
     }
 
     private function notify(Transaction $transaction): void
     {
-        // TODO dispatch an event and handle the discord notif with a subscriber
         $this->discordNotifier->notifyNewTransaction($transaction);
     }
 }

@@ -6,25 +6,29 @@ namespace App\Service\Messenger\Handler;
 
 use App\Message\TransactionMessage;
 use App\Service\Builder\TransactionBuilder;
+use App\Service\Handler\Abstraction\AbstractHandler;
 use App\Service\Handler\TransactionHandler;
-use App\Service\Notifier\DiscordNotifier;
+use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class TransactionMessageHandler implements MessageHandlerInterface
+class TransactionMessageHandler extends AbstractHandler implements MessageHandlerInterface
 {
     public function __construct(
-        private LoggerInterface $logger,
-        private ValidatorInterface $validator,
-        private DiscordNotifier $discordNotifier,
-        private SerializerInterface $serializer,
-        private TransactionBuilder $transactionBuilder,
-        private TransactionHandler $transactionHandler,
+        private readonly LoggerInterface $logger,
+        private readonly TransactionNotifierInterface $discordNotifier,
+        private readonly SerializerInterface $serializer,
+        private readonly TransactionBuilder $transactionBuilder,
+        private readonly TransactionHandler $transactionHandler,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
     ) {
+        parent::__construct($entityManager, $validator);
     }
 
     public function __invoke(TransactionMessage $transactionMessage)
@@ -38,34 +42,15 @@ class TransactionMessageHandler implements MessageHandlerInterface
         }
     }
 
-    /**
-     * @throws ConstraintDefinitionException
-     */
-    private function validate(TransactionMessage $transactionMessage): void
-    {
-        /** @var ConstraintViolationList $errors */
-        $errors = $this->validator->validate($transactionMessage);
-
-        if (\count($errors) > 0) {
-            $errorsString = (string) $errors;
-            throw new ConstraintDefinitionException($errorsString);
-        }
-    }
-
     private function handleException(ConstraintDefinitionException $exception, TransactionMessage $transactionMessage)
     {
-        $jsonMessage = $this->serializer->serialize(
-            [
-                'amount' => $transactionMessage->getAmount(),
-                'type' => $transactionMessage->getType(),
-                'message' => $transactionMessage->getMessage(),
-                'walletFrom' => $transactionMessage->getWalletFrom()?->getId(),
-                'walletTo' => $transactionMessage->getWalletTo()?->getId(),
-            ],
-            'json',
-        );
+        // todo create a class on barlito/utils and move this
+        $serializerContext = (new ObjectNormalizerContextBuilder())
+            ->withGroups(['default', 'test'])
+            ->toArray()
+        ;
+        $jsonMessage = $this->serializer->serialize($transactionMessage, 'json', $serializerContext);
 
-        // TODO dispatch an event too for the discord notifier and maybe the error log
         $this->discordNotifier->notifyErrorOnTransaction($exception->getMessage(), $jsonMessage);
         $this->logger->critical($exception->getMessage(), [$exception->getMessage(), $jsonMessage]);
 

@@ -4,48 +4,50 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat;
 
-use App\Entity\Wallet;
-use App\Message\TransactionMessage;
+use App\Service\Messenger\Serializer\TransactionMessageSerializer;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use JsonException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class MessengerContext extends KernelTestCase implements Context
 {
     public function __construct(
-        private MessageBusInterface $messageBus,
-        private EntityManagerInterface $entityManager,
+        private readonly MessageBusInterface $messageBus,
+        private readonly TransactionMessageSerializer $transactionMessageSerializer,
     ) {
     }
 
     /**
-     * @When /^I send a TransactionMessage to the queue with body:$/
+     * @BeforeFeature @messenger
      */
-    public function iSendATransactionMessageToTheQueueWithBody(PyStringNode $string)
+    public static function behatBeforeMessengerFeature()
     {
-        $payload = $this->decodeString($string);
-
-        $walletRepository = $this->entityManager->getRepository(Wallet::class);
-
-        $this->messageBus->dispatch(
-            new TransactionMessage(
-                (string) $payload['amount'],
-                $walletRepository->findOneBy(['id' => $payload['walletFrom']]),
-                $walletRepository->findOneBy(['id' => $payload['walletTo']]),
-                (string) $payload['type'] ?? null,
-                (string) $payload['message'] ?? null,
-            ),
-        );
+        system(sprintf('supervisorctl stop messenger-consume:*'));
     }
 
     /**
-     * @Then /^I start the messenger consumer and consume "([^"]*)" messages$/
+     * @AfterFeature @messenger
+     */
+    public static function behatAfterMessengerFeature()
+    {
+        system(sprintf('supervisorctl start messenger-consume:*'));
+    }
+
+    /**
+     * @When I send a TransactionMessage to the queue with body:
+     */
+    public function iSendATransactionMessageToTheQueueWithBody(PyStringNode $string)
+    {
+        $envelope = $this->decodeString($string);
+        $this->messageBus->dispatch($envelope);
+    }
+
+    /**
+     * @Then I run the messenger consumer command and consume :limit messages
      */
     public function iStartTheMessengerConsumerAndConsumeMessages(int $limit)
     {
@@ -63,23 +65,8 @@ final class MessengerContext extends KernelTestCase implements Context
         );
     }
 
-    /**
-     * @Given /^I stop the messenger consumer$/
-     */
-    public function iStopTheMessengerConsumer()
+    private function decodeString(PyStringNode $string): Envelope
     {
-        system(sprintf('supervisorctl stop messenger-consume-test:*'));
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function decodeString(PyStringNode $string): array
-    {
-        try {
-            return json_decode($string->getRaw(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new Exception('Malformed JSON');
-        }
+        return $this->transactionMessageSerializer->decode(['body' => $string->getRaw()]);
     }
 }
