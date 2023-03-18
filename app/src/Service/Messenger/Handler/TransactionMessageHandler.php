@@ -14,8 +14,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Throwable;
 
 class TransactionMessageHandler extends AbstractHandler implements MessageHandlerInterface
 {
@@ -37,12 +37,15 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
             $this->validate($transactionMessage);
             $transaction = $this->transactionBuilder->build($transactionMessage);
             $this->transactionHandler->handleTransaction($transaction);
-        } catch (ConstraintDefinitionException $exception) {
+        } catch (Throwable $exception) {
             $this->handleException($exception, $transactionMessage);
         }
     }
 
-    private function handleException(ConstraintDefinitionException $exception, TransactionMessage $transactionMessage)
+    /**
+     * @throws Throwable
+     */
+    private function handleException(Throwable $exception, TransactionMessage $transactionMessage)
     {
         // todo create a class on barlito/utils and move this
         $serializerContext = (new ObjectNormalizerContextBuilder())

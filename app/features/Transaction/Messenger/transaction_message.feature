@@ -34,14 +34,14 @@ Feature:
     And the Discord notifier should have notified "1" error
 
     Examples:
-      | amount | discordUserIdFrom  | discordUserIdTo    | type    | message                                            |
-      |        | 188967649332428800 | 195659530363731968 | classic | The amount value should not be blank.              |
-      | -10    | 188967649332428800 | 195659530363731968 | classic | The amount value is not a positive integer         |
-      | 99999  | 188967649332428800 | 195659530363731968 | classic | Not enough coins in from wallet.                   |
-      | 10     |                    | 195659530363731968 | classic | The discordUserIdFrom value should not be blank.   |
-      | 10     | 188967649332428800 |                    | classic | The discordUserIdTo value should not be blank.     |
-      | 10     | 188967649332428800 | 188967649332428800 | classic | WalletFrom and WalletTo are the same.              |
-      | 10     | 188967649332428800 | 195659530363731968 | wrong   | The type value you selected is not a valid choice. |
+      | amount        | discordUserIdFrom  | discordUserIdTo    | type    | message                                            |
+      |               | 188967649332428800 | 195659530363731968 | classic | The amount value should not be blank.              |
+      | -10           | 188967649332428800 | 195659530363731968 | classic | The amount value is not a positive integer         |
+      | 9999900000000 | 188967649332428800 | 195659530363731968 | classic | Not enough coins in from wallet.                   |
+      | 10            |                    | 195659530363731968 | classic | The discordUserIdFrom value should not be blank.   |
+      | 10            | 188967649332428800 |                    | classic | The discordUserIdTo value should not be blank.     |
+      | 10            | 188967649332428800 | 188967649332428800 | classic | WalletFrom and WalletTo are the same.              |
+      | 10            | 188967649332428800 | 195659530363731968 | wrong   | The type value you selected is not a valid choice. |
 
   Scenario: I send a correct Message
   TransactionMessage should be processed
@@ -49,14 +49,14 @@ Feature:
   Wallet should have been updated
 
     Given a "Wallet" entity found by "discordUser=188967649332428800" should match:
-      | amount | 9000 |
+      | amount | 900000000000 |
     Given a "Wallet" entity found by "discordUser=195659530363731968" should match:
-      | amount | 8000 |
+      | amount | 800000000000 |
 
     When I send a TransactionMessage to the queue with body:
     """
     {
-      "amount": 10,
+      "amount": 1000000000,
       "discordUserIdFrom": "188967649332428800",
       "discordUserIdTo": "195659530363731968",
       "type": "classic",
@@ -67,11 +67,11 @@ Feature:
     Then I run the messenger consumer command and consume "1" messages
 
     And a "Wallet" entity found by "discordUser=188967649332428800" should match:
-      | amount | 8990 |
+      | amount | 899000000000 |
     And a "Wallet" entity found by "discordUser=195659530363731968" should match:
-      | amount | 8010 |
-    And a "Transaction" entity found by "amount=10&walletFrom=01FPD1DHMWPV4BHJQ82TSJEBJC&walletTo=01FPD1DNKVFS5GGBPVXBT3YQ01&message=1a5b2d53-b5b5-4880-9a96-591638359184" should match:
-      | amount  | 10                                   |
+      | amount | 801000000000 |
+    And a "Transaction" entity found by "walletFrom=01FPD1DHMWPV4BHJQ82TSJEBJC&walletTo=01FPD1DNKVFS5GGBPVXBT3YQ01&message=1a5b2d53-b5b5-4880-9a96-591638359184" should match:
+      | amount  | 1000000000                           |
       | type    | classic                              |
       | message | 1a5b2d53-b5b5-4880-9a96-591638359184 |
 

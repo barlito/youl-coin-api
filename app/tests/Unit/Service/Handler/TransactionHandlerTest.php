@@ -8,6 +8,7 @@ use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Service\Handler\TransactionHandler;
 use App\Service\Notifier\Transaction\DiscordNotifier;
+use App\Service\Util\MoneyUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -31,23 +32,23 @@ class TransactionHandlerTest extends TestCase
 
     private function getTransactions(): array
     {
-        $walletFrom = (new Wallet())->setId(Ulid::generate())->setAmount('1000');
-        $walletTo = (new Wallet())->setId(Ulid::generate())->setAmount('2000');
+        $walletFrom = (new Wallet())->setId(Ulid::generate())->setAmount('100000000000');
+        $walletTo = (new Wallet())->setId(Ulid::generate())->setAmount('200000000000');
 
         return [
             [
                 (new Transaction())
-                    ->setAmount('500')
+                    ->setAmount('50000000000')
                     ->setWalletFrom(clone $walletFrom)
                     ->setWalletTo(clone $walletTo),
-                '500', '2500',
+                '50000000000', '250000000000',
             ],
             [
                 (new Transaction())
-                    ->setAmount('1000')
+                    ->setAmount('100000000000')
                     ->setWalletFrom(clone $walletFrom)
                     ->setWalletTo(clone $walletTo),
-                '0', '3000',
+                '0', '300000000000',
             ],
         ];
     }
@@ -56,6 +57,7 @@ class TransactionHandlerTest extends TestCase
     {
         return new TransactionHandler(
             $this->getDiscordNotifierMock(),
+            new MoneyUtil(),
             $this->getEntityManagerMockPersistingOnce(),
             $this->createMock(ValidatorInterface::class),
         );
