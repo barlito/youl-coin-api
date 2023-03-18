@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service\Notifier\Transaction;
 
 use App\Entity\Transaction;
-use App\Money\YoulCoinFormatter;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
 use DateTime;

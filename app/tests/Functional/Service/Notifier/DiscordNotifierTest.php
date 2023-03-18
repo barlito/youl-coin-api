@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Service\Notifier;
 
-use App\Money\YoulCoinFormatter;
 use App\Repository\TransactionRepository;
 use App\Service\Notifier\Transaction\DiscordNotifier;
 use App\Service\Util\MoneyUtil;
