@@ -1,0 +1,90 @@
+version: '3.4'
+
+services:
+    nginx:
+        image: youl-coin-test:1
+        working_dir: /app
+        environment:
+            # PHP config
+            # @see https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html#environment-variables
+            PHP_DATE_TIMEZONE: "Europe/Paris"
+            PHP_DISPLAY_ERRORS: "on"
+            PHP_MEMORY_LIMIT: 512M
+            PHP_MAX_EXECUTION_TIME: 7200
+            PHP_REQUEST_TERMINATE_TIMEOUT: 7200
+            PHP_POST_MAX_SIZE: 50M
+            PHP_UPLOAD_MAX_FILESIZE: 50M
+            PHP_OPCACHE_REVALIDATE_FREQ: 0
+            php.xdebug.var_display_max_depth: 10
+            php.xdebug.var_display_max_data: 2048
+            XDEBUG_MODE: coverage
+        deploy:
+            labels:
+                - traefik.enable=true
+
+                - traefik.http.services.youlcoin.loadbalancer.server.port=80
+
+                - traefik.http.routers.youlcoin.rule=Host(`yc.barlito.fr`)
+                - traefik.http.routers.youlcoin.entrypoints=http
+                # - traefik.http.routers.youlcoin.middlewares=tls-redirectscheme
+
+                - traefik.http.routers.youlcoin-secure.rule=Host(`yc.barlito.fr`)
+                - traefik.http.routers.youlcoin-secure.entrypoints=https
+                - traefik.http.routers.youlcoin-secure.tls=true
+        networks:
+            - traefik_traefik_proxy
+
+    db:
+        image: postgres:13
+        environment:
+            POSTGRES_PASSWORD: root
+        networks:
+            - traefik_traefik_proxy
+        volumes:
+            - youl_coin_db:/var/lib/postgresql/data:rw
+        ports:
+            - target: 5432
+              published: 5432
+              protocol: tcp
+              mode: host
+
+    adminer:
+        image: adminer
+        deploy:
+            labels:
+                - traefik.enable=true
+
+                - traefik.http.services.youlcoin_adminer.loadbalancer.server.port=8080
+
+                - traefik.http.routers.youlcoin_adminer.rule=Host(`yc-adminer.barlito.fr`)
+                - traefik.http.routers.youlcoin_adminer.entrypoints=http
+
+                - traefik.http.routers.youlcoin_adminer-secure.rule=Host(`yc-adminer.barlito.fr`)
+                - traefik.http.routers.youlcoin_adminer-secure.entrypoints=https
+                - traefik.http.routers.youlcoin_adminer-secure.tls=true
+        networks:
+            - traefik_traefik_proxy
+
+    rabbitmq:
+        image: rabbitmq:3-management
+        deploy:
+            labels:
+                - traefik.enable=true
+
+                - traefik.http.services.youlcoin_rabbitmq.loadbalancer.server.port=15672
+
+                - traefik.http.routers.youlcoin_rabbitmq.rule=Host(`yc-rabbitmq.barlito.fr`)
+                - traefik.http.routers.youlcoin_rabbitmq.entrypoints=http
+
+                - traefik.http.routers.youlcoin_rabbitmq-secure.rule=Host(`yc-rabbitmq.barlito.fr`)
+                - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https
+                - traefik.http.routers.youlcoin_rabbitmq-secure.tls=true
+        networks:
+            - traefik_traefik_proxy
+
+volumes:
+    youl_coin_db:
+
+networks:
+    traefik_traefik_proxy:
+        external: true
