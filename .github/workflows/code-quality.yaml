@@ -1,10 +1,6 @@
-name: Tests Workflow
+name: Code Quality Workflow
 
-on:
-  workflow_run:
-    workflows: [Code Quality Workflow]
-    types:
-      - completed
+on: push
 
 concurrency:
   group: ${{ github.ref }}
@@ -12,8 +8,7 @@ concurrency:
 
 jobs:
 
-  tests:
-    needs: code_quality
+  code_quality:
 
     runs-on: ubuntu-latest
 
@@ -32,11 +27,14 @@ jobs:
       - name: Deploy stack
         run: make deploy.ci args=${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run phpunit
-        run: make phpunit
+      - name: Run php cs fixer
+        run: make cs_fixer.dry_run
 
-      - name: Run behat
-        run: make behat
+      - name: Run php cs
+        run: make phpcs
+
+      - name: Run phpmd
+        run: make phpmd
 
       - name: Undeploy stack
         run: make docker.undeploy.ci
