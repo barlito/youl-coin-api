@@ -13,8 +13,6 @@ concurrency:
 jobs:
 
   tests:
-    needs: code_quality
-
     runs-on: ubuntu-latest
 
     steps:
