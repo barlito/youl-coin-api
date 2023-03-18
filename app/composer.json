@@ -33,6 +33,7 @@
         "symfony/expression-language": "6.1.*",
         "symfony/flex": "^1.19.3",
         "symfony/framework-bundle": "6.1.*",
+        "symfony/lock": "6.1.*",
         "symfony/messenger": "6.1.*",
         "symfony/monolog-bundle": "^3.8",
         "symfony/notifier": "6.1.*",

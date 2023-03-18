@@ -5,6 +5,7 @@ framework:
         buses:
             messenger.bus.default:
                 middleware:
+                    - doctrine_transaction
                     - App\Service\Messenger\Middleware\LoggerMiddleware
 
         transports:

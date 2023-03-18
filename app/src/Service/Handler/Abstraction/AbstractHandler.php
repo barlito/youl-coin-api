@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractHandler
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        protected readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
     ) {
     }

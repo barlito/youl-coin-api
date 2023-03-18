@@ -6,10 +6,8 @@ namespace App\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @Annotation
- */
-class Transaction extends Constraint
+#[\Attribute(\Attribute::TARGET_CLASS)]
+class TransactionConstraint extends Constraint
 {
     public const NOT_ENOUGH_CURRENCY_IN_WALLET = 'Not enough coins in from wallet.';
 

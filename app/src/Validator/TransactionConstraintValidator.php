@@ -4,19 +4,27 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
+use App\Entity\Transaction;
 use App\Entity\Wallet;
-use App\Message\TransactionMessage;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-class TransactionValidator extends ConstraintValidator
+class TransactionConstraintValidator extends ConstraintValidator
 {
     /**
      * @throws UnexpectedTypeException
      */
     public function validate($value, Constraint $constraint)
     {
+        if (!$constraint instanceof TransactionConstraint) {
+            throw new UnexpectedTypeException($constraint, TransactionConstraint::class);
+        }
+
+        if (!$value instanceof Transaction) {
+            throw new UnexpectedTypeException($constraint, Transaction::class);
+        }
+
         if (
             !$value->getWalletFrom() instanceof Wallet
             || !\is_string($value->getAmount())
@@ -38,7 +46,7 @@ class TransactionValidator extends ConstraintValidator
         }
     }
 
-    private function isPositive(TransactionMessage $value): bool
+    private function isPositive(Transaction $value): bool
     {
         return bcsub($value->getWalletFrom()->getAmount(), $value->getAmount()) > 0;
     }

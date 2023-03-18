@@ -56,39 +56,23 @@ class TransactionMessageHandlerTest extends KernelTestCase
         return
             [
                 [
-                    new TransactionMessage(null, $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage(null, '8c2cc69c-2acf-415f-9815-b1e6a607bb59', '7f0e0f4f-e088-4edd-9fb5-cf51aeec1482', TransactionTypeEnum::CLASSIC),
                     'The amount value should not be blank.',
                 ],
                 [
-                    new TransactionMessage('-300', $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('-300', '8c2cc69c-2acf-415f-9815-b1e6a607bb59', '7f0e0f4f-e088-4edd-9fb5-cf51aeec1482', TransactionTypeEnum::CLASSIC),
                     'The amount value is not a positive integer',
                 ],
                 [
-                    new TransactionMessage('', $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
+                    new TransactionMessage('', '8c2cc69c-2acf-415f-9815-b1e6a607bb59', '7f0e0f4f-e088-4edd-9fb5-cf51aeec1482', TransactionTypeEnum::CLASSIC),
                     'The amount value should not be blank.',
                 ],
                 [
-                    new TransactionMessage('9999999', $this->getWalletFrom(), $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
-                    'Not enough coins in from wallet.',
-                ],
-                [
-                    new TransactionMessage('10', null, $this->getWalletTo(), TransactionTypeEnum::CLASSIC),
-                    'The walletFrom value should not be null.',
-                ],
-                [
-                    new TransactionMessage('10', $this->getWalletFrom(), null, TransactionTypeEnum::CLASSIC),
-                    'The walletTo value should not be null.',
-                ],
-                [
-                    new TransactionMessage('10', $this->getWalletFrom(), $this->getWalletFrom(), TransactionTypeEnum::CLASSIC),
-                    'WalletFrom and WalletTo are the same.',
-                ],
-                [
-                    new TransactionMessage('10', $this->getWalletFrom(), $this->getWalletTo(), null),
+                    new TransactionMessage('10', '8c2cc69c-2acf-415f-9815-b1e6a607bb59', '7f0e0f4f-e088-4edd-9fb5-cf51aeec1482', null),
                     'The type value should not be null.',
                 ],
                 [
-                    new TransactionMessage('10', $this->getWalletFrom(), $this->getWalletTo(), 'wrong'),
+                    new TransactionMessage('10', '8c2cc69c-2acf-415f-9815-b1e6a607bb59', '7f0e0f4f-e088-4edd-9fb5-cf51aeec1482', 'wrong'),
                     'The type value you selected is not a valid choice.',
                 ],
             ];
@@ -110,23 +94,5 @@ class TransactionMessageHandlerTest extends KernelTestCase
                 ->addDefaultDoctrineAnnotationReader()
                 ->getValidator(),
         );
-    }
-
-    private function getWalletFrom(): Wallet
-    {
-        return $this->walletFrom ?? $this->walletFrom = (new Wallet())
-            ->setId('01FPD1DHMWPV4BHJQ82TSJEBJC')
-            ->setAmount('9000')
-            ->setType('user')
-        ;
-    }
-
-    private function getWalletTo(): Wallet
-    {
-        return $this->walletTo ?? $this->walletTo = (new Wallet())
-            ->setId('01FPD1DNKVFS5GGBPVXBT3YQ01')
-            ->setAmount('8000')
-            ->setType('user')
-        ;
     }
 }

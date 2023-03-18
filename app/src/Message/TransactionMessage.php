@@ -4,50 +4,44 @@ declare(strict_types=1);
 
 namespace App\Message;
 
-use App\Entity\Wallet;
 use App\Enum\TransactionTypeEnum;
 use App\Validator as CustomAssert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @CustomAssert\Transaction
- */
 class TransactionMessage
 {
-    #[Groups('test')]
+    #[Groups('log')]
     #[Assert\NotBlank(message: 'The amount value should not be blank.')]
     #[CustomAssert\Amount]
     private ?string $amount;
 
-    #[Groups('test')]
-    #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
-    #[Assert\Valid]
-    private ?Wallet $walletFrom;
+    #[Groups('log')]
+    #[Assert\NotBlank(message: 'The discordUserIdFrom value should not be blank.')]
+    private ?string $discordUserIdFrom;
 
-    #[Groups('test')]
-    #[Assert\NotNull(message: 'The walletTo value should not be null.')]
-    #[Assert\Valid]
-    private ?Wallet $walletTo;
+    #[Groups('log')]
+    #[Assert\NotBlank(message: 'The discordUserIdTo value should not be blank.')]
+    private ?string $discordUserIdTo;
 
-    #[Groups('test')]
+    #[Groups('log')]
     #[Assert\NotNull(message: 'The type value should not be null.')]
     #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
     private ?string $type;
 
-    #[Groups('test')]
+    #[Groups('log')]
     private ?string $message;
 
     public function __construct(
         ?string $amount = null,
-        ?Wallet $walletFrom = null,
-        ?Wallet $walletTo = null,
+        ?string $discordUserIdFrom = null,
+        ?string $discordUserIdTo = null,
         ?string $type = null,
         ?string $message = null,
     ) {
         $this->amount = $amount;
-        $this->walletFrom = $walletFrom;
-        $this->walletTo = $walletTo;
+        $this->discordUserIdFrom = $discordUserIdFrom;
+        $this->discordUserIdTo = $discordUserIdTo;
         $this->type = $type;
         $this->message = $message;
     }
@@ -57,14 +51,14 @@ class TransactionMessage
         return $this->amount;
     }
 
-    public function getWalletFrom(): ?Wallet
+    public function getDiscordUserIdFrom(): ?string
     {
-        return $this->walletFrom;
+        return $this->discordUserIdFrom;
     }
 
-    public function getWalletTo(): ?Wallet
+    public function getDiscordUserIdTo(): ?string
     {
-        return $this->walletTo;
+        return $this->discordUserIdTo;
     }
 
     public function getType(): ?string

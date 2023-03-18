@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
 use App\Repository\TransactionRepository;
+use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -14,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=TransactionRepository::class)
  */
+#[CustomAssert\TransactionConstraint]
 class Transaction
 {
     use IdUuidTrait;
@@ -22,16 +24,24 @@ class Transaction
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[Assert\NotBlank(message: 'The amount value should not be blank.')]
+    #[CustomAssert\Amount]
     private string $amount;
 
     /**
      * @ORM\ManyToOne(targetEntity=Wallet::class)
+     * @ORM\JoinColumn(nullable=false)
      */
+    #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
+    #[Assert\Valid]
     private ?Wallet $walletFrom;
 
     /**
      * @ORM\ManyToOne(targetEntity=Wallet::class)
+     * @ORM\JoinColumn(nullable=false)
      */
+    #[Assert\NotNull(message: 'The walletTo value should not be null.')]
+    #[Assert\Valid]
     private ?Wallet $walletTo;
 
     /**
@@ -43,6 +53,8 @@ class Transaction
      * @ORM\Column(type="string")
      * @Assert\Choice(TransactionTypeEnum::VALUES)
      */
+    #[Assert\NotNull(message: 'The type value should not be null.')]
+    #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
     private string $type;
 
     public function getAmount(): string

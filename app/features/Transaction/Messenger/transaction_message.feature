@@ -38,8 +38,8 @@ Feature:
       |        | 188967649332428800 | 195659530363731968 | classic | The amount value should not be blank.              |
       | -10    | 188967649332428800 | 195659530363731968 | classic | The amount value is not a positive integer         |
       | 99999  | 188967649332428800 | 195659530363731968 | classic | Not enough coins in from wallet.                   |
-      | 10     |                    | 195659530363731968 | classic | The walletFrom value should not be null.           |
-      | 10     | 188967649332428800 |                    | classic | The walletTo value should not be null.             |
+      | 10     |                    | 195659530363731968 | classic | The discordUserIdFrom value should not be blank.   |
+      | 10     | 188967649332428800 |                    | classic | The discordUserIdTo value should not be blank.     |
       | 10     | 188967649332428800 | 188967649332428800 | classic | WalletFrom and WalletTo are the same.              |
       | 10     | 188967649332428800 | 195659530363731968 | wrong   | The type value you selected is not a valid choice. |
 
@@ -48,9 +48,9 @@ Feature:
   A Transaction entity should be created in database
   Wallet should have been updated
 
-    And a "Wallet" entity found by "discordUser=188967649332428800" should match:
+    Given a "Wallet" entity found by "discordUser=188967649332428800" should match:
       | amount | 9000 |
-    And a "Wallet" entity found by "discordUser=195659530363731968" should match:
+    Given a "Wallet" entity found by "discordUser=195659530363731968" should match:
       | amount | 8000 |
 
     When I send a TransactionMessage to the queue with body:

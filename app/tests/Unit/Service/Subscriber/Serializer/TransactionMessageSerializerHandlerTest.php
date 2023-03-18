@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Service\Subscriber\Serializer;
 
 use App\Entity\DiscordUser;
 use App\Entity\Wallet;
+use App\Message\TransactionMessage;
 use App\Repository\DiscordUserRepository;
 use App\Service\Subscriber\Serializer\TransactionMessageSerializerHandler;
 use JMS\Serializer\Context;
@@ -44,8 +45,7 @@ class TransactionMessageSerializerHandlerTest extends WebTestCase
 
         $transactionMessage = $messageSerializerHandler->deserializeTransactionMessageFromJson($visitor, $data, [], $context);
 
-        $this->assertTrue($transactionMessage->getWalletFrom() instanceof Wallet);
-        $this->assertTrue($transactionMessage->getWalletTo() instanceof Wallet);
+        $this->assertTrue($transactionMessage instanceof TransactionMessage);
     }
 
     private function getMessageSerializerHandler($discordUserRepository): TransactionMessageSerializerHandler
