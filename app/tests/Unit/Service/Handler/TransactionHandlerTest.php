@@ -11,6 +11,7 @@ use App\Service\Notifier\Transaction\DiscordNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Ulid;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TransactionHandlerTest extends TestCase
@@ -30,8 +31,8 @@ class TransactionHandlerTest extends TestCase
 
     private function getTransactions(): array
     {
-        $walletFrom = (new Wallet())->setAmount('1000');
-        $walletTo = (new Wallet())->setAmount('2000');
+        $walletFrom = (new Wallet())->setId(Ulid::generate())->setAmount('1000');
+        $walletTo = (new Wallet())->setId(Ulid::generate())->setAmount('2000');
 
         return [
             [

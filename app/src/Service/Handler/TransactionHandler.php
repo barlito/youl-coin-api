@@ -22,7 +22,7 @@ class TransactionHandler extends AbstractHandler
 
     public function handleTransaction(Transaction $transaction): void
     {
-        // TODO need to lock and unlock Wallets during the calculation
+        $this->validate($transaction);
 
         $walletFrom = $transaction->getWalletFrom();
         $walletTo = $transaction->getWalletTo();

@@ -28,7 +28,7 @@ class Wallet
      * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet")
      * @ORM\JoinColumn(referencedColumnName="discord_id")
      */
-    private ?DiscordUser $discordUser;
+    private ?DiscordUser $discordUser = null;
 
     /**
      * @ORM\Column(type="string")

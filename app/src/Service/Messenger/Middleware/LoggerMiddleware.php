@@ -30,7 +30,7 @@ class LoggerMiddleware implements MiddlewareInterface
     {
         // todo create a class on barlito/utils and move this
         $serializerContext = (new ObjectNormalizerContextBuilder())
-            ->withGroups(['default', 'test'])
+            ->withGroups(['log'])
             ->toArray()
         ;
 

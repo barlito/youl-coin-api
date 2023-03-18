@@ -41,8 +41,8 @@ class TransactionMessageSerializer implements SerializerInterface
             return [
                 'body' => json_encode([
                     'amount' => $message->getAmount(),
-                    'discordUserIdFrom' => $message->getWalletFrom()?->getDiscordUser()->getDiscordId(),
-                    'discordUserIdTo' => $message->getWalletTo()?->getDiscordUser()->getDiscordId(),
+                    'discordUserIdFrom' => $message->getDiscordUserIdFrom(),
+                    'discordUserIdTo' => $message->getDiscordUserIdTo(),
                     'type' => $message->getType(),
                     'message' => $message->getMessage(),
                 ]),
