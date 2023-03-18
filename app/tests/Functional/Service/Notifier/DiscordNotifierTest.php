@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Service\Notifier;
 use App\Money\YoulCoinFormatter;
 use App\Repository\TransactionRepository;
 use App\Service\Notifier\Transaction\DiscordNotifier;
+use App\Service\Util\MoneyUtil;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Notifier\ChatterInterface;
@@ -32,7 +33,7 @@ class DiscordNotifierTest extends KernelTestCase
         $discordNotifier = new DiscordNotifier(
             $chatterMock,
             $loggerMock,
-            $this->getContainer()->get(YoulCoinFormatter::class),
+            new MoneyUtil(),
             $this->getContainer()->getParameter('app.discord'),
         );
         $discordNotifier->notifyNewTransaction($this->getContainer()->get(TransactionRepository::class)->findAll()[0]);
@@ -55,7 +56,7 @@ class DiscordNotifierTest extends KernelTestCase
         $discordNotifier = new DiscordNotifier(
             $chatterMock,
             $loggerMock,
-            $this->getContainer()->get(YoulCoinFormatter::class),
+            new MoneyUtil(),
             $this->getContainer()->getParameter('app.discord'),
         );
         $discordNotifier->notifyErrorOnTransaction('test failed', 'test failed');

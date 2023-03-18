@@ -7,6 +7,7 @@ namespace App\Service\Notifier\Transaction;
 use App\Entity\Transaction;
 use App\Money\YoulCoinFormatter;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
+use App\Service\Util\MoneyUtil;
 use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Bridge\Discord\DiscordOptions;
@@ -21,7 +22,7 @@ class DiscordNotifier implements TransactionNotifierInterface
     public function __construct(
         private readonly ChatterInterface $chatter,
         private readonly LoggerInterface $logger,
-        private readonly YoulCoinFormatter $youlCoinFormatter,
+        private readonly MoneyUtil $moneyUtil,
         private readonly array $discordOptionsParams,
     ) {
     }
@@ -45,13 +46,13 @@ class DiscordNotifier implements TransactionNotifierInterface
                         ->timestamp(new DateTime())
                         ->addField(
                             (new DiscordFieldEmbedObject())
-                                ->name('-' . $this->youlCoinFormatter->format($transaction->getAmount()))
+                                ->name('-' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
                                 ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
                                 ->inline(true),
                         )
                         ->addField(
                             (new DiscordFieldEmbedObject())
-                                ->name('+' . $this->youlCoinFormatter->format($transaction->getAmount()))
+                                ->name('+' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
                                 ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
                                 ->inline(true),
                         ),
