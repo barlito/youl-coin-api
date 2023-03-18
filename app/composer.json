@@ -9,6 +9,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "barlito/utils": "^1.0.2",
+        "brick/money": "^0.8.0",
         "composer/package-versions-deprecated": "1.11.99.2",
         "doctrine/annotations": "^1.13.3",
         "doctrine/doctrine-bundle": "^2.7",
