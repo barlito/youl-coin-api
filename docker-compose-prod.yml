@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
     nginx:
-        image: youl-coin-test:1
+        image: barlito/youl-coin-api:${TAG}
         working_dir: /app
         environment:
             # PHP config
