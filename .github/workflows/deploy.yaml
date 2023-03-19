@@ -3,10 +3,11 @@ name: Deploy Workflow
 on: workflow_dispatch
 
 jobs:
-
   deploy:
-
     runs-on: ubuntu-latest
+
+    env:
+      DOCKER_HOST: ssh://${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_HOST }}:${{ vars.SERVER_PORT }}
 
     steps:
       - uses: actions/checkout@v3
@@ -16,9 +17,9 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo ${{ secrets.SSH_PRIVATE_KEY }} > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p ${{ vars.SERVER_PORT }} ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -26,8 +27,5 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_READ_WRITE_DELETE_ACCESS_TOKEN }}
 
-      - name: Export Docker Host
-        run: export DOCKER_HOST=ssh://${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_HOST }}:${{ vars.SERVER_PORT }}
-
       - name: Deploy Stack
-        run: make deploy.prod project_url=yc-barlito.fr
+        run: TAG=$GITHUB_REF_NAME make deploy.prod project_url=yc.barlito.fr
