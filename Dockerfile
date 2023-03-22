@@ -1,7 +1,8 @@
 FROM webdevops/php-nginx-dev:8.1
 
 # Install acl package
-RUN apt-get update && \
+# todo remove the || true when the tideways packages sources are fixed
+RUN apt-get update || true && \
     apt-get install -y acl && \
     rm -rf /var/lib/apt/lists/*
 
