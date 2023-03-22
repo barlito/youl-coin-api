@@ -27,5 +27,5 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_READ_WRITE_DELETE_ACCESS_TOKEN }}
 
-      - name: Deploy Stack
-        run: TAG=$GITHUB_REF_NAME make deploy.prod project_url=yc.barlito.fr
+      - name: Update Service
+        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_nginx" project_url=yc.barlito.fr

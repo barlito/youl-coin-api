@@ -16,6 +16,7 @@ framework:
                 retry_strategy:
                     max_retries: 0
                 options:
+                    persistent: true
                     queues:
                         messages_transaction: ~
 
