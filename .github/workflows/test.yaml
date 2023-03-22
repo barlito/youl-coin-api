@@ -1,14 +1,6 @@
 name: Tests Workflow
 
-on:
-  workflow_run:
-    workflows: [Code Quality Workflow]
-    types:
-      - completed
-
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+on: workflow_call
 
 jobs:
 
@@ -26,6 +18,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
 
       - name: Deploy stack
         run: make deploy.ci args=${{ secrets.GITHUB_TOKEN }}
