@@ -1,8 +1,10 @@
 name: Release Workflow
 
-on:
-  release:
-    types: [published]
+#on:
+#  release:
+#    types: [published]
+
+on: workflow_dispatch
 
 jobs:
 
@@ -15,9 +17,8 @@ jobs:
         with:
           submodules: 'true'
 
-      # Todo deploy stack and run composer install with optimized autoloader
       - name: Deploy stack
-        run: make deploy.ci args=${{ secrets.GITHUB_TOKEN }}
+        run: make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker Image
         run: docker build -t latest -t ${{ secrets.DOCKER_HUB_USERNAME }}/youl-coin-api:$GITHUB_REF_NAME .

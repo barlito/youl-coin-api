@@ -15,9 +15,10 @@ services:
             PHP_POST_MAX_SIZE: 50M
             PHP_UPLOAD_MAX_FILESIZE: 50M
             PHP_OPCACHE_REVALIDATE_FREQ: 0
-            php.xdebug.var_display_max_depth: 10
-            php.xdebug.var_display_max_data: 2048
-            XDEBUG_MODE: coverage
+            APP_ENV: prod
+            DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=13&charset=utf8"
+            MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@rabbitmq:5672/%2f/messages"
+            DISCORD_DSN: "${DISCORD_DSN}"
         deploy:
             labels:
                 - traefik.enable=true
@@ -26,18 +27,19 @@ services:
 
                 - traefik.http.routers.youlcoin.rule=Host(`yc.barlito.fr`)
                 - traefik.http.routers.youlcoin.entrypoints=http
-                # - traefik.http.routers.youlcoin.middlewares=tls-redirectscheme
+                - traefik.http.routers.youlcoin.middlewares=tls-redirectscheme
 
                 - traefik.http.routers.youlcoin-secure.rule=Host(`yc.barlito.fr`)
                 - traefik.http.routers.youlcoin-secure.entrypoints=https
                 - traefik.http.routers.youlcoin-secure.tls=true
+                - traefik.http.routers.youlcoin-secure.tls.certresolver=letsencrypt
         networks:
             - traefik_traefik_proxy
 
     db:
         image: postgres:13
         environment:
-            POSTGRES_PASSWORD: root
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
         networks:
             - traefik_traefik_proxy
         volumes:
@@ -58,15 +60,20 @@ services:
 
                 - traefik.http.routers.youlcoin_adminer.rule=Host(`yc-adminer.barlito.fr`)
                 - traefik.http.routers.youlcoin_adminer.entrypoints=http
+                - traefik.http.routers.youlcoin_adminer.middlewares=tls-redirectscheme
 
                 - traefik.http.routers.youlcoin_adminer-secure.rule=Host(`yc-adminer.barlito.fr`)
                 - traefik.http.routers.youlcoin_adminer-secure.entrypoints=https
                 - traefik.http.routers.youlcoin_adminer-secure.tls=true
+                - traefik.http.routers.youlcoin_adminer-secure.tls.certresolver=letsencrypt
         networks:
             - traefik_traefik_proxy
 
     rabbitmq:
         image: rabbitmq:3-management
+        environment:
+            RABBITMQ_DEFAULT_USER: ${AMQP_USER}
+            RABBITMQ_DEFAULT_PASS: ${AMQP_PASS}
         deploy:
             labels:
                 - traefik.enable=true
@@ -75,10 +82,12 @@ services:
 
                 - traefik.http.routers.youlcoin_rabbitmq.rule=Host(`yc-rabbitmq.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq.entrypoints=http
+                - traefik.http.routers.youlcoin_rabbitmq.middlewares=tls-redirectscheme
 
                 - traefik.http.routers.youlcoin_rabbitmq-secure.rule=Host(`yc-rabbitmq.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https
                 - traefik.http.routers.youlcoin_rabbitmq-secure.tls=true
+                - traefik.http.routers.youlcoin_rabbitmq-secure.tls.certresolver=letsencrypt
         networks:
             - traefik_traefik_proxy
 

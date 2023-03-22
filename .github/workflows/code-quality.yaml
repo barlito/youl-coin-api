@@ -30,7 +30,7 @@ jobs:
         run: "ls -la ~/.composer/cache/files"
 
       - name: Deploy stack
-        run: make deploy.ci args=${{ secrets.GITHUB_TOKEN }}
+        run: make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
 
       - name: "Determine composer cache directory"
         run: "ls -la ~/.composer/cache/files"

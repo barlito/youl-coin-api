@@ -1,6 +1,12 @@
 name: Deploy Workflow
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      re-deploy:
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   deploy:
@@ -8,6 +14,11 @@ jobs:
 
     env:
       DOCKER_HOST: ssh://${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_HOST }}:${{ vars.SERVER_PORT }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      AMQP_USER: ${{ secrets.AMQP_USER }}
+      AMQP_PASS: ${{ secrets.AMQP_PASS }}
+      DISCORD_DSN: ${{ secrets.DISCORD_DSN }}
 
     steps:
       - uses: actions/checkout@v3
@@ -27,5 +38,15 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_READ_WRITE_DELETE_ACCESS_TOKEN }}
 
+      - name: Re-Deploy Service
+        run: echo ${{ ! inputs.re-deploy }}
+
+      - name: Re-Deploy Service
+        if: inputs.re-deploy
+        run: |
+          make undeploy
+          TAG=$GITHUB_REF_NAME make deploy.prod project_url=yc.barlito.fr
+
       - name: Update Service
+        if: ${{ ! inputs.re-deploy }}
         run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_nginx" project_url=yc.barlito.fr
