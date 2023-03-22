@@ -11,8 +11,10 @@ jobs:
   # Call the code-quality workflow
   code-quality:
     uses: ./.github/workflows/code-quality.yaml
+    secrets: inherit
 
   # Call the test workflow
   test:
     needs:  code-quality
     uses: ./.github/workflows/test.yaml
+    secrets: inherit

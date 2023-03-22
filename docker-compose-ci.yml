@@ -4,6 +4,8 @@ services:
     nginx:
         ports:
             - "8081:80"
+        volumes:
+            - ~/.composer/cache/files:/root/.composer/cache/files
 
     db:
         container_name: youl_coin_db
