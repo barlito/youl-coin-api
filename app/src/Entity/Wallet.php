@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use App\Entity\Traits\IdUlidTrait;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
@@ -14,6 +18,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=WalletRepository::class)
  */
+#[ApiResource(
+    uriTemplate: '/user/{discord_user_id}/wallet.{_format}',
+    operations: [new GetCollection()],
+    uriVariables: [
+        'discord_user_id' => new Link(
+            fromProperty: 'wallet',
+            fromClass: DiscordUser::class
+        )
+    ]
+)]
 class Wallet
 {
     use IdUlidTrait;
