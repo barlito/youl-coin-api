@@ -19,6 +19,10 @@ services:
             DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=13&charset=utf8"
             MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@rabbitmq:5672/%2f/messages"
             DISCORD_DSN: "${DISCORD_DSN}"
+        logging:
+            driver: loki
+            options:
+                loki-url: "http://176.31.100.99:3100/loki/api/v1/push"
         deploy:
             labels:
                 - traefik.enable=true
