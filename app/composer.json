@@ -27,31 +27,31 @@
         "phpstan/phpdoc-parser": "^1.9",
         "squizlabs/php_codesniffer": "^3.7.1",
         "stof/doctrine-extensions-bundle": "^1.7",
-        "symfony/amqp-messenger": "6.2.*",
-        "symfony/asset": "6.2.*",
-        "symfony/console": "6.2.*",
-        "symfony/dependency-injection": "6.2.*",
-        "symfony/discord-notifier": "6.2.*",
-        "symfony/doctrine-messenger": "6.2.*",
-        "symfony/dotenv": "6.2.*",
-        "symfony/expression-language": "6.2.*",
-        "symfony/flex": "^1.19.5",
-        "symfony/framework-bundle": "6.2.*",
-        "symfony/lock": "6.2.*",
-        "symfony/messenger": "6.2.*",
+        "symfony/amqp-messenger": "6.3.*",
+        "symfony/asset": "6.3.*",
+        "symfony/console": "6.3.*",
+        "symfony/dependency-injection": "6.3.*",
+        "symfony/discord-notifier": "6.3.*",
+        "symfony/doctrine-messenger": "6.3.*",
+        "symfony/dotenv": "6.3.*",
+        "symfony/expression-language": "6.3.*",
+        "symfony/flex": "^2",
+        "symfony/framework-bundle": "6.3.*",
+        "symfony/lock": "6.3.*",
+        "symfony/messenger": "6.3.*",
         "symfony/monolog-bundle": "^3.8",
-        "symfony/notifier": "6.2.*",
-        "symfony/property-access": "6.2.*",
-        "symfony/property-info": "6.2.*",
-        "symfony/proxy-manager-bridge": "6.2.*",
-        "symfony/runtime": "6.2.*",
-        "symfony/security-bundle": "6.2.*",
-        "symfony/serializer": "6.2.*",
-        "symfony/translation": "6.2.*",
-        "symfony/twig-bundle": "6.2.*",
-        "symfony/uid": "6.2.*",
-        "symfony/validator": "6.2.*",
-        "symfony/yaml": "6.2.*"
+        "symfony/notifier": "6.3.*",
+        "symfony/property-access": "6.3.*",
+        "symfony/property-info": "6.3.*",
+        "symfony/proxy-manager-bridge": "6.3.*",
+        "symfony/runtime": "6.3.*",
+        "symfony/security-bundle": "6.3.*",
+        "symfony/serializer": "6.3.*",
+        "symfony/translation": "6.3.*",
+        "symfony/twig-bundle": "6.3.*",
+        "symfony/uid": "6.3.*",
+        "symfony/validator": "6.3.*",
+        "symfony/yaml": "6.3.*"
     },
     "config": {
         "optimize-autoloader": true,
@@ -62,7 +62,8 @@
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
             "symfony/flex": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "php-http/discovery": true
         }
     },
     "autoload": {
@@ -98,7 +99,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "6.2.*"
+            "require": "6.3.*"
         }
     },
     "require-dev": {
@@ -111,17 +112,16 @@
         "guzzlehttp/psr7": "^2.4.5",
         "hautelook/alice-bundle": "^2.11",
         "justinrainbow/json-schema": "^5.2.12",
-        "php-http/curl-client": "^2.2.1",
         "phpunit/phpunit": "^9.5.25",
         "soyuka/contexts": "dev-main",
-        "symfony/browser-kit": "6.2.*",
-        "symfony/css-selector": "6.2.*",
-        "symfony/debug-bundle": "6.2.*",
-        "symfony/http-client": "6.2.*",
+        "symfony/browser-kit": "6.3.*",
+        "symfony/css-selector": "6.3.*",
+        "symfony/debug-bundle": "6.3.*",
+        "symfony/http-client": "6.3.*",
         "symfony/maker-bundle": "^1.48",
-        "symfony/phpunit-bridge": "6.2.*",
-        "symfony/stopwatch": "6.2.*",
-        "symfony/web-profiler-bundle": "6.2.*",
+        "symfony/phpunit-bridge": "6.3.*",
+        "symfony/stopwatch": "6.3.*",
+        "symfony/web-profiler-bundle": "6.3.*",
         "ubirak/rest-api-behat-extension": "^8.2"
     },
     "repositories": {

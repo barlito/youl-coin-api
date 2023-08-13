@@ -15,7 +15,7 @@ class TransactionConstraintValidator extends ConstraintValidator
     /**
      * @throws UnexpectedTypeException
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof TransactionConstraint) {
             throw new UnexpectedTypeException($constraint, TransactionConstraint::class);
