@@ -108,7 +108,7 @@
         "friends-of-behat/mink-browserkit-driver": "^1.6.1",
         "friends-of-behat/mink-extension": "^2.7.1",
         "friends-of-behat/symfony-extension": "^2.3.1",
-        "guzzlehttp/psr7": "^2.4.1",
+        "guzzlehttp/psr7": "^2.4.5",
         "hautelook/alice-bundle": "^2.11",
         "justinrainbow/json-schema": "^5.2.12",
         "php-http/curl-client": "^2.2.1",
