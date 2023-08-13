@@ -10,7 +10,6 @@ monolog:
             type: stream
             path: php://stderr
             level: error
-            channels: [ "doctrine", "event", "request", "security" ]
 
         console:
             type: console
