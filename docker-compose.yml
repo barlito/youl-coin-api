@@ -8,7 +8,7 @@ services:
             - ./app:/app
             - ./.docker/nginx/conf.d/default.conf:/opt/docker/etc/nginx/vhost.conf
 #            todo add this config file under ./.docker
-            - ./app/config/messenger-worker.conf:/opt/docker/etc/supervisor.d/messenger-worker.conf
+            - ./.docker/supervisor.d/messenger-worker.conf:/opt/docker/etc/supervisor.d/messenger-worker.conf
         working_dir: /app
         environment:
             # PHP config
@@ -44,8 +44,6 @@ services:
         image: postgres:13
         environment:
             POSTGRES_PASSWORD: root
-        networks:
-            - traefik_traefik_proxy
         volumes:
             - db_data:/var/lib/postgresql/data:rw
         ports:
@@ -53,6 +51,8 @@ services:
               published: 5432
               protocol: tcp
               mode: host
+        networks:
+            - traefik_traefik_proxy
 
     adminer:
         image: adminer

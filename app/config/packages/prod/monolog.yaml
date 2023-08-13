@@ -6,11 +6,6 @@ monolog:
             level: info
             channels: [ "!doctrine", "!event", "!request", "!security" ]
 
-        symfony_errors:
-            type: stream
-            path: php://stderr
-            level: error
-
         console:
             type: console
             process_psr_3_messages: false
