@@ -13,7 +13,7 @@ class AmountValidator extends ConstraintValidator
     /**
      * @throws UnexpectedTypeException
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (null === $value || '' === $value) {
             return;
