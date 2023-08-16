@@ -7,10 +7,6 @@ Feature:
     As a user
     I want to have a demo scenario
 
-    Background:
-        When I add "Content-Type" header equal to "application/json"
-        And I add "Accept" header equal to "application/json"
-
     Scenario: It receives a response from Symfony's kernel
         When I send a GET request to "/api"
         Then the response should be in JSON

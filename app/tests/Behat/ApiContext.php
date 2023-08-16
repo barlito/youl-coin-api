@@ -37,4 +37,12 @@ final class ApiContext extends ApiTestCase implements Context
     {
         self::assertMatchesResourceItemJsonSchema(Wallet::class);
     }
+
+    /**
+     * @Then /^the response should be in JSON$/
+     */
+    public function responseShouldBeInJson()
+    {
+        self::assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+    }
 }
