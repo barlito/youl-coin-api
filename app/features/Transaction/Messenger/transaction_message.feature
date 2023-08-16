@@ -6,8 +6,6 @@ Feature:
   Notifications are send correctly
   Errors are raised if the message is bad
 
-#  todo add a Discord notifier mock to test discord notification but without sending them
-
   Scenario Outline:
   I send incorrect Messages
   Errors should be logged and notified on discord

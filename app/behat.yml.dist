@@ -7,20 +7,10 @@ default:
                 - App\Tests\Behat\EntityManagerContext
                 - App\Tests\Behat\LoggerContext
                 - App\Tests\Behat\NotifierContext
-                - Behat\MinkExtension\Context\MinkContext
-                - Ubirak\RestApiBehatExtension\RestApiContext
-                - Ubirak\RestApiBehatExtension\Json\JsonContext
+                - App\Tests\Behat\ApiContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:
             bootstrap: tests/bootstrap.php
             kernel:
                 class: App\Kernel
-        Behat\MinkExtension:
-            base_url: "http://localhost"
-            sessions:
-                symfony:
-                    symfony: ~
-        Ubirak\RestApiBehatExtension\Extension:
-            rest:
-                base_url: http://localhost
