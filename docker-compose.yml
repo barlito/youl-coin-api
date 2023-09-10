@@ -38,6 +38,7 @@ services:
                 - traefik.http.routers.youlcoin-secure.entrypoints=https
                 - traefik.http.routers.youlcoin-secure.tls=true
         networks:
+            - yc_api_internal
             - traefik_traefik_proxy
 
     db:
@@ -45,14 +46,9 @@ services:
         environment:
             POSTGRES_PASSWORD: root
         volumes:
-            - db_data:/var/lib/postgresql/data:rw
-        ports:
-            - target: 5432
-              published: 5432
-              protocol: tcp
-              mode: host
+            - yc_api_db_data:/var/lib/postgresql/data:rw
         networks:
-            - traefik_traefik_proxy
+            - yc_api_internal
 
     adminer:
         image: adminer
@@ -69,6 +65,7 @@ services:
                 - traefik.http.routers.youlcoin_adminer-secure.entrypoints=https
                 - traefik.http.routers.youlcoin_adminer-secure.tls=true
         networks:
+            - yc_api_internal
             - traefik_traefik_proxy
 
     rabbitmq:
@@ -86,11 +83,14 @@ services:
                 - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https
                 - traefik.http.routers.youlcoin_rabbitmq-secure.tls=true
         networks:
+            - yc_api_internal
             - traefik_traefik_proxy
 
 volumes:
-    db_data:
+    yc_api_db_data:
 
 networks:
     traefik_traefik_proxy:
         external: true
+    yc_api_internal:
+        driver: overlay
