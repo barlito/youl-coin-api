@@ -34,6 +34,7 @@ class TransactionMessageSerializer implements SerializerInterface
      */
     public function encode(Envelope $envelope): array
     {
+        // here use a service decorating this one
         if ('test' === $this->env) {
             /** @var TransactionMessage $message */
             $message = $envelope->getMessage();
@@ -54,6 +55,7 @@ class TransactionMessageSerializer implements SerializerInterface
 
     private function getTransactionMessageFromBody(string $body): TransactionMessage
     {
+        //todo no need JMS here denormalizer from SF serializer component should do the job
         return $this->serializer->deserialize($body, TransactionMessage::class, 'json');
     }
 }
