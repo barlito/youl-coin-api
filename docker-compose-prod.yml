@@ -75,6 +75,9 @@ services:
 
     rabbitmq:
         image: rabbitmq:3-management
+        hostname: yc-rabbitmq
+        volumes:
+            - yc_exchange_rabbit_mq_data:/var/lib/rabbitmq:rw
         environment:
             RABBITMQ_DEFAULT_USER: ${AMQP_USER}
             RABBITMQ_DEFAULT_PASS: ${AMQP_PASS}
@@ -97,6 +100,7 @@ services:
 
 volumes:
     youl_coin_db:
+    yc_exchange_rabbit_mq_data:
 
 networks:
     traefik_traefik_proxy:

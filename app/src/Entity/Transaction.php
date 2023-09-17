@@ -10,6 +10,7 @@ use App\Repository\TransactionRepository;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -24,35 +25,40 @@ class Transaction
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[Groups('transaction:notification')]
     #[Assert\NotBlank(message: 'The amount value should not be blank.')]
     #[CustomAssert\Amount]
     private string $amount;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Wallet::class)
+     * @ORM\ManyToOne(targetEntity=Wallet::class, fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
     #[Assert\Valid]
-    private ?Wallet $walletFrom;
+    private Wallet $walletFrom;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Wallet::class)
+     * @ORM\ManyToOne(targetEntity=Wallet::class, fetch="EAGER")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The walletTo value should not be null.')]
     #[Assert\Valid]
-    private ?Wallet $walletTo;
+    private Wallet $walletTo;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
+    #[Groups('transaction:notification')]
     private ?string $message;
 
     /**
      * @ORM\Column(type="string")
      * @Assert\Choice(TransactionTypeEnum::VALUES)
      */
+    #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The type value should not be null.')]
     #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
     private string $type;
@@ -69,24 +75,24 @@ class Transaction
         return $this;
     }
 
-    public function getWalletFrom(): ?Wallet
+    public function getWalletFrom(): Wallet
     {
         return $this->walletFrom;
     }
 
-    public function setWalletFrom(?Wallet $walletFrom): self
+    public function setWalletFrom(Wallet $walletFrom): self
     {
         $this->walletFrom = $walletFrom;
 
         return $this;
     }
 
-    public function getWalletTo(): ?Wallet
+    public function getWalletTo(): Wallet
     {
         return $this->walletTo;
     }
 
-    public function setWalletTo(?Wallet $walletTo): self
+    public function setWalletTo(Wallet $walletTo): self
     {
         $this->walletTo = $walletTo;
 

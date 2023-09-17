@@ -1,0 +1,5 @@
+framework:
+    messenger:
+        transports:
+            transaction_notification:
+                dsn: 'in-memory://?serialize=true'

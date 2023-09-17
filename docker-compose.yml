@@ -70,6 +70,9 @@ services:
 
     rabbitmq:
         image: rabbitmq:3-management
+        hostname: yc-rabbitmq
+        volumes:
+            - yc_exchange_rabbit_mq_data:/var/lib/rabbitmq:rw
         deploy:
             labels:
                 - traefik.enable=true
@@ -88,6 +91,7 @@ services:
 
 volumes:
     yc_api_db_data:
+    yc_exchange_rabbit_mq_data:
 
 networks:
     traefik_traefik_proxy:

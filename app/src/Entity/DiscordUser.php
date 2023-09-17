@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\DiscordUserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=DiscordUserRepository::class)
@@ -16,6 +17,7 @@ class DiscordUser
      * @ORM\Id
      * @ORM\Column(type="string", unique=true)
      */
+    #[Groups('transaction:notification')]
     private string $discordId;
 
     /**
@@ -26,6 +28,7 @@ class DiscordUser
     /**
      * @ORM\Column(type="string", nullable=true)
      */
+    #[Groups('transaction:notification')]
     private string $notes;
 
     public function __toString(): string

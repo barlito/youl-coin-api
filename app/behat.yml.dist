@@ -8,6 +8,7 @@ default:
                 - App\Tests\Behat\LoggerContext
                 - App\Tests\Behat\NotifierContext
                 - App\Tests\Behat\ApiContext
+                - App\Tests\Behat\InMemoryContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:

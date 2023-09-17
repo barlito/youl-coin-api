@@ -17,11 +17,21 @@ framework:
                     max_retries: 0
                 options:
                     persistent: true
+                    exchange:
+                        name: transaction_exchange
                     queues:
                         messages_transaction: ~
 
-#            failed: 'doctrine://default?queue_name=failed'
+            transaction_notification:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Service\Messenger\Serializer\TransactionNotificationSerializer
+                options:
+                    persistent: true
+                    exchange:
+                        name: transaction_notification_exchange
+                    queues: []
 
         routing:
             # Route your messages to the transports
             'App\Message\TransactionMessage': async_transaction
+            'App\Entity\Transaction': transaction_notification
