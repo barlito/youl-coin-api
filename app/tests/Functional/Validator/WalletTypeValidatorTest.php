@@ -7,7 +7,6 @@ namespace App\Tests\Functional\Validator;
 use App\Entity\Wallet;
 use App\Enum\WalletTypeEnum;
 use App\Validator\Entity\Wallet\WalletType;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -22,19 +21,7 @@ class WalletTypeValidatorTest extends KernelTestCase
 
     public function testWalletTypeConstraint()
     {
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $validator = self::getContainer()->get(ValidatorInterface::class);
-
-        $walletBank = (new Wallet())
-            ->setAmount('10100')
-            ->setType(WalletTypeEnum::BANK)
-        ;
-        $violations = $validator->validate($walletBank);
-
-        $this->assertCount(0, $violations);
-
-        $entityManager->persist($walletBank);
-        $entityManager->flush();
 
         $secondWalletBank = (new Wallet())
             ->setAmount('222222')

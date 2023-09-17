@@ -41,3 +41,9 @@ App\Entity\Wallet:
     discordUser: '@discord_user_veli'
     type: user
     notes: "Wallet Veli"
+
+  wallet_bank:
+    id: 01HAJGPGCP28GFA6QD08NMH764
+    amount: <numberBetween(100000000000, 900000000000)>
+    type: bank
+    notes: "Bank Wallet"
