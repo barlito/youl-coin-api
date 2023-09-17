@@ -26,7 +26,7 @@ class WalletTypeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, WalletType::class);
         }
 
-        if (!\is_string($value)) {
+        if (WalletTypeEnum::BANK !== $value) {
             return;
         }
 
