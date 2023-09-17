@@ -13,7 +13,7 @@ class TransactionMessage
 {
     #[Groups('log')]
     #[Assert\NotBlank(message: 'The amount value should not be blank.')]
-    #[CustomAssert\Amount]
+    #[CustomAssert\Entity\Transaction\Amount]
     private ?string $amount;
 
     #[Groups('log')]

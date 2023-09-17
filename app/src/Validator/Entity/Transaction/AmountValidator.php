@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Validator;
+namespace App\Validator\Entity\Transaction;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -15,6 +15,10 @@ class AmountValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint): void
     {
+        if (!$constraint instanceof Amount) {
+            throw new UnexpectedTypeException($constraint, Amount::class);
+        }
+
         if (null === $value || '' === $value) {
             return;
         }

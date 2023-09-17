@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Link;
 use App\Entity\Traits\IdUlidTrait;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
+use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -50,6 +51,7 @@ class Wallet
      * @ORM\Column(type="string")
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
+    #[CustomAssert\Entity\Wallet\WalletType]
     #[Groups('transaction:notification')]
     private string $type;
 
