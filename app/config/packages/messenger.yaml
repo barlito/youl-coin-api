@@ -24,15 +24,14 @@ framework:
 
             transaction_notification:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-                serializer: messenger.transport.symfony_serializer
+                serializer: App\Service\Messenger\Serializer\TransactionNotificationSerializer
                 options:
                     persistent: true
                     exchange:
                         name: transaction_notification_exchange
                     queues: []
-#            failed: 'doctrine://default?queue_name=failed'
 
         routing:
             # Route your messages to the transports
             'App\Message\TransactionMessage': async_transaction
-            'App\Message\TransactionNotificationMessage': transaction_notification
+            'App\Entity\Transaction': transaction_notification

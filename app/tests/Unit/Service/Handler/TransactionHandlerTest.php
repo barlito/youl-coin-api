@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Service\Handler;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Service\Handler\TransactionHandler;
+use App\Service\Messenger\Publisher\TransactionNotificationPublisher;
 use App\Service\Notifier\Transaction\DiscordNotifier;
 use App\Service\Util\MoneyUtil;
 use Doctrine\ORM\EntityManagerInterface;
@@ -57,6 +58,7 @@ class TransactionHandlerTest extends TestCase
     {
         return new TransactionHandler(
             $this->getDiscordNotifierMock(),
+            $this->getTransactionNotificationPublisherMock(),
             new MoneyUtil(),
             $this->getEntityManagerMockPersistingOnce(),
             $this->createMock(ValidatorInterface::class),
@@ -69,6 +71,17 @@ class TransactionHandlerTest extends TestCase
 
         $discordNotifierMock->expects($this->once())
             ->method('notifyNewTransaction')
+        ;
+
+        return $discordNotifierMock;
+    }
+
+    private function getTransactionNotificationPublisherMock(): MockObject | TransactionNotificationPublisher
+    {
+        $discordNotifierMock = $this->createMock(TransactionNotificationPublisher::class);
+
+        $discordNotifierMock->expects($this->once())
+            ->method('publishTransactionNotification')
         ;
 
         return $discordNotifierMock;

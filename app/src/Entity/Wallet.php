@@ -12,6 +12,7 @@ use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -35,23 +36,27 @@ class Wallet
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups('transaction:notification')]
     private string $amount;
 
     /**
      * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet")
      * @ORM\JoinColumn(referencedColumnName="discord_id")
      */
+    #[Groups('transaction:notification')]
     private ?DiscordUser $discordUser = null;
 
     /**
      * @ORM\Column(type="string")
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
+    #[Groups('transaction:notification')]
     private string $type;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
+    #[Groups('transaction:notification')]
     private string $notes;
 
     public function getAmount(): string

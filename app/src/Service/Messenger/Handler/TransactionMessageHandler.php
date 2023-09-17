@@ -31,7 +31,7 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
         parent::__construct($entityManager, $validator);
     }
 
-    public function __invoke(TransactionMessage $transactionMessage)
+    public function __invoke(TransactionMessage $transactionMessage): void
     {
         try {
             $this->validate($transactionMessage);
@@ -45,7 +45,7 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
     /**
      * @throws Throwable
      */
-    private function handleException(Throwable $exception, TransactionMessage $transactionMessage)
+    private function handleException(Throwable $exception, TransactionMessage $transactionMessage): void
     {
         // todo create a class on barlito/utils and move this
         $serializerContext = (new ObjectNormalizerContextBuilder())

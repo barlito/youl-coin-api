@@ -6,6 +6,7 @@ namespace App\Service\Handler;
 
 use App\Entity\Transaction;
 use App\Service\Handler\Abstraction\AbstractHandler;
+use App\Service\Messenger\Publisher\TransactionNotificationPublisher;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
 use Brick\Math\Exception\MathException;
@@ -20,6 +21,7 @@ class TransactionHandler extends AbstractHandler
 {
     public function __construct(
         private readonly TransactionNotifierInterface $discordNotifier,
+        private readonly TransactionNotificationPublisher $transactionPublisher,
         private readonly MoneyUtil $moneyUtil,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
@@ -62,5 +64,6 @@ class TransactionHandler extends AbstractHandler
     private function notify(Transaction $transaction): void
     {
         $this->discordNotifier->notifyNewTransaction($transaction);
+        $this->transactionPublisher->publishTransactionNotification($transaction);
     }
 }
