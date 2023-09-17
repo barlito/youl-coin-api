@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass=TransactionRepository::class)
  */
-#[CustomAssert\TransactionConstraint]
+#[CustomAssert\Entity\Transaction\TransactionConstraint]
 class Transaction
 {
     use IdUuidTrait;
@@ -27,7 +27,7 @@ class Transaction
      */
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(message: 'The amount value should not be blank.')]
-    #[CustomAssert\Amount]
+    #[CustomAssert\Entity\Transaction\Amount]
     private string $amount;
 
     /**

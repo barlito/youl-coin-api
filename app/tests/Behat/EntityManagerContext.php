@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use DateTime;
 use DateTimeInterface;
@@ -15,11 +16,15 @@ use RuntimeException;
 use Symfony\Component\PropertyAccess\Exception\AccessException;
 use Symfony\Component\PropertyAccess\Exception\NoSuchIndexException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class EntityManagerContext extends TestCase implements Context
 {
-    public function __construct(protected EntityManagerInterface $entityManager, protected string $entityNamespace)
-    {
+    public function __construct(
+        protected EntityManagerInterface $entityManager,
+        protected SerializerInterface $serializer,
+        protected string $entityNamespace,
+    ) {
         parent::__construct();
     }
 
@@ -159,5 +164,28 @@ final class EntityManagerContext extends TestCase implements Context
         }
 
         return null;
+    }
+
+    /**
+     * @Then I create a ":entityClass" entity with data:
+     */
+    public function iCreateAEntityWithData($entityClass, PyStringNode $data)
+    {
+        $entity = $this->serializer->deserialize($data->getRaw(), $this->getRepository($entityClass)->getClassName(), 'json');
+
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @Given I should find :count :entityClass entity found by :findByQueryString
+     */
+    public function iShouldFindEntityWithParams(int $number, string $entityClass, string $findByQueryString)
+    {
+        $findBy = $this->parseFindByQueryString($findByQueryString);
+        $this->entityManager->clear();
+        $entities = $this->getRepository($entityClass)->findBy($findBy);
+
+        $this->assertCount($number, $entities, sprintf('Found %d entities instead of %d', \count($entities), $number));
     }
 }
