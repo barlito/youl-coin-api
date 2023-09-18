@@ -7,6 +7,8 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.admin_urls:
+        seasons: '%env(SEASON_ADMIN_URL)%'
 
 services:
     # default configuration for services in *this* file
@@ -31,6 +33,10 @@ services:
     App\Service\Notifier\Transaction\DiscordNotifier:
         arguments:
             $discordOptionsParams: '%app.discord%'
+
+    App\Controller\Admin\DashboardController:
+        arguments:
+            $adminUrls: '%app.admin_urls%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -1,0 +1,4 @@
+parameters:
+#    app.admin_urls: [
+#        'seasons' => '%env(SEASON_ADMIN_URL)%'
+#    ]
