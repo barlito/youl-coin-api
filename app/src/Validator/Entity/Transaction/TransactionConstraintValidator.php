@@ -25,7 +25,8 @@ class TransactionConstraintValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, Transaction::class);
         }
 
-        if (!$value->getWalletFrom() instanceof Wallet
+        if (
+            !$value->getWalletFrom() instanceof Wallet
             || !\is_string($value->getAmount())
             || !is_numeric($value->getAmount())
         ) {
