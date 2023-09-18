@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
 )]
+#[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => 'type = \'' . WalletTypeEnum::BANK . '\''])]
 #[ORM\Entity(repositoryClass: WalletRepository::class)]
 class Wallet
 {

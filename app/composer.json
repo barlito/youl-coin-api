@@ -19,6 +19,7 @@
         "friendsofphp/php-cs-fixer": "^3.11",
         "friendsofsymfony/rest-bundle": "^3.4",
         "jms/serializer-bundle": "^4.2",
+        "knpuniversity/oauth2-client-bundle": "^2.15",
         "nelmio/cors-bundle": "^2.2",
         "pdepend/pdepend": "dev-master",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -50,7 +51,8 @@
         "symfony/twig-bundle": "6.3.*",
         "symfony/uid": "6.3.*",
         "symfony/validator": "6.3.*",
-        "symfony/yaml": "6.3.*"
+        "symfony/yaml": "6.3.*",
+        "wohali/oauth2-discord-new": "^1.2"
     },
     "config": {
         "optimize-autoloader": true,
