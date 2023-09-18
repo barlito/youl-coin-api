@@ -43,8 +43,8 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Wallet Settings');
         yield MenuItem::linkToCrud('Wallets', 'fas fa-wallet', Wallet::class);
-//        second wallet custom page for bank wallet transactions
-//        yield MenuItem::linkToCrud('Wallets', 'fas fa-calendar-days', Wallet::class);
+        //        second wallet custom page for bank wallet transactions
+        //        yield MenuItem::linkToCrud('Wallets', 'fas fa-calendar-days', Wallet::class);
 
         yield MenuItem::section('Extra');
         // Todo set link here

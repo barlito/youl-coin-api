@@ -33,11 +33,11 @@ class TransactionMessage
     private ?string $message;
 
     public function __construct(
-        ?string $amount = null,
-        ?string $discordUserIdFrom = null,
-        ?string $discordUserIdTo = null,
-        ?string $type = null,
-        ?string $message = null,
+        string $amount = null,
+        string $discordUserIdFrom = null,
+        string $discordUserIdTo = null,
+        string $type = null,
+        string $message = null,
     ) {
         $this->amount = $amount;
         $this->discordUserIdFrom = $discordUserIdFrom;

@@ -15,7 +15,6 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Throwable;
 
 class TransactionMessageHandler extends AbstractHandler implements MessageHandlerInterface
 {
@@ -37,15 +36,15 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
             $this->validate($transactionMessage);
             $transaction = $this->transactionBuilder->build($transactionMessage);
             $this->transactionHandler->handleTransaction($transaction);
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->handleException($exception, $transactionMessage);
         }
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
-    private function handleException(Throwable $exception, TransactionMessage $transactionMessage): void
+    private function handleException(\Throwable $exception, TransactionMessage $transactionMessage): void
     {
         // todo create a class on barlito/utils and move this
         $serializerContext = (new ObjectNormalizerContextBuilder())

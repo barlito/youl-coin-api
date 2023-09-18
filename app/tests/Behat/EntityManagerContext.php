@@ -7,12 +7,9 @@ namespace App\Tests\Behat;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use DateTime;
-use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use Symfony\Component\PropertyAccess\Exception\AccessException;
 use Symfony\Component\PropertyAccess\Exception\NoSuchIndexException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -92,7 +89,7 @@ final class EntityManagerContext extends TestCase implements Context
             if (str_contains($key, ':')) {
                 $parts = explode(':', $key);
                 if (2 !== \count($parts)) {
-                    throw new RuntimeException(
+                    throw new \RuntimeException(
                         sprintf(
                             'Invalid type identifier given to look for an entity "%s"',
                             $key,
@@ -119,7 +116,7 @@ final class EntityManagerContext extends TestCase implements Context
         }
 
         return match ($type) {
-            'date' => new DateTime($value),
+            'date' => new \DateTime($value),
             default => $value,
         };
     }
@@ -129,24 +126,18 @@ final class EntityManagerContext extends TestCase implements Context
         return $this->entityManager->getRepository($this->entityNamespace . '\\' . $entityClass);
     }
 
-    /**
-     * @param mixed $input
-     */
     private function getAsString($input): string
     {
-        if ($input instanceof DateTimeInterface) {
+        if ($input instanceof \DateTimeInterface) {
             return $input->format(DATE_ATOM);
         }
 
         return \is_array($input) && false !== json_encode($input) ?
             json_encode($input) :
-            (string) $input
-        ;
+            (string) $input;
     }
 
     /**
-     * @param mixed $entity
-     *
      * @return mixed|null
      */
     private function getValueAtPath($entity, string $path, bool $allowMissingPath)

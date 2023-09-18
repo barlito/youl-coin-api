@@ -7,8 +7,6 @@ namespace App\Tests\Behat;
 use App\Tests\Behat\Assert\PropertyAssertTrait;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use Exception;
-use JsonException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
@@ -26,7 +24,7 @@ class InMemoryContext extends TestCase implements Context
     /**
      * @Given /^"([^"]*)" message(?:s|) has been sent on "([^"]*)" transport$/
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function messageHasBeenSentOnTransport($number, $transportName)
     {
@@ -38,7 +36,7 @@ class InMemoryContext extends TestCase implements Context
     /**
      * @Given /^the "([^"]*)" message sent on "([^"]*)" transport should match:$/
      *
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function theMessageSentOnTransportShouldMatch(int $messageNumber, $transportName, PyStringNode $string)
     {
