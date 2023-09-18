@@ -16,9 +16,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=WalletRepository::class)
- */
 #[ApiResource(
     uriTemplate: '/user/{discord_user_id}/wallet.{_format}',
     operations: [new Get()],
@@ -29,36 +26,31 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
 )]
+#[ORM\Entity(repositoryClass: WalletRepository::class)]
 class Wallet
 {
     use IdUlidTrait;
     use TimestampableEntity;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     #[Groups('transaction:notification')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $amount;
 
-    /**
-     * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet")
-     * @ORM\JoinColumn(referencedColumnName="discord_id")
-     */
     #[Groups('transaction:notification')]
+    #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
+    #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 
     /**
-     * @ORM\Column(type="string")
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
     #[CustomAssert\Entity\Wallet\WalletType]
     #[Groups('transaction:notification')]
+    #[ORM\Column(type: 'string')]
     private string $type;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
     #[Groups('transaction:notification')]
+    #[ORM\Column(type: 'string', nullable: true)]
     private string $notes;
 
     public function getAmount(): string

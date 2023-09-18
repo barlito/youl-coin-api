@@ -13,54 +13,44 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=TransactionRepository::class)
- */
 #[CustomAssert\Entity\Transaction\TransactionConstraint]
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
     use IdUuidTrait;
     use TimestampableEntity;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(message: 'The amount value should not be blank.')]
     #[CustomAssert\Entity\Transaction\Amount]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $amount;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Wallet::class, fetch="EAGER")
-     * @ORM\JoinColumn(nullable=false)
-     */
     #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
     #[Assert\Valid]
+    #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(nullable: false)]
     private Wallet $walletFrom;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Wallet::class, fetch="EAGER")
-     * @ORM\JoinColumn(nullable=false)
-     */
     #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The walletTo value should not be null.')]
     #[Assert\Valid]
+    #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(nullable: false)]
     private Wallet $walletTo;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
     #[Groups('transaction:notification')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $message;
 
     /**
-     * @ORM\Column(type="string")
      * @Assert\Choice(TransactionTypeEnum::VALUES)
      */
     #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The type value should not be null.')]
     #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
+    #[ORM\Column(type: 'string')]
     private string $type;
 
     public function getAmount(): string
