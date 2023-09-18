@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Enum\RoleEnum;
@@ -12,7 +14,7 @@ class Admin implements UserInterface
 {
     #[ORM\Id]
     #[ORM\Column(unique: true)]
-    private ?string $discord_id = null;
+    private ?string $discordId = null;
 
     #[ORM\Column(length: 255, unique: true)]
     private string $username;
@@ -22,12 +24,12 @@ class Admin implements UserInterface
 
     public function getDiscordId(): ?string
     {
-        return $this->discord_id;
+        return $this->discordId;
     }
 
     public function setDiscordId(string $discord_id): static
     {
-        $this->discord_id = $discord_id;
+        $this->discordId = $discord_id;
 
         return $this;
     }
