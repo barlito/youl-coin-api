@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "87e8bb8bf299de3637b0591c265b9ac6",
+    "content-hash": "a0872e6df48672e5faf5c93ed2ad2c09",
     "packages": [
         {
             "name": "api-platform/core",
@@ -2045,16 +2045,16 @@
         },
         {
             "name": "easycorp/easyadmin-bundle",
-            "version": "v4.4.0",
+            "version": "v4.7.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyCorp/EasyAdminBundle.git",
-                "reference": "dd1ed80a0a7c26e7ae0a0788a3cbc296d835560e"
+                "reference": "60e04377612ce4d63ad833209127541caaf7e93b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/dd1ed80a0a7c26e7ae0a0788a3cbc296d835560e",
-                "reference": "dd1ed80a0a7c26e7ae0a0788a3cbc296d835560e",
+                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/60e04377612ce4d63ad833209127541caaf7e93b",
+                "reference": "60e04377612ce4d63ad833209127541caaf7e93b",
                 "shasum": ""
             },
             "require": {
@@ -2085,9 +2085,15 @@
             },
             "require-dev": {
                 "doctrine/doctrine-fixtures-bundle": "^3.4",
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.9",
+                "phpstan/phpstan-phpunit": "^1.2",
+                "phpstan/phpstan-strict-rules": "^1.4",
+                "phpstan/phpstan-symfony": "^1.2",
                 "psr/log": "^1.0",
                 "symfony/browser-kit": "^5.4|^6.0",
                 "symfony/css-selector": "^5.4|^6.0",
+                "symfony/debug-bundle": "^5.4|^6.0",
                 "symfony/dom-crawler": "^5.4|^6.0",
                 "symfony/phpunit-bridge": "^5.4|^6.0"
             },
@@ -2121,7 +2127,7 @@
             ],
             "support": {
                 "issues": "https://github.com/EasyCorp/EasyAdminBundle/issues",
-                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v4.4.0"
+                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v4.7.6"
             },
             "funding": [
                 {
@@ -2129,7 +2135,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-10-05T18:13:05+00:00"
+            "time": "2023-09-07T06:13:39+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
