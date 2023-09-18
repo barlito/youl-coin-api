@@ -27,9 +27,9 @@ class Admin implements UserInterface
         return $this->discordId;
     }
 
-    public function setDiscordId(string $discord_id): static
+    public function setDiscordId(string $discordId): static
     {
-        $this->discordId = $discord_id;
+        $this->discordId = $discordId;
 
         return $this;
     }
