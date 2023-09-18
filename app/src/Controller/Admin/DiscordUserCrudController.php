@@ -31,7 +31,7 @@ class DiscordUserCrudController extends AbstractCrudController
     {
         return [
             IdField::new('discordId'),
-//            AssociationField::new('wallet'),
+        //            AssociationField::new('wallet'),
             Field::new('notes'),
         ];
     }
