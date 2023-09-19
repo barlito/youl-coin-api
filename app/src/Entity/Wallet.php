@@ -55,6 +55,11 @@ class Wallet
     #[ORM\Column(type: 'string', nullable: true)]
     private string $notes;
 
+    public function __toString(): string
+    {
+        return $this->getId() . ' | ' . $this->getNotes();
+    }
+
     public function getAmount(): string
     {
         return $this->amount;
