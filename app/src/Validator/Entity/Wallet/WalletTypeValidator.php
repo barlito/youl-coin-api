@@ -35,7 +35,7 @@ class WalletTypeValidator extends ConstraintValidator
 
         if (
             !$bankWallet instanceof Wallet
-            || ($this->entityManager->contains($value) && $bankWallet->getId() === $value->getId())
+            || $bankWallet->getId() === $value->getId()
         ) {
             return;
         }

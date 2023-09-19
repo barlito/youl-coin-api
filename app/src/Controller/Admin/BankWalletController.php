@@ -20,9 +20,8 @@ class BankWalletController extends AbstractController
 {
     public function __construct(
         private readonly TransactionHandler $transactionHandler,
-        private readonly AdminUrlGenerator  $adminUrlGenerator
-    )
-    {
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+    ) {
     }
 
     #[Route('/admin/bank-wallet', name: 'admin_bank_wallet')]
@@ -36,7 +35,7 @@ class BankWalletController extends AbstractController
             $this->transactionHandler->handleBankTransaction($bankWalletTransaction);
 
             $this->redirect(
-                $this->adminUrlGenerator->setController(WalletCrudController::class)->setAction(Action::INDEX)->generateUrl()
+                $this->adminUrlGenerator->setController(WalletCrudController::class)->setAction(Action::INDEX)->generateUrl(),
             );
         }
 

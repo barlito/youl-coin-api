@@ -19,9 +19,9 @@ trait IdUlidTrait
     #[ORM\Column(type: 'ulid', unique: true, name: 'id')]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UlidGenerator::class)]
-    private string $id;
+    private ?string $id = null;
 
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
