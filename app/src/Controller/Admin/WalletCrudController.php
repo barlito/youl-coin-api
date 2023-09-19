@@ -30,7 +30,12 @@ class WalletCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud->renderContentMaximized();
+        return $crud
+            ->renderContentMaximized()
+            ->setFormOptions([
+                'validation_groups' => ['Default', 'wallet:create'],
+            ])
+        ;
     }
 
     public function configureActions(Actions $actions): Actions

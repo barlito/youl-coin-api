@@ -29,6 +29,9 @@ class DiscordNotifier implements TransactionNotifierInterface
     {
         try {
             $chatMessage = new ChatMessage('');
+            $fromUser = $transaction->getWalletFrom()->getDiscordUser() ? "<@{$transaction->getWalletFrom()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+            $toUser = $transaction->getWalletTo()->getDiscordUser() ? "<@{$transaction->getWalletTo()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+
             $discordOptions = (new DiscordOptions())
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
@@ -45,13 +48,13 @@ class DiscordNotifier implements TransactionNotifierInterface
                         ->addField(
                             (new DiscordFieldEmbedObject())
                                 ->name('-' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
-                                ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
+                                ->value($fromUser)
                                 ->inline(true),
                         )
                         ->addField(
                             (new DiscordFieldEmbedObject())
                                 ->name('+' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
-                                ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
+                                ->value($toUser)
                                 ->inline(true),
                         ),
                 )

@@ -44,6 +44,6 @@ App\Entity\Wallet:
 
   wallet_bank:
     id: 01HAJGPGCP28GFA6QD08NMH764
-    amount: <numberBetween(100000000000, 900000000000)>
+    amount: 1000000000000
     type: bank
     notes: "Bank Wallet"

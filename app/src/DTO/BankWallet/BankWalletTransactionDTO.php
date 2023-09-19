@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\DTO\BankWallet;
 
-use App\Entity\DiscordUser;
 use App\Entity\Wallet;
 use App\Enum\BankWalletTransactionTypeEnum;
+use App\Validator as CustomAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// todo custom validator to validate is the wallet or discord user is set
+#[CustomAssert\DTO\BankWallet]
 class BankWalletTransactionDTO
 {
     #[Assert\NotBlank]
     private int $amount;
 
     #[Assert\NotBlank]
-    #[Assert\Type(type: BankWalletTransactionTypeEnum::class)]
-    private BankWalletTransactionTypeEnum $bankWalletTransactionType;
-
-    #[Assert\NotBlank]
     private int $transactionType;
 
-    private ?DiscordUser $discordUser = null;
+    #[Assert\NotBlank]
+    #[Assert\Type(type: Wallet::class)]
+    private Wallet $walletFrom;
 
-    private ?Wallet $wallet = null;
+    #[Assert\NotBlank]
+    #[Assert\Type(type: Wallet::class)]
+    private Wallet $walletTo;
 
     private ?string $transactionNotes = null;
 
@@ -64,26 +64,26 @@ class BankWalletTransactionDTO
         return $this;
     }
 
-    public function getDiscordUser(): ?DiscordUser
+    public function getWalletFrom(): ?Wallet
     {
-        return $this->discordUser;
+        return $this->walletFrom;
     }
 
-    public function setDiscordUser(?DiscordUser $discordUser): BankWalletTransactionDTO
+    public function setWalletFrom(?Wallet $walletFrom): BankWalletTransactionDTO
     {
-        $this->discordUser = $discordUser;
+        $this->walletFrom = $walletFrom;
 
         return $this;
     }
 
-    public function getWallet(): ?Wallet
+    public function getWalletTo(): ?Wallet
     {
-        return $this->wallet;
+        return $this->walletTo;
     }
 
-    public function setWallet(?Wallet $wallet): BankWalletTransactionDTO
+    public function setWalletTo(?Wallet $walletTo): BankWalletTransactionDTO
     {
-        $this->wallet = $wallet;
+        $this->walletTo = $walletTo;
 
         return $this;
     }

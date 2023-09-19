@@ -13,6 +13,7 @@ use App\Repository\WalletRepository;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use JMS\Serializer\Annotation\Groups as JMSGroups;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -29,28 +30,31 @@ use Symfony\Component\Validator\Constraints as Assert;
 // #[ORM\Index(fields: ['type'], name: 'wallet_unique_bank_type', options: ['where' => "type = '" . WalletTypeEnum::BANK . "'"])]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK . "'::text)"])]
 #[ORM\Entity(repositoryClass: WalletRepository::class)]
+#[CustomAssert\Entity\Wallet\WalletType(groups: ['wallet:create'])]
 class Wallet
 {
     use IdUlidTrait;
     use TimestampableEntity;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string', length: 255)]
     private string $amount;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
-    #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
+    #[ORM\OneToOne(inversedBy: 'wallet', targetEntity: DiscordUser::class)]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 
     /**
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
-    #[CustomAssert\Entity\Wallet\WalletType]
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string')]
     private string $type;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string', nullable: true)]
     private string $notes;

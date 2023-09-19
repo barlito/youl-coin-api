@@ -10,6 +10,7 @@ use App\Repository\TransactionRepository;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use JMS\Serializer\Annotation\Groups as JMSGroups;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -20,12 +21,14 @@ class Transaction
     use IdUuidTrait;
     use TimestampableEntity;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(message: 'The amount value should not be blank.')]
     #[CustomAssert\Entity\Transaction\Amount]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $amount;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
     #[Assert\Valid]
@@ -33,6 +36,7 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private Wallet $walletFrom;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The walletTo value should not be null.')]
     #[Assert\Valid]
@@ -40,12 +44,15 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private Wallet $walletTo;
 
+    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $message;
 
     /**
      * @Assert\Choice(TransactionTypeEnum::VALUES)
+     *
+     * @JMSGroups({"transaction:notification"})
      */
     #[Groups('transaction:notification')]
     #[Assert\NotNull(message: 'The type value should not be null.')]

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Validator\Entity\Wallet;
+namespace App\Validator\DTO;
 
 use Symfony\Component\Validator\Constraint;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class WalletType extends Constraint
+class BankWallet extends Constraint
 {
-    public const UNIQUE_BANK_WALLET_ERROR = 'Only one bank wallet can exist at a time.';
+    public const NO_BANK_WALLET_FOUND = 'You must select the Bank Wallet as transaction receiver or sender.';
 
     public function getTargets(): string
     {
