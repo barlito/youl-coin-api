@@ -30,11 +30,16 @@ class TransactionBuilder
     public function buildFromBankWalletTransaction(BankWalletTransactionDTO $bankWalletTransaction): Transaction
     {
         return (new Transaction())
-            ->setAmount((string) $bankWalletTransaction->getAmount())
+            ->setAmount($this->getFullAmount((string) $bankWalletTransaction->getAmount()))
             ->setWalletFrom($bankWalletTransaction->getWalletFrom())
             ->setWalletTo($bankWalletTransaction->getWalletTo())
             ->setType(TransactionTypeEnum::VALUES[$bankWalletTransaction->getTransactionType()])
             ->setMessage($bankWalletTransaction->getTransactionNotes())
         ;
+    }
+
+    private function getFullAmount(string|int $amount): string
+    {
+        return $amount . '00000000';
     }
 }
