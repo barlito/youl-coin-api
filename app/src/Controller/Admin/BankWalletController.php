@@ -34,7 +34,7 @@ class BankWalletController extends AbstractController
             $bankWalletTransaction = $form->getData();
             $this->transactionHandler->handleBankTransaction($bankWalletTransaction);
 
-            $this->redirect(
+            return $this->redirect(
                 $this->adminUrlGenerator->setController(WalletCrudController::class)->setAction(Action::INDEX)->generateUrl(),
             );
         }

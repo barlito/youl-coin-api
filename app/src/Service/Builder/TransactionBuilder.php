@@ -38,7 +38,7 @@ class TransactionBuilder
         ;
     }
 
-    private function getFullAmount(string|int $amount): string
+    private function getFullAmount(string | int $amount): string
     {
         return $amount . '00000000';
     }
