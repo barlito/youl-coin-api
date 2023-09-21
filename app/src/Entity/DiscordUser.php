@@ -20,12 +20,12 @@ class DiscordUser
     private Wallet $wallet;
 
     #[Groups('transaction:notification')]
-    #[ORM\Column(type: 'string', nullable: true)]
-    private string $notes;
+    #[ORM\Column(type: 'string')]
+    private string $name;
 
     public function __toString(): string
     {
-        return $this->getDiscordId() . ' | ' . $this->getNotes();
+        return $this->getName() . ' | ' . $this->getDiscordId();
     }
 
     public function getDiscordId(): string
@@ -56,14 +56,14 @@ class DiscordUser
         return $this;
     }
 
-    public function getNotes(): string
+    public function getName(): string
     {
-        return $this->notes;
+        return $this->name;
     }
 
-    public function setNotes(string $notes): self
+    public function setName(string $name): self
     {
-        $this->notes = $notes;
+        $this->name = $name;
 
         return $this;
     }

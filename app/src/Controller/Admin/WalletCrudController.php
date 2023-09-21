@@ -58,6 +58,6 @@ class WalletCrudController extends AbstractCrudController
 
         yield AssociationField::new('discordUser');
         yield ChoiceField::new('type')->setChoices(WalletTypeEnum::getValuesForEasyAdmin())->autocomplete();
-        yield Field::new('notes');
+        yield Field::new('name');
     }
 }
