@@ -6,13 +6,11 @@ namespace App\Entity;
 
 use App\Repository\DiscordUserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation\Groups as JMSGroups;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: DiscordUserRepository::class)]
 class DiscordUser
 {
-    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Id]
     #[ORM\Column(type: 'string', unique: true)]
@@ -21,7 +19,6 @@ class DiscordUser
     #[ORM\OneToOne(targetEntity: Wallet::class, mappedBy: 'discordUser')]
     private Wallet $wallet;
 
-    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string', nullable: true)]
     private string $notes;

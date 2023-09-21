@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Action\NotFoundAction;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Link;
@@ -13,19 +14,27 @@ use App\Repository\WalletRepository;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-use JMS\Serializer\Annotation\Groups as JMSGroups;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    uriTemplate: '/user/{discord_user_id}/wallet.{_format}',
-    operations: [new Get()],
-    uriVariables: [
-        'discord_user_id' => new Link(
-            fromProperty: 'wallet',
-            fromClass: DiscordUser::class,
+    operations: [
+        // Unusable get endpoint, only here to help serializer to generate the graph
+        new Get(
+            controller: NotFoundAction::class,
+            openapi: false,
+            output: false,
+            read: false,
         ),
-    ],
+        new Get(
+            uriTemplate: '/user/{discord_user_id}/wallet.{_format}',
+            uriVariables: [
+                'discord_user_id' => new Link(
+                    fromProperty: 'wallet',
+                    fromClass: DiscordUser::class,
+                ),
+            ],
+        )],
 )]
 // #[ORM\Index(fields: ['type'], name: 'wallet_unique_bank_type', options: ['where' => "type = '" . WalletTypeEnum::BANK . "'"])]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK . "'::text)"])]
@@ -36,12 +45,10 @@ class Wallet
     use IdUlidTrait;
     use TimestampableEntity;
 
-    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string', length: 255)]
     private string $amount;
 
-    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\OneToOne(inversedBy: 'wallet', targetEntity: DiscordUser::class)]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
@@ -54,7 +61,6 @@ class Wallet
     #[ORM\Column(type: 'string')]
     private string $type;
 
-    /** @JMSGroups({"transaction:notification"}) */
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string', nullable: true)]
     private string $notes;

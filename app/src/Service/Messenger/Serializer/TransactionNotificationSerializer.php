@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Service\Messenger\Serializer;
 
 use App\Entity\Transaction;
-use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface as MessengerSerializerInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class TransactionNotificationSerializer implements MessengerSerializerInterface
 {
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+    ) {
+    }
+
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -33,16 +36,8 @@ class TransactionNotificationSerializer implements MessengerSerializerInterface
             throw new UnexpectedTypeException($message, Transaction::class);
         }
 
-        /**
-         * Here I use JMS because with Wallet API endpoint ApiPlatform interfere with SF normalizer
-         * So, until it's fix and ApiPlatform is able to skip null values, I need to use JMS
-         */
-        $serializeBuilder = SerializerBuilder::create();
-        $serializeBuilder->setPropertyNamingStrategy(new IdenticalPropertyNamingStrategy());
-        $serializer = $serializeBuilder->build();
-
         return [
-            'body' => $serializer->serialize($message, 'json', SerializationContext::create()->setGroups(['transaction:notification'])),
+            'body' => $this->serializer->serialize($message, 'json', ['groups' => ['transaction:notification']]),
             'headers' => [
                 'stamps' => serialize($envelope->all()),
             ],
