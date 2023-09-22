@@ -45,5 +45,5 @@ App\Entity\Wallet:
   wallet_bank:
     id: 01HAJGPGCP28GFA6QD08NMH764
     amount: 1000000000000
-    type: !php/const App\Enum\WalletTypeEnum::USER
+    type: !php/const App\Enum\WalletTypeEnum::BANK
     name: "Bank Wallet"

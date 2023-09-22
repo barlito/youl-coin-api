@@ -19,7 +19,7 @@ class WalletTypeValidatorTest extends KernelTestCase
         self::bootKernel();
     }
 
-    public function testWalletTypeConstraint()
+    public function testWalletTypeConstraint(): void
     {
         $validator = self::getContainer()->get(ValidatorInterface::class);
 
