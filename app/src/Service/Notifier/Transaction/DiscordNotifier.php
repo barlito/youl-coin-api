@@ -7,7 +7,6 @@ namespace App\Service\Notifier\Transaction;
 use App\Entity\Transaction;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
-use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Notifier\Bridge\Discord\DiscordOptions;
 use Symfony\Component\Notifier\Bridge\Discord\Embeds\DiscordAuthorEmbedObject;
@@ -30,6 +29,9 @@ class DiscordNotifier implements TransactionNotifierInterface
     {
         try {
             $chatMessage = new ChatMessage('');
+            $fromUser = $transaction->getWalletFrom()->getDiscordUser() ? "<@{$transaction->getWalletFrom()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+            $toUser = $transaction->getWalletTo()->getDiscordUser() ? "<@{$transaction->getWalletTo()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+
             $discordOptions = (new DiscordOptions())
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
@@ -42,17 +44,17 @@ class DiscordNotifier implements TransactionNotifierInterface
                                 ->name($this->discordOptionsParams['transaction']['username']),
                         )
                         ->color($this->discordOptionsParams['transaction']['success_color'])
-                        ->timestamp(new DateTime())
+                        ->timestamp(new \DateTime())
                         ->addField(
                             (new DiscordFieldEmbedObject())
                                 ->name('-' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
-                                ->value("<@{$transaction->getWalletFrom()->getDiscordUser()->getDiscordId()}>")
+                                ->value($fromUser)
                                 ->inline(true),
                         )
                         ->addField(
                             (new DiscordFieldEmbedObject())
                                 ->name('+' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
-                                ->value("<@{$transaction->getWalletTo()->getDiscordUser()->getDiscordId()}>")
+                                ->value($toUser)
                                 ->inline(true),
                         ),
                 )
@@ -82,7 +84,7 @@ class DiscordNotifier implements TransactionNotifierInterface
                                 ->name($this->discordOptionsParams['transaction']['username']),
                         )
                         ->color($this->discordOptionsParams['transaction']['error_color'])
-                        ->timestamp(new DateTime())
+                        ->timestamp(new \DateTime())
                         ->addField(
                             (new DiscordFieldEmbedObject())
                                 ->name('Error on transaction')

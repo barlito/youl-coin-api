@@ -25,6 +25,7 @@ class WalletDbConstraintTest extends KernelTestCase
         $walletBank = (new Wallet())
             ->setAmount('10100')
             ->setType(WalletTypeEnum::BANK)
+            ->setName('Bank wallet')
         ;
 
         $this->expectException(UniqueConstraintViolationException::class);

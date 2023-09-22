@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Assert;
 
-use DateTimeInterface;
-use JsonException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 trait PropertyAssertTrait
 {
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function assertRow(string $path, mixed $expected, mixed $entity): void
     {
@@ -33,18 +31,17 @@ trait PropertyAssertTrait
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     private function getAsString(mixed $input): string
     {
-        if ($input instanceof DateTimeInterface) {
+        if ($input instanceof \DateTimeInterface) {
             return $input->format(DATE_ATOM);
         }
 
         return \is_array($input) && false !== json_encode($input, JSON_THROW_ON_ERROR) ?
             json_encode($input, JSON_THROW_ON_ERROR) :
-            (string) $input
-        ;
+            (string) $input;
     }
 
     private function getValueAtPath(mixed $entity, string $path)

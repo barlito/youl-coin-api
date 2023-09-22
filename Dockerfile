@@ -1,4 +1,4 @@
-FROM webdevops/php-nginx:8.1
+FROM webdevops/php-nginx:8.2
 
 # Install acl package
 RUN apt-get update && \

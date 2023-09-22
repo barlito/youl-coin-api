@@ -8,32 +8,24 @@ use App\Repository\DiscordUserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass=DiscordUserRepository::class)
- */
+#[ORM\Entity(repositoryClass: DiscordUserRepository::class)]
 class DiscordUser
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", unique=true)
-     */
     #[Groups('transaction:notification')]
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', unique: true)]
     private string $discordId;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Wallet::class, mappedBy="discordUser")
-     */
+    #[ORM\OneToOne(targetEntity: Wallet::class, mappedBy: 'discordUser')]
     private Wallet $wallet;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
     #[Groups('transaction:notification')]
-    private string $notes;
+    #[ORM\Column(type: 'string')]
+    private string $name;
 
     public function __toString(): string
     {
-        return $this->getDiscordId() . ' | ' . $this->getNotes();
+        return $this->getName() . ' | ' . $this->getDiscordId();
     }
 
     public function getDiscordId(): string
@@ -64,14 +56,14 @@ class DiscordUser
         return $this;
     }
 
-    public function getNotes(): string
+    public function getName(): string
     {
-        return $this->notes;
+        return $this->name;
     }
 
-    public function setNotes(string $notes): self
+    public function setName(string $name): self
     {
-        $this->notes = $notes;
+        $this->name = $name;
 
         return $this;
     }

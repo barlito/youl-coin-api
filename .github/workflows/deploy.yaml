@@ -19,6 +19,8 @@ jobs:
       AMQP_USER: ${{ secrets.AMQP_USER }}
       AMQP_PASS: ${{ secrets.AMQP_PASS }}
       DISCORD_DSN: ${{ secrets.DISCORD_DSN }}
+      OAUTH_DISCORD_CLIENT_ID: ${{ secrets.OAUTH_DISCORD_CLIENT_ID }}
+      OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.OAUTH_DISCORD_CLIENT_SECRET }}
 
     steps:
       - uses: actions/checkout@v3

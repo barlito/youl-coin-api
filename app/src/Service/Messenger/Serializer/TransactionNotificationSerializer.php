@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service\Messenger\Serializer;
 
 use App\Entity\Transaction;
-use RuntimeException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface as MessengerSerializerInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -24,7 +23,7 @@ class TransactionNotificationSerializer implements MessengerSerializerInterface
      */
     public function decode(array $encodedEnvelope): Envelope
     {
-        throw new RuntimeException('This app should not consume this type of messages.');
+        throw new \RuntimeException('This app should not consume this type of messages.');
     }
 
     /**

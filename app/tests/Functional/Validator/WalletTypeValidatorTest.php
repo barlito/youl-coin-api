@@ -28,7 +28,7 @@ class WalletTypeValidatorTest extends KernelTestCase
             ->setType(WalletTypeEnum::BANK)
         ;
 
-        $violations = $validator->validate($secondWalletBank);
+        $violations = $validator->validate($secondWalletBank, groups: ['wallet:create']);
 
         $this->assertCount(1, $violations);
         $this->assertInstanceOf(ConstraintViolation::class, $violations[0]);

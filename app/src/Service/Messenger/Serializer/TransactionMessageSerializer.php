@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Service\Messenger\Serializer;
 
 use App\Message\TransactionMessage;
-use Exception;
-use RuntimeException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface as MessengerSerializerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -28,7 +26,7 @@ class TransactionMessageSerializer implements MessengerSerializerInterface
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      *
      * @codeCoverageIgnore
      *
@@ -36,7 +34,7 @@ class TransactionMessageSerializer implements MessengerSerializerInterface
      */
     public function encode(Envelope $envelope): array
     {
-        throw new RuntimeException('Transport & serializer not meant for sending messages');
+        throw new \RuntimeException('Transport & serializer not meant for sending messages');
     }
 
     private function getTransactionMessageFromBody(string $body): TransactionMessage

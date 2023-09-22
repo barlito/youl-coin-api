@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Action\NotFoundAction;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Link;
@@ -16,50 +17,58 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=WalletRepository::class)
- */
 #[ApiResource(
-    uriTemplate: '/user/{discord_user_id}/wallet.{_format}',
-    operations: [new Get()],
-    uriVariables: [
-        'discord_user_id' => new Link(
-            fromProperty: 'wallet',
-            fromClass: DiscordUser::class,
+    operations: [
+        // Unusable get endpoint, only here to help serializer to generate the graph
+        new Get(
+            controller: NotFoundAction::class,
+            openapi: false,
+            output: false,
+            read: false,
         ),
-    ],
+        new Get(
+            uriTemplate: '/user/{discord_user_id}/wallet.{_format}',
+            uriVariables: [
+                'discord_user_id' => new Link(
+                    fromProperty: 'wallet',
+                    fromClass: DiscordUser::class,
+                ),
+            ],
+        )],
 )]
+// #[ORM\Index(fields: ['type'], name: 'wallet_unique_bank_type', options: ['where' => "type = '" . WalletTypeEnum::BANK . "'"])]
+#[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK . "'::text)"])]
+#[ORM\Entity(repositoryClass: WalletRepository::class)]
+#[CustomAssert\Entity\Wallet\WalletType(groups: ['wallet:create'])]
 class Wallet
 {
     use IdUlidTrait;
     use TimestampableEntity;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     #[Groups('transaction:notification')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $amount;
 
-    /**
-     * @ORM\OneToOne(targetEntity=DiscordUser::class, inversedBy="wallet")
-     * @ORM\JoinColumn(referencedColumnName="discord_id")
-     */
     #[Groups('transaction:notification')]
+    #[ORM\OneToOne(inversedBy: 'wallet', targetEntity: DiscordUser::class)]
+    #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 
     /**
-     * @ORM\Column(type="string")
      * @Assert\Choice(WalletTypeEnum::VALUES)
      */
-    #[CustomAssert\Entity\Wallet\WalletType]
     #[Groups('transaction:notification')]
+    #[ORM\Column(type: 'string')]
     private string $type;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
     #[Groups('transaction:notification')]
-    private string $notes;
+    #[ORM\Column(type: 'string')]
+    private string $name;
+
+    public function __toString(): string
+    {
+        return $this->getName();
+    }
 
     public function getAmount(): string
     {
@@ -97,14 +106,14 @@ class Wallet
         return $this;
     }
 
-    public function getNotes(): string
+    public function getName(): string
     {
-        return $this->notes;
+        return $this->name;
     }
 
-    public function setNotes(string $notes): self
+    public function setName(string $name): self
     {
-        $this->notes = $notes;
+        $this->name = $name;
 
         return $this;
     }

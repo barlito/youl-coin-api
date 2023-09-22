@@ -32,5 +32,9 @@ services:
         arguments:
             $discordOptionsParams: '%app.discord%'
 
+    App\Controller\Admin\DashboardController:
+        arguments:
+            $adminUrls: '%app.admin_urls%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

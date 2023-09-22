@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service\Messenger\Handler;
 
 use App\Message\TransactionMessage;
-use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\Abstraction\AbstractHandler;
 use App\Service\Handler\TransactionHandler;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
@@ -15,7 +14,6 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Throwable;
 
 class TransactionMessageHandler extends AbstractHandler implements MessageHandlerInterface
 {
@@ -23,7 +21,6 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
         private readonly LoggerInterface $logger,
         private readonly TransactionNotifierInterface $discordNotifier,
         private readonly SerializerInterface $serializer,
-        private readonly TransactionBuilder $transactionBuilder,
         private readonly TransactionHandler $transactionHandler,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
@@ -35,17 +32,16 @@ class TransactionMessageHandler extends AbstractHandler implements MessageHandle
     {
         try {
             $this->validate($transactionMessage);
-            $transaction = $this->transactionBuilder->build($transactionMessage);
-            $this->transactionHandler->handleTransaction($transaction);
-        } catch (Throwable $exception) {
+            $this->transactionHandler->handleTransactionMessage($transactionMessage);
+        } catch (\Throwable $exception) {
             $this->handleException($exception, $transactionMessage);
         }
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
-    private function handleException(Throwable $exception, TransactionMessage $transactionMessage): void
+    private function handleException(\Throwable $exception, TransactionMessage $transactionMessage): void
     {
         // todo create a class on barlito/utils and move this
         $serializerContext = (new ObjectNormalizerContextBuilder())

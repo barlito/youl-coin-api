@@ -188,18 +188,6 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
-    "friendsofsymfony/rest-bundle": {
-        "version": "3.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "2.2",
-            "ref": "fa845143b7e0a4c70aedd1a88c549e6d977e9ae5"
-        },
-        "files": [
-            "config/packages/fos_rest.yaml"
-        ]
-    },
     "gedmo/doctrine-extensions": {
         "version": "v3.6.0"
     },
@@ -220,28 +208,20 @@
             "fixtures/.gitignore"
         ]
     },
-    "jms/metadata": {
-        "version": "2.5.1"
-    },
-    "jms/serializer": {
-        "version": "3.15.0"
-    },
-    "jms/serializer-bundle": {
-        "version": "4.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "384cec52df45f3bfd46a09930d6960a58872b268"
-        },
-        "files": [
-            "config/packages/prod/jms_serializer.yaml",
-            "config/packages/dev/jms_serializer.yaml",
-            "config/packages/jms_serializer.yaml"
-        ]
-    },
     "justinrainbow/json-schema": {
         "version": "5.2.11"
+    },
+    "knpuniversity/oauth2-client-bundle": {
+        "version": "2.15",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.20",
+            "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
+        },
+        "files": [
+            "config/packages/knpu_oauth2_client.yaml"
+        ]
     },
     "laminas/laminas-code": {
         "version": "4.4.2"
@@ -307,9 +287,6 @@
     "php-http/message": {
         "version": "1.13.0"
     },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
-    },
     "php-http/promise": {
         "version": "1.1.0"
     },
@@ -327,6 +304,18 @@
     },
     "phpstan/phpdoc-parser": {
         "version": "1.2.0"
+    },
+    "phpstan/phpstan": {
+        "version": "1.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "f10b8054de1a94a3b9e8806a6453fd5c98491c44"
+        },
+        "files": [
+            "phpstan.dist.neon"
+        ]
     },
     "phpunit/php-code-coverage": {
         "version": "9.2.6"
@@ -851,9 +840,6 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
-    },
-    "willdurand/jsonp-callback-validator": {
-        "version": "v1.1.0"
     },
     "willdurand/negotiation": {
         "version": "3.0.0"

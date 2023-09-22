@@ -80,7 +80,6 @@ Feature:
       "amount": 1000000000,
       "walletFrom.discordUser.discordId": "188967649332428800",
       "walletTo.discordUser.discordId": "195659530363731968",
-      "walletTo.discordUser.discordId": "195659530363731968",
       "type": "classic",
       "message": "1a5b2d53-b5b5-4880-9a96-591638359184"
     }

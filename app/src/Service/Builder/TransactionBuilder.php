@@ -4,36 +4,42 @@ declare(strict_types=1);
 
 namespace App\Service\Builder;
 
+use App\DTO\BankWallet\BankWalletTransactionDTO;
 use App\Entity\Transaction;
-use App\Entity\Wallet;
+use App\Enum\TransactionTypeEnum;
 use App\Message\TransactionMessage;
-use App\Repository\DiscordUserRepository;
 use App\Repository\WalletRepository;
-use Doctrine\DBAL\LockMode;
 
 class TransactionBuilder
 {
-    public function __construct(private readonly DiscordUserRepository $discordUserRepository, private readonly WalletRepository $walletRepository)
+    public function __construct(private readonly WalletRepository $walletRepository)
     {
     }
 
-    public function build(TransactionMessage $transactionMessage): Transaction
+    public function buildFromTransactionMessage(TransactionMessage $transactionMessage): Transaction
     {
         return (new Transaction())
             ->setAmount($transactionMessage->getAmount())
-            ->setWalletFrom($this->findWallet($transactionMessage->getDiscordUserIdFrom()))
-            ->setWalletTo($this->findWallet($transactionMessage->getDiscordUserIdTo()))
+            ->setWalletFrom($this->walletRepository->findOneBy(['discordUser' => $transactionMessage->getDiscordUserIdFrom()]))
+            ->setWalletTo($this->walletRepository->findOneBy(['discordUser' => $transactionMessage->getDiscordUserIdTo()]))
             ->setType($transactionMessage->getType())
             ->setMessage($transactionMessage->getMessage())
         ;
     }
 
-    private function findWallet(string $discordUserId): ?Wallet
+    public function buildFromBankWalletTransaction(BankWalletTransactionDTO $bankWalletTransaction): Transaction
     {
-        // Request seems weird, but needed to put a lock on Wallet table
-        return $this->walletRepository->find(
-            $this->discordUserRepository->find($discordUserId)->getWallet()->getId(),
-            LockMode::PESSIMISTIC_WRITE,
-        );
+        return (new Transaction())
+            ->setAmount($this->getFullAmount((string) $bankWalletTransaction->getAmount()))
+            ->setWalletFrom($bankWalletTransaction->getWalletFrom())
+            ->setWalletTo($bankWalletTransaction->getWalletTo())
+            ->setType(TransactionTypeEnum::VALUES[$bankWalletTransaction->getTransactionType()])
+            ->setMessage($bankWalletTransaction->getTransactionNotes())
+        ;
+    }
+
+    private function getFullAmount(string | int $amount): string
+    {
+        return $amount . '00000000';
     }
 }

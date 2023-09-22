@@ -7,13 +7,14 @@ namespace App\Validator\Entity\Wallet;
 use App\Entity\Wallet;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class WalletTypeValidator extends ConstraintValidator
 {
-    public function __construct(private readonly WalletRepository $walletRepository)
+    public function __construct(private readonly WalletRepository $walletRepository, private readonly EntityManagerInterface $entityManager)
     {
     }
 
@@ -26,13 +27,16 @@ class WalletTypeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, WalletType::class);
         }
 
-        if (WalletTypeEnum::BANK !== $value) {
-            return;
+        if (!$value instanceof Wallet) {
+            throw new UnexpectedTypeException($value, Wallet::class);
         }
 
         $bankWallet = $this->walletRepository->findOneBy(['type' => WalletTypeEnum::BANK]);
 
-        if (!$bankWallet instanceof Wallet) {
+        if (
+            !$bankWallet instanceof Wallet
+            || $bankWallet->getId() === $value->getId()
+        ) {
             return;
         }
 

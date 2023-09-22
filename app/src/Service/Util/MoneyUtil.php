@@ -6,13 +6,15 @@ namespace App\Service\Util;
 
 use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Exception\RoundingNecessaryException;
+use Brick\Math\RoundingMode;
 use Brick\Money\Currency;
 use Brick\Money\Exception\UnknownCurrencyException;
 use Brick\Money\Money;
-use NumberFormatter;
 
 class MoneyUtil
 {
+    public const CURRENCY_SYMBOL = "\xC2\xA5\xC2\xA2";
+
     public function getCurrency(): Currency
     {
         return new Currency(
@@ -23,11 +25,11 @@ class MoneyUtil
         );
     }
 
-    public function getFormatter(): NumberFormatter
+    public function getFormatter(): \NumberFormatter
     {
-        $formatter = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
-        $formatter->setSymbol(NumberFormatter::CURRENCY_SYMBOL, "\xC2\xA5\xC2\xA2");
-        $formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, 2);
+        $formatter = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
+        $formatter->setSymbol(\NumberFormatter::CURRENCY_SYMBOL, self::CURRENCY_SYMBOL);
+        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
 
         return $formatter;
     }
@@ -39,7 +41,7 @@ class MoneyUtil
      */
     public function getMoney(string $amount): Money
     {
-        return Money::ofMinor($amount, $this->getCurrency());
+        return Money::ofMinor($amount, $this->getCurrency(), roundingMode: RoundingMode::HALF_CEILING);
     }
 
     /**
@@ -49,6 +51,8 @@ class MoneyUtil
      */
     public function getFormattedMoney(string $amount): string
     {
-        return $this->getMoney($amount)->formatWith($this->getFormatter());
+        $formattedAmount = $this->getMoney($amount)->formatWith($this->getFormatter());
+
+        return self::CURRENCY_SYMBOL . str_replace('YLC', '', $formattedAmount);
     }
 }

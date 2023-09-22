@@ -3,7 +3,7 @@ version: '3.4'
 services:
     nginx:
         # @see https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html#customization
-        image: webdevops/php-nginx-dev:8.1
+        image: webdevops/php-nginx-dev:8.2
         volumes:
             - ./app:/app
             - ./.docker/nginx/conf.d/default.conf:/opt/docker/etc/nginx/vhost.conf
