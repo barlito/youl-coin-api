@@ -4,46 +4,46 @@ App\Entity\Wallet:
     id: 01FPD1DHMWPV4BHJQ82TSJEBJC
     amount: 900000000000
     discordUser: '@discord_user_barlito'
-    type: user
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Barlito"
 
   wallet_juju:
     id: 01FPD1DNKVFS5GGBPVXBT3YQ01
     amount: 800000000000
     discordUser: '@discord_user_juju'
-    type: user
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Juju"
 
   wallet_farph:
     id: 01FPD1DRHVBMZEM5EGS95F5N3E
     amount: 700000000000
     discordUser: '@discord_user_farph'
-    type: user
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Farph"
 
   wallet_benj:
     id: 01FPD1DYNAMHV939ARCCRPK864
     amount: <numberBetween(100000000000, 900000000000)>
     discordUser: '@discord_user_benj'
-    type: user
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Benj"
 
   wallet_weeby:
     id: 01FPD1E1T67SBB4EWATRB9DAJV
     amount: <numberBetween(100000000000, 900000000000)>
     discordUser: '@discord_user_weeby'
-    type: user
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Weeby"
 
   wallet_veli:
     id: 01FPD1E4QEM3TE3W9HT3ECAAVF
     amount: <numberBetween(100000000000, 900000000000)>
     discordUser: '@discord_user_veli'
-    type: user
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Veli"
 
   wallet_bank:
     id: 01HAJGPGCP28GFA6QD08NMH764
     amount: 1000000000000
-    type: bank
+    type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Bank Wallet"

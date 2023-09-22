@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class WalletCrudController extends AbstractCrudController
@@ -57,7 +58,10 @@ class WalletCrudController extends AbstractCrudController
         });
 
         yield AssociationField::new('discordUser');
-        yield ChoiceField::new('type')->setChoices(WalletTypeEnum::getValuesForEasyAdmin())->autocomplete();
+        yield ChoiceField::new('type')
+            ->setFormType(EnumType::class)
+            ->setFormTypeOption('class', WalletTypeEnum::class)
+        ;
         yield Field::new('name');
     }
 }

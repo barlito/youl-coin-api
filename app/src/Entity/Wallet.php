@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         )],
 )]
 // #[ORM\Index(fields: ['type'], name: 'wallet_unique_bank_type', options: ['where' => "type = '" . WalletTypeEnum::BANK . "'"])]
-#[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK . "'::text)"])]
+#[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK->value . "'::text)"])]
 #[ORM\Entity(repositoryClass: WalletRepository::class)]
 #[CustomAssert\Entity\Wallet\WalletType(groups: ['wallet:create'])]
 class Wallet
@@ -54,12 +54,10 @@ class Wallet
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 
-    /**
-     * @Assert\Choice(WalletTypeEnum::VALUES)
-     */
+    #[Assert\Type(WalletTypeEnum::class)]
     #[Groups('transaction:notification')]
-    #[ORM\Column(type: 'string')]
-    private string $type;
+    #[ORM\Column(type: 'string', enumType: WalletTypeEnum::class)]
+    private WalletTypeEnum $type;
 
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string')]
@@ -94,12 +92,12 @@ class Wallet
         return $this;
     }
 
-    public function getType(): string
+    public function getType(): WalletTypeEnum
     {
         return $this->type;
     }
 
-    public function setType(string $type): self
+    public function setType(WalletTypeEnum $type): self
     {
         $this->type = $type;
 
