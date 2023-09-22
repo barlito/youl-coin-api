@@ -22,5 +22,7 @@ RUN php bin/console cache:warmup --env=prod
 
 RUN setfacl -R -m u:application:rwx /app/var && \
     setfacl -dR -m u:application:rwx /app/var && \
+    setfacl -R -m u:application:rwx /app/bin && \
+    setfacl -dR -m u:application:rwx /app/bin && \
     setfacl -R -m u:application:rwx /app/src && \
     setfacl -dR -m u:application:rwx /app/src
