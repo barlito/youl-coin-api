@@ -10,12 +10,13 @@ use App\Service\Handler\TransactionHandler;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class TransactionMessageHandler extends AbstractHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+class TransactionMessageHandler extends AbstractHandler
 {
     public function __construct(
         private readonly LoggerInterface $logger,
