@@ -1,4 +1,4 @@
-FROM webdevops/php-nginx-dev:8.1
+FROM webdevops/php-nginx:8.1
 
 # Install acl package
 RUN apt-get update && \
@@ -14,7 +14,13 @@ COPY ./.docker/supervisor.d/messenger-worker.conf /opt/docker/etc/supervisor.d/m
 
 WORKDIR /app
 
-RUN setfacl -R -m u:application:rwx -m u:1000:rwx /app/var && \
-    setfacl -dR -m u:application:rwx -m u:1000:rwx /app/var && \
-    setfacl -R -m u:application:rwx -m u:1000:rwx /app/src && \
-    setfacl -dR -m u:application:rwx -m u:1000:rwx /app/src
+RUN composer install --no-interaction --no-progress --no-suggest --optimize-autoloader --no-scripts --no-dev
+
+RUN php bin/console assets:install --env=prod --no-debug
+
+RUN php bin/console cache:warmup --env=prod
+
+RUN setfacl -R -m u:application:rwx /app/var && \
+    setfacl -dR -m u:application:rwx /app/var && \
+    setfacl -R -m u:application:rwx /app/src && \
+    setfacl -dR -m u:application:rwx /app/src
