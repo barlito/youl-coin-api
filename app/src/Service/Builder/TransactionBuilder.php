@@ -6,7 +6,6 @@ namespace App\Service\Builder;
 
 use App\DTO\BankWallet\BankWalletTransactionDTO;
 use App\Entity\Transaction;
-use App\Enum\TransactionTypeEnum;
 use App\Message\TransactionMessage;
 use App\Repository\WalletRepository;
 
@@ -33,7 +32,7 @@ class TransactionBuilder
             ->setAmount($this->getFullAmount((string) $bankWalletTransaction->getAmount()))
             ->setWalletFrom($bankWalletTransaction->getWalletFrom())
             ->setWalletTo($bankWalletTransaction->getWalletTo())
-            ->setType(TransactionTypeEnum::VALUES[$bankWalletTransaction->getTransactionType()])
+            ->setType($bankWalletTransaction->getTransactionType())
             ->setMessage($bankWalletTransaction->getTransactionNotes())
         ;
     }

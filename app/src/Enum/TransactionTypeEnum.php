@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Enum;
 
-class TransactionTypeEnum
+enum TransactionTypeEnum: string
 {
-    public const CLASSIC = 'classic';
-    public const AIR_DROP = 'air_drop';
+    case CLASSIC = 'classic';
+    case AIR_DROP = 'air_drop';
 
     public const VALUES = [
-        1 => self::CLASSIC,
-        2 => self::AIR_DROP,
+        self::CLASSIC->name => self::CLASSIC->value,
+        self::CLASSIC->name => self::AIR_DROP->value,
     ];
 }

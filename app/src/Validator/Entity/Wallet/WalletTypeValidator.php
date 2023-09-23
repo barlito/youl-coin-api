@@ -7,14 +7,13 @@ namespace App\Validator\Entity\Wallet;
 use App\Entity\Wallet;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class WalletTypeValidator extends ConstraintValidator
 {
-    public function __construct(private readonly WalletRepository $walletRepository, private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly WalletRepository $walletRepository)
     {
     }
 

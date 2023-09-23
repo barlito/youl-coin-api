@@ -21,20 +21,17 @@ class Transaction
     use TimestampableEntity;
 
     #[Groups('transaction:notification')]
-    #[Assert\NotBlank(message: 'The amount value should not be blank.')]
     #[CustomAssert\Entity\Transaction\Amount]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $amount;
 
     #[Groups('transaction:notification')]
-    #[Assert\NotNull(message: 'The walletFrom value should not be null.')]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
     private Wallet $walletFrom;
 
     #[Groups('transaction:notification')]
-    #[Assert\NotNull(message: 'The walletTo value should not be null.')]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
@@ -44,14 +41,10 @@ class Transaction
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $message;
 
-    /**
-     * @Assert\Choice(TransactionTypeEnum::VALUES)
-     */
     #[Groups('transaction:notification')]
-    #[Assert\NotNull(message: 'The type value should not be null.')]
-    #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
-    #[ORM\Column(type: 'string')]
-    private string $type;
+    #[Assert\Type(TransactionTypeEnum::class)]
+    #[ORM\Column(type: 'string', enumType: TransactionTypeEnum::class)]
+    private TransactionTypeEnum $type;
 
     public function getAmount(): string
     {
@@ -101,12 +94,12 @@ class Transaction
         return $this;
     }
 
-    public function getType(): string
+    public function getType(): TransactionTypeEnum
     {
         return $this->type;
     }
 
-    public function setType(string $type): self
+    public function setType(TransactionTypeEnum $type): self
     {
         $this->type = $type;
 

@@ -5,4 +5,4 @@ App\Entity\Transaction:
     walletFrom: '@wallet_barlito'
     walletTo: '@wallet_juju'
     message: 'test'
-    type: 'classic'
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
