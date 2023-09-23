@@ -8,8 +8,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
-use App\Message\TransactionMessage;
 use App\Repository\TransactionRepository;
+use App\State\TransactionStateProcessor;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiResource(
     operations: [
-        new Post(input: TransactionMessage::class, output: false, messenger: 'input'),
+        new Post(processor: TransactionStateProcessor::class),
     ],
 )]
 class Transaction
