@@ -1,6 +1,4 @@
 security:
-    # https://symfony.com/doc/current/security/experimental_authenticators.html
-    enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         # used to reload user from session & other features (e.g. switch_user)
