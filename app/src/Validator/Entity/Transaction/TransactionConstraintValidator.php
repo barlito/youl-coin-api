@@ -100,7 +100,8 @@ class TransactionConstraintValidator extends ConstraintValidator
             && WalletTypeEnum::BANK !== $transaction->getWalletFrom()->getType()
         ) {
             $this->context->buildViolation($constraint::SEASON_REWARD_WRONG_WALLET_FROM)
-                ->addViolation();
+                ->addViolation()
+            ;
         }
     }
 }

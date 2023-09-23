@@ -28,6 +28,8 @@ class TransactionStateProcessor implements ProcessorInterface
      * @throws MathException
      * @throws UnknownCurrencyException
      * @throws NumberFormatException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {

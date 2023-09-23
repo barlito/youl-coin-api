@@ -13,15 +13,15 @@ Feature:
     Wallets shouldn't be updated
 
         When I send and consume a TransactionMessage to the queue with body:
-    """
-    {
-      "amount": "<amount>",
-      "discordUserIdFrom": "<discordUserIdFrom>",
-      "discordUserIdTo": "<discordUserIdTo>",
-      "type": "<type>",
-      "externalIdentifier": "e588239e-f47a-4864-9f23-d09838dc00a8"
-    }
-    """
+        """
+        {
+          "amount": "<amount>",
+          "discordUserIdFrom": "<discordUserIdFrom>",
+          "discordUserIdTo": "<discordUserIdTo>",
+          "type": "<type>",
+          "externalIdentifier": "e588239e-f47a-4864-9f23-d09838dc00a8"
+        }
+        """
 
         And a "Transaction" entity found by "externalIdentifier=e588239e-f47a-4864-9f23-d09838dc00a8" should not exist
 
