@@ -30,7 +30,7 @@ class TransactionMessageSerializerTest extends KernelTestCase
         $this->assertEquals($message->getAmount(), $body['amount']);
         $this->assertEquals($message->getDiscordUserIdFrom(), $body['discordUserIdFrom']);
         $this->assertEquals($message->getDiscordUserIdTo(), $body['discordUserIdTo']);
-        $this->assertEquals($message->getType(), $body['type']);
+        $this->assertEquals($message->getType()->value, $body['type']);
         $this->assertEquals($message->getMessage(), $body['message']);
     }
 }

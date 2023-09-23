@@ -25,9 +25,8 @@ class TransactionMessage
     private ?string $discordUserIdTo;
 
     #[Groups('log')]
-    #[Assert\NotNull(message: 'The type value should not be null.')]
-    #[Assert\Choice(choices: TransactionTypeEnum::VALUES, message: 'The type value you selected is not a valid choice.')]
-    private ?string $type;
+    #[Assert\NotNull(message: 'The type value you selected is not a valid Transaction Type or is null.')]
+    private ?TransactionTypeEnum $type;
 
     #[Groups('log')]
     private ?string $message;
@@ -36,7 +35,7 @@ class TransactionMessage
         string $amount = null,
         string $discordUserIdFrom = null,
         string $discordUserIdTo = null,
-        string $type = null,
+        TransactionTypeEnum $type = null,
         string $message = null,
     ) {
         $this->amount = $amount;
@@ -61,7 +60,7 @@ class TransactionMessage
         return $this->discordUserIdTo;
     }
 
-    public function getType(): ?string
+    public function getType(): ?TransactionTypeEnum
     {
         return $this->type;
     }

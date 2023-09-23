@@ -14,6 +14,7 @@ use Symfony\Component\PropertyAccess\Exception\AccessException;
 use Symfony\Component\PropertyAccess\Exception\NoSuchIndexException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 final class EntityManagerContext extends TestCase implements Context
 {
@@ -56,6 +57,7 @@ final class EntityManagerContext extends TestCase implements Context
 
     private function assertRow(string $path, mixed $expected, mixed $entity)
     {
+        $expected = $this->parseExpected($expected);
         $assert = 'assertEquals';
 
         $actualValue = $this->getValueAtPath($entity, $path, false);
@@ -65,19 +67,12 @@ final class EntityManagerContext extends TestCase implements Context
             return;
         }
 
-        \call_user_func_array(
-            $callable,
-            [
-                $expected,
-                $actualValue,
-                sprintf(
-                    "The element '%s' value '%s' is not equal to expected '%s'",
-                    $path,
-                    $this->getAsString($actualValue),
-                    $this->getAsString($expected),
-                ),
-            ],
-        );
+        $callable($expected, $actualValue, sprintf(
+            "The element '%s' value '%s' is not equal to expected '%s'",
+            $path,
+            $this->getAsString($actualValue),
+            $this->getAsString($expected),
+        ));
     }
 
     protected function parseFindByQueryString(string $findByQueryString): array
@@ -132,6 +127,10 @@ final class EntityManagerContext extends TestCase implements Context
             return $input->format(DATE_ATOM);
         }
 
+        if ($input instanceof \UnitEnum) {
+            return $input->value;
+        }
+
         return \is_array($input) && false !== json_encode($input) ?
             json_encode($input) :
             (string) $input;
@@ -178,5 +177,34 @@ final class EntityManagerContext extends TestCase implements Context
         $entities = $this->getRepository($entityClass)->findBy($findBy);
 
         $this->assertCount($number, $entities, sprintf('Found %d entities instead of %d', \count($entities), $number));
+    }
+
+    private function parseExpected(mixed $expected): mixed
+    {
+        if (\is_string($expected) && str_starts_with($expected, '!php/enum')) {
+            $enum = substr($expected, 10);
+            if ($useValue = str_ends_with($enum, '->value')) {
+                $enum = substr($enum, 0, -7);
+            }
+            if (!\defined($enum)) {
+                throw new ParseException(sprintf('The enum "%s" is not defined.', $enum));
+            }
+
+            $value = \constant($enum);
+
+            if (!$value instanceof \UnitEnum) {
+                throw new ParseException(sprintf('The string "%s" is not the name of a valid enum.', $enum));
+            }
+            if (!$useValue) {
+                return $value;
+            }
+            if (!$value instanceof \BackedEnum) {
+                throw new ParseException(sprintf('The enum "%s" defines no value next to its name.', $enum));
+            }
+
+            return $value->value;
+        }
+
+        return $expected;
     }
 }

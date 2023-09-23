@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTO\BankWallet;
 
 use App\Entity\Wallet;
+use App\Enum\TransactionTypeEnum;
 use App\Validator as CustomAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,7 +16,7 @@ class BankWalletTransactionDTO
     private int $amount;
 
     #[Assert\NotBlank]
-    private int $transactionType;
+    private TransactionTypeEnum $transactionType;
 
     #[Assert\NotBlank]
     #[Assert\Type(type: Wallet::class)]
@@ -39,12 +40,12 @@ class BankWalletTransactionDTO
         return $this;
     }
 
-    public function getTransactionType(): int
+    public function getTransactionType(): TransactionTypeEnum
     {
         return $this->transactionType;
     }
 
-    public function setTransactionType(int $transactionType): BankWalletTransactionDTO
+    public function setTransactionType(TransactionTypeEnum $transactionType): BankWalletTransactionDTO
     {
         $this->transactionType = $transactionType;
 
