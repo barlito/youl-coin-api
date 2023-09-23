@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\Type;
 
-use App\DTO\BankWallet\BankWalletTransactionDTO;
+use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Enum\TransactionTypeEnum;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -14,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BankWalletTransactionType extends AbstractType
+class TransactionType extends AbstractType
 {
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -29,8 +29,10 @@ class BankWalletTransactionType extends AbstractType
                 ],
             ])
 
-            ->add('transactionType', EnumType::class, [
+            ->add('type', EnumType::class, [
+                'label' => 'Transaction Type',
                 'class' => TransactionTypeEnum::class,
+                'choices' => [TransactionTypeEnum::AIR_DROP, TransactionTypeEnum::REGULATION, TransactionTypeEnum::SEASON_REWARD],
             ])
 
             ->add('walletFrom', EntityType::class, [
@@ -56,7 +58,7 @@ class BankWalletTransactionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => BankWalletTransactionDTO::class,
+            'data_class' => Transaction::class,
         ]);
     }
 }

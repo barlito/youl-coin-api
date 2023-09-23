@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\DTO\BankWallet\BankWalletTransactionDTO;
+use App\Entity\Transaction;
 use App\Enum\RoleEnum;
 use App\Form\Type\BankWalletTransactionType;
+use App\Form\Type\TransactionType;
 use App\Service\Handler\TransactionHandler;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -20,23 +21,23 @@ class BankWalletController extends AbstractController
 {
     public function __construct(
         private readonly TransactionHandler $transactionHandler,
-        private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
     }
 
     #[Route('/admin/bank-wallet', name: 'admin_bank_wallet')]
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
-        $form = $this->createForm(BankWalletTransactionType::class, new BankWalletTransactionDTO());
+        $form = $this->createForm(TransactionType::class, new Transaction());
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $bankWalletTransaction = $form->getData();
-            $this->transactionHandler->handleBankTransaction($bankWalletTransaction);
+            $form->getData()->setAmount($form->getData()->getAmount() . '00000000');
 
-            return $this->redirect(
-                $this->adminUrlGenerator->setController(WalletCrudController::class)->setAction(Action::INDEX)->generateUrl(),
-            );
+            try {
+                $this->transactionHandler->handleTransaction($form->getData());
+            } catch (\Exception $exception) {
+                $form->addError(new FormError($exception->getMessage()));
+            }
         }
 
         return $this->render('admin/bank-wallet/index.html.twig', [
