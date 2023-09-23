@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
+use App\Message\TransactionMessage;
 use App\Repository\TransactionRepository;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,6 +18,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[CustomAssert\Entity\Transaction\TransactionConstraint]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ApiResource(
+    operations: [
+        new Post(input: TransactionMessage::class, output: false, messenger: 'input'),
+    ],
+)]
 class Transaction
 {
     use IdUuidTrait;
@@ -39,7 +47,7 @@ class Transaction
 
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $message;
+    private ?string $externalIdentifier;
 
     #[Groups('transaction:notification')]
     #[Assert\Type(TransactionTypeEnum::class)]
@@ -82,14 +90,14 @@ class Transaction
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getExternalIdentifier(): ?string
     {
-        return $this->message;
+        return $this->externalIdentifier;
     }
 
-    public function setMessage(?string $message): self
+    public function setExternalIdentifier(?string $externalIdentifier): Transaction
     {
-        $this->message = $message;
+        $this->externalIdentifier = $externalIdentifier;
 
         return $this;
     }

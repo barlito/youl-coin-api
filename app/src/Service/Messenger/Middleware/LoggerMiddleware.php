@@ -9,7 +9,6 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
-use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -28,15 +27,9 @@ class LoggerMiddleware implements MiddlewareInterface
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
-        // todo create a class on barlito/utils and move this
-        $serializerContext = (new ObjectNormalizerContextBuilder())
-            ->withGroups(['log'])
-            ->toArray()
-        ;
-
         $context = [
             'class' => \get_class($envelope->getMessage()),
-            'message' => $this->serializer->serialize($envelope->getMessage(), 'json', $serializerContext),
+            'message' => $this->serializer->serialize($envelope->getMessage(), 'json'),
         ];
         // Call other middlewares if we need something from another middleware job
         $envelope = $stack->next()->handle($envelope, $stack);

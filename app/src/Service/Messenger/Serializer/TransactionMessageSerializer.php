@@ -10,6 +10,7 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface as M
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class TransactionMessageSerializer implements MessengerSerializerInterface
 {
@@ -26,16 +27,19 @@ class TransactionMessageSerializer implements MessengerSerializerInterface
         return new Envelope($transactionMessage);
     }
 
-    /**
-     * @throws \Exception
-     *
-     * @codeCoverageIgnore
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
     public function encode(Envelope $envelope): array
     {
-        throw new \RuntimeException('Transport & serializer not meant for sending messages');
+        $message = $envelope->getMessage();
+        if (!$message instanceof TransactionMessage) {
+            throw new UnexpectedTypeException($message, TransactionMessage::class);
+        }
+
+        return [
+            'body' => $this->serializer->serialize($message, 'json'),
+            'headers' => [
+                'stamps' => serialize($envelope->all()),
+            ],
+        ];
     }
 
     private function getTransactionMessageFromBody(string $body): TransactionMessage

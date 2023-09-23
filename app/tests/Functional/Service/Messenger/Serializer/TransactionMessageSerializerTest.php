@@ -17,7 +17,7 @@ class TransactionMessageSerializerTest extends KernelTestCase
             'discordUserIdFrom' => '188967649332428800',
             'discordUserIdTo' => '195659530363731968',
             'type' => 'classic',
-            'message' => 'test message',
+            'externalIdentifier' => 'test message',
         ];
         $encodedEnvelope = [
             'body' => json_encode($body),
@@ -31,6 +31,6 @@ class TransactionMessageSerializerTest extends KernelTestCase
         $this->assertEquals($message->getDiscordUserIdFrom(), $body['discordUserIdFrom']);
         $this->assertEquals($message->getDiscordUserIdTo(), $body['discordUserIdTo']);
         $this->assertEquals($message->getType()->value, $body['type']);
-        $this->assertEquals($message->getMessage(), $body['message']);
+        $this->assertEquals($message->getExternalIdentifier(), $body['externalIdentifier']);
     }
 }

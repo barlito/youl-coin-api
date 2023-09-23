@@ -4,5 +4,5 @@ App\Entity\Transaction:
     amount: 1000000000
     walletFrom: '@wallet_barlito'
     walletTo: '@wallet_juju'
-    message: 'test'
+    externalIdentifier: 'fixture'
     type: !php/const App\Enum\TransactionTypeEnum::CLASSIC

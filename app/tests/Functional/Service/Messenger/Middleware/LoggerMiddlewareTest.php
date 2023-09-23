@@ -30,7 +30,7 @@ class LoggerMiddlewareTest extends KernelTestCase
                 'Received {class}',
                 [
                     'class' => 'App\Message\TransactionMessage',
-                    'message' => '{"amount":"10","discordUserIdFrom":null,"discordUserIdTo":null,"type":"classic","message":"a84d8473-26b4-46e7-b184-19cf4751ff28"}',
+                    'message' => '{"amount":"10","discordUserIdFrom":null,"discordUserIdTo":null,"type":"classic","externalIdentifier":"a84d8473-26b4-46e7-b184-19cf4751ff28"}',
                 ],
             )
         ;
@@ -62,7 +62,7 @@ class LoggerMiddlewareTest extends KernelTestCase
         return new TransactionMessage(
             amount : '10',
             type   : TransactionTypeEnum::CLASSIC,
-            message: 'a84d8473-26b4-46e7-b184-19cf4751ff28',
+            externalIdentifier: 'a84d8473-26b4-46e7-b184-19cf4751ff28',
         );
     }
 }
