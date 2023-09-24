@@ -15,6 +15,16 @@ final class ApiContext extends ApiTestCase implements Context
 {
     private ResponseInterface $response;
 
+    private array $headers = [];
+
+    /**
+     * @Given I set header :key with value :value
+     */
+    public function iSetHeaderWithValue($key, $value)
+    {
+        $this->headers[$key] = $value;
+    }
+
     /**
      * @Given (I )send a :method request to :url
      */
@@ -35,6 +45,7 @@ final class ApiContext extends ApiTestCase implements Context
             $url,
             [
                 'json' => json_decode($body->getRaw(), true, 512, JSON_THROW_ON_ERROR),
+                'headers' => $this->headers,
             ],
         );
     }

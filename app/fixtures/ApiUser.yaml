@@ -1,0 +1,8 @@
+# api/fixtures/ApiUser.yaml
+App\Entity\ApiUser:
+  api_user_test:
+    name: 'test'
+    apiKey: "api_key_test"
+    roles:
+      - ROLE_USER
+      - ROLE_TRANSACTION_CREATE

@@ -4,44 +4,34 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Enum\Roles\RoleEnum;
-use App\Repository\AdminRepository;
+use App\Entity\Traits\IdUuidTrait;
+use App\Enum\Roles\ApiUserRoleEnum;
+use App\Repository\ApiUserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: AdminRepository::class)]
-class Admin implements UserInterface
+#[ORM\Entity(repositoryClass: ApiUserRepository::class)]
+class ApiUser implements UserInterface
 {
-    #[ORM\Id]
-    #[ORM\Column(unique: true)]
-    private ?string $discordId = null;
+    use IdUuidTrait;
 
-    #[ORM\Column(length: 255, unique: true)]
-    private string $username;
+    #[ORM\Column(length: 180, unique: true)]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 180, unique: true)]
+    private ?string $apiKey = null;
 
     #[ORM\Column]
     private array $roles = [];
 
-    public function getDiscordId(): ?string
+    public function getName(): ?string
     {
-        return $this->discordId;
+        return $this->name;
     }
 
-    public function setDiscordId(string $discordId): static
+    public function setName(string $name): static
     {
-        $this->discordId = $discordId;
-
-        return $this;
-    }
-
-    public function getUsername(): string
-    {
-        return $this->username;
-    }
-
-    public function setUsername(string $username): static
-    {
-        $this->username = $username;
+        $this->name = $name;
 
         return $this;
     }
@@ -53,7 +43,19 @@ class Admin implements UserInterface
      */
     public function getUserIdentifier(): string
     {
-        return $this->username;
+        return (string) $this->name;
+    }
+
+    public function getApiKey(): ?string
+    {
+        return $this->apiKey;
+    }
+
+    public function setApiKey(?string $apiKey): ApiUser
+    {
+        $this->apiKey = $apiKey;
+
+        return $this;
     }
 
     /**
@@ -63,7 +65,7 @@ class Admin implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = RoleEnum::ROLE_ADMIN->value;
+        $roles[] = ApiUserRoleEnum::ROLE_USER->value;
 
         return array_unique($roles);
     }

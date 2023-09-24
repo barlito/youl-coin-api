@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         // Better to use a DTO than the entity just because of fields type validation in payload
-        new Post(processor: TransactionStateProcessor::class),
+        new Post(security: 'is_granted("ROLE_TRANSACTION_CREATE")', processor: TransactionStateProcessor::class),
     ],
 )]
 class Transaction

@@ -1,0 +1,7 @@
+api_platform:
+    swagger:
+        api_keys:
+            # overridden in OpenApiFactoryDecorator for Bearer scheme
+            access_token:
+                name: Authorization
+                type: header

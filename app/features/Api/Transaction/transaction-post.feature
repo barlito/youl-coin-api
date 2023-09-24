@@ -3,8 +3,30 @@
 Feature:
     I want to test my Transaction POST endpoints
 
+    Scenario:
+    I try to POST a transaction with a bad authorization header
+
+        Given I set header "Authorization" with value "Bearer bad_auth_token"
+
+        When I send a POST request to "api/transactions" with body:
+        """
+        {
+          "amount": "1000000000",
+          "walletFrom": "/api/wallets/01FPD1DHMWPV4BHJQ82TSJEBJC",
+          "walletTo": "/api/wallets/01FPD1DNKVFS5GGBPVXBT3YQ01",
+          "externalIdentifier": "test_from_api",
+          "type": "classic"
+        }
+        """
+
+        Then the response status code should be 401
+
+        And a "Transaction" entity found by "externalIdentifier=c2f5f2ef-f893-4470-a751-6c52cecbc261" should not exist
+
     Scenario Outline:
     I want to test POST endpoint with payload errors
+
+        Given I set header "Authorization" with value "Bearer api_key_test"
 
         When I send a POST request to "api/transactions" with body:
         """
@@ -39,6 +61,7 @@ Feature:
     I want to test my POST endpoint with good values
 
         Given I reload the fixtures
+        And I set header "Authorization" with value "Bearer api_key_test"
 
         Given a "Wallet" entity found by "discordUser=188967649332428800" should match:
             | id     | 01FPD1DHMWPV4BHJQ82TSJEBJC |
