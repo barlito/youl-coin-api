@@ -7,16 +7,14 @@ namespace App\Tests\Behat;
 use App\Tests\Behat\Assert\PropertyAssertTrait;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
-class InMemoryContext extends TestCase implements Context
+class InMemoryContext extends KernelTestCase implements Context
 {
     use PropertyAssertTrait;
 
-    public function __construct(private readonly KernelInterface $kernel, private PropertyAccessorInterface $propertyAccessor)
+    public function __construct()
     {
         parent::__construct('InMemory Behat Context');
     }
@@ -52,6 +50,6 @@ class InMemoryContext extends TestCase implements Context
 
     private function getTransport($transportName): InMemoryTransport
     {
-        return $this->kernel->getContainer()->get('test.service_container')->get('messenger.transport.' . $transportName);
+        return self::getContainer()->get('test.service_container')->get('messenger.transport.' . $transportName);
     }
 }

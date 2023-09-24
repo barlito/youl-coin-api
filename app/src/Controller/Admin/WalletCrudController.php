@@ -49,6 +49,8 @@ class WalletCrudController extends AbstractCrudController
      */
     public function configureFields(string $pageName): iterable
     {
+        yield Field::new('id')->onlyOnDetail();
+
         yield IntegerField::new('amount')->formatValue(function ($value, $entity) {
             if (!$entity instanceof Wallet) {
                 throw new UnexpectedTypeException($entity, Wallet::class);

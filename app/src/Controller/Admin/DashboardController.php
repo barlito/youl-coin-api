@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Entity\ApiUser;
 use App\Entity\Wallet;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -40,6 +41,9 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+
+        yield MenuItem::section('Wallet Settings');
+        yield MenuItem::linkToCrud('API Users', 'fa-solid fa-globe', ApiUser::class);
 
         yield MenuItem::section('Wallet Settings');
         yield MenuItem::linkToCrud('Wallets', 'fas fa-wallet', Wallet::class);

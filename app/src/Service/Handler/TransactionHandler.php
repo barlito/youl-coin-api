@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service\Handler;
 
-use App\DTO\BankWallet\BankWalletTransactionDTO;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Enum\LockEnum;
@@ -48,20 +47,6 @@ class TransactionHandler extends AbstractHandler
      * @throws UnknownCurrencyException
      * @throws NumberFormatException
      */
-    public function handleBankTransaction(BankWalletTransactionDTO $bankWalletTransactionDTO): void
-    {
-        $transaction = $this->transactionBuilder->buildFromBankWalletTransaction($bankWalletTransactionDTO);
-
-        $this->handleTransaction($transaction);
-    }
-
-    /**
-     * @throws RoundingNecessaryException
-     * @throws MoneyMismatchException
-     * @throws MathException
-     * @throws UnknownCurrencyException
-     * @throws NumberFormatException
-     */
     public function handleTransactionMessage(TransactionMessage $transactionMessage): void
     {
         $transaction = $this->transactionBuilder->buildFromTransactionMessage($transactionMessage);
@@ -76,7 +61,7 @@ class TransactionHandler extends AbstractHandler
      * @throws MathException
      * @throws NumberFormatException
      */
-    private function handleTransaction(Transaction $transaction): void
+    public function handleTransaction(Transaction $transaction): void
     {
         $lock = $this->getLock();
         $lock->acquire(true);

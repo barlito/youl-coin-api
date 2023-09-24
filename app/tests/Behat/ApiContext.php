@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\Transaction;
 use App\Entity\Wallet;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
@@ -14,12 +15,39 @@ final class ApiContext extends ApiTestCase implements Context
 {
     private ResponseInterface $response;
 
+    private array $headers = [];
+
+    /**
+     * @Given I set header :key with value :value
+     */
+    public function iSetHeaderWithValue($key, $value)
+    {
+        $this->headers[$key] = $value;
+    }
+
     /**
      * @Given (I )send a :method request to :url
      */
     public function iSendARequestTo(string $method, string $url, PyStringNode $body = null, $files = []): void
     {
         $this->response = self::createClient()->request($method, $url);
+    }
+
+    /**
+     * @Given (I )send a :method request to :url with body:
+     *
+     * @throws \JsonException
+     */
+    public function iSendARequestWithBody($method, $url, PyStringNode $body)
+    {
+        $this->response = self::createClient()->request(
+            $method,
+            $url,
+            [
+                'json' => json_decode($body->getRaw(), true, 512, JSON_THROW_ON_ERROR),
+                'headers' => $this->headers,
+            ],
+        );
     }
 
     /**
@@ -33,9 +61,17 @@ final class ApiContext extends ApiTestCase implements Context
     /**
      * @Given /^JSON schema should validate Wallet class$/
      */
-    public function jsonNodeShouldExist(): void
+    public function jsonSchemaShouldValidateWallet(): void
     {
         self::assertMatchesResourceItemJsonSchema(Wallet::class);
+    }
+
+    /**
+     * @Given /^JSON schema should validate Transaction class$/
+     */
+    public function jsonSchemaShouldValidateTransaction(): void
+    {
+        self::assertMatchesResourceItemJsonSchema(Transaction::class);
     }
 
     /**
@@ -44,5 +80,16 @@ final class ApiContext extends ApiTestCase implements Context
     public function responseShouldBeInJson()
     {
         self::assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+    }
+
+    /**
+     * @Then the JSON should contain a ConstraintViolationList with :message
+     */
+    public function theJSONShouldContainAConstraintViolationListWith($message)
+    {
+        self::assertJsonContains([
+            'hydra:title' => 'An error occurred',
+            'hydra:description' => $message,
+        ]);
     }
 }

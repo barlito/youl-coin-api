@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * This context class contains the definitions of the steps used by the demo
@@ -15,18 +15,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @see http://behat.org/en/latest/quick_start.html
  */
-final class DemoContext implements Context
+final class DemoContext extends KernelTestCase implements Context
 {
-    /** @var KernelInterface */
-    private $kernel;
-
     /** @var Response|null */
     private $response;
-
-    public function __construct(KernelInterface $kernel)
-    {
-        $this->kernel = $kernel;
-    }
 
     /**
      * Ensure to fully reset the test database fixtures features, allowing easy knowledge of the current
@@ -52,11 +44,21 @@ final class DemoContext implements Context
     }
 
     /**
+     * Run tearDown method from KernalTestCase to clean up the test kernel
+     *
+     * @AfterScenario
+     */
+    public function afterScenario(): void
+    {
+        $this->tearDown();
+    }
+
+    /**
      * @When a demo scenario sends a request to :path
      */
     public function aDemoScenarioSendsARequestTo(string $path): void
     {
-        $this->response = $this->kernel->handle(Request::create($path, 'GET'));
+        $this->response = self::getKernelClass()->handle(Request::create($path, 'GET'));
     }
 
     /**

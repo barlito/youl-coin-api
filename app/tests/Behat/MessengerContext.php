@@ -7,17 +7,21 @@ namespace App\Tests\Behat;
 use App\Service\Messenger\Serializer\TransactionMessageSerializer;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ConsumedByWorkerStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
-final class MessengerContext implements Context
+final class MessengerContext extends KernelTestCase implements Context
 {
-    public function __construct(
-        private readonly MessageBusInterface $messageBus,
-        private readonly TransactionMessageSerializer $transactionMessageSerializer,
-    ) {
+    private readonly MessageBusInterface $messageBus;
+    private readonly TransactionMessageSerializer $transactionMessageSerializer;
+
+    public function __construct()
+    {
+        $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
+        $this->transactionMessageSerializer = self::getContainer()->get(TransactionMessageSerializer::class);
     }
 
     /**

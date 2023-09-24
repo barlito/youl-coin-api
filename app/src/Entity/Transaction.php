@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
 use App\Repository\TransactionRepository;
+use App\State\TransactionStateProcessor;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -15,38 +18,49 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[CustomAssert\Entity\Transaction\TransactionConstraint]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ApiResource(
+    operations: [
+        // Better to use a DTO than the entity just because of fields type validation in payload
+        new Post(security: 'is_granted("ROLE_TRANSACTION_CREATE")', processor: TransactionStateProcessor::class),
+    ],
+)]
 class Transaction
 {
     use IdUuidTrait;
     use TimestampableEntity;
 
     #[Groups('transaction:notification')]
+    #[Assert\NotBlank]
     #[CustomAssert\Entity\Transaction\Amount]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
-    private string $amount;
+    private ?string $amount = null;
 
     #[Groups('transaction:notification')]
+    #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
-    private Wallet $walletFrom;
+    private ?Wallet $walletFrom = null;
 
     #[Groups('transaction:notification')]
+    #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
-    private Wallet $walletTo;
+    private ?Wallet $walletTo = null;
 
     #[Groups('transaction:notification')]
+    #[Assert\NotBlank(allowNull: true)]
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $message;
+    private ?string $externalIdentifier = null;
 
     #[Groups('transaction:notification')]
+    #[Assert\NotBlank]
     #[Assert\Type(TransactionTypeEnum::class)]
     #[ORM\Column(type: 'string', enumType: TransactionTypeEnum::class)]
-    private TransactionTypeEnum $type;
+    private ?TransactionTypeEnum $type = null;
 
-    public function getAmount(): string
+    public function getAmount(): ?string
     {
         return $this->amount;
     }
@@ -58,7 +72,7 @@ class Transaction
         return $this;
     }
 
-    public function getWalletFrom(): Wallet
+    public function getWalletFrom(): ?Wallet
     {
         return $this->walletFrom;
     }
@@ -70,7 +84,7 @@ class Transaction
         return $this;
     }
 
-    public function getWalletTo(): Wallet
+    public function getWalletTo(): ?Wallet
     {
         return $this->walletTo;
     }
@@ -82,19 +96,19 @@ class Transaction
         return $this;
     }
 
-    public function getMessage(): ?string
+    public function getExternalIdentifier(): ?string
     {
-        return $this->message;
+        return $this->externalIdentifier;
     }
 
-    public function setMessage(?string $message): self
+    public function setExternalIdentifier(?string $externalIdentifier): Transaction
     {
-        $this->message = $message;
+        $this->externalIdentifier = $externalIdentifier;
 
         return $this;
     }
 
-    public function getType(): TransactionTypeEnum
+    public function getType(): ?TransactionTypeEnum
     {
         return $this->type;
     }

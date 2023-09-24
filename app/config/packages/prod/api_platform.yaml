@@ -1,0 +1,10 @@
+api_platform:
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        jsonhal: ['application/hal+json']
+
+    enable_docs: false
+    enable_entrypoint: false
+    enable_swagger: false
+    enable_swagger_ui: false

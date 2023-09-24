@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service\Builder;
 
-use App\DTO\BankWallet\BankWalletTransactionDTO;
 use App\Entity\Transaction;
+use App\Entity\Wallet;
+use App\Enum\WalletTypeEnum;
 use App\Message\TransactionMessage;
 use App\Repository\WalletRepository;
 
@@ -17,28 +18,24 @@ class TransactionBuilder
 
     public function buildFromTransactionMessage(TransactionMessage $transactionMessage): Transaction
     {
+        $walletFrom = $this->findWallet($transactionMessage->getDiscordUserIdFrom());
+        $walletTo = $this->findWallet($transactionMessage->getDiscordUserIdTo());
+
         return (new Transaction())
             ->setAmount($transactionMessage->getAmount())
-            ->setWalletFrom($this->walletRepository->findOneBy(['discordUser' => $transactionMessage->getDiscordUserIdFrom()]))
-            ->setWalletTo($this->walletRepository->findOneBy(['discordUser' => $transactionMessage->getDiscordUserIdTo()]))
+            ->setWalletFrom($walletFrom)
+            ->setWalletTo($walletTo)
             ->setType($transactionMessage->getType())
-            ->setMessage($transactionMessage->getMessage())
+            ->setExternalIdentifier($transactionMessage->getExternalIdentifier())
         ;
     }
 
-    public function buildFromBankWalletTransaction(BankWalletTransactionDTO $bankWalletTransaction): Transaction
+    private function findWallet(?string $getDiscordUserIdFrom): ?Wallet
     {
-        return (new Transaction())
-            ->setAmount($this->getFullAmount((string) $bankWalletTransaction->getAmount()))
-            ->setWalletFrom($bankWalletTransaction->getWalletFrom())
-            ->setWalletTo($bankWalletTransaction->getWalletTo())
-            ->setType($bankWalletTransaction->getTransactionType())
-            ->setMessage($bankWalletTransaction->getTransactionNotes())
-        ;
-    }
+        if (WalletTypeEnum::BANK->value === $getDiscordUserIdFrom) {
+            return $this->walletRepository->findOneBy(['type' => WalletTypeEnum::BANK]);
+        }
 
-    private function getFullAmount(string | int $amount): string
-    {
-        return $amount . '00000000';
+        return $this->walletRepository->findOneBy(['discordUser' => $getDiscordUserIdFrom]);
     }
 }
