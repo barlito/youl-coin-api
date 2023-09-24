@@ -32,7 +32,7 @@ class TransactionType extends AbstractType
             ->add('type', EnumType::class, [
                 'label' => 'Transaction Type',
                 'class' => TransactionTypeEnum::class,
-                'choices' => [TransactionTypeEnum::AIR_DROP, TransactionTypeEnum::REGULATION, TransactionTypeEnum::SEASON_REWARD],
+                'choices' => [TransactionTypeEnum::AIR_DROP, TransactionTypeEnum::REGULATION],
             ])
 
             ->add('walletFrom', EntityType::class, [
