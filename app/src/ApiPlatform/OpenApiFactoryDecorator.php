@@ -8,11 +8,12 @@ use ApiPlatform\OpenApi\Factory\OpenApiFactoryInterface;
 use ApiPlatform\OpenApi\Model\SecurityScheme;
 use ApiPlatform\OpenApi\OpenApi;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-#[AsDecorator('api_platform.openapi.factory')]
+#[AsDecorator('api_platform.openapi.factory', onInvalid: ContainerInterface::IGNORE_ON_INVALID_REFERENCE)]
 class OpenApiFactoryDecorator implements OpenApiFactoryInterface
 {
-    public function __construct(private OpenApiFactoryInterface $decorated)
+    public function __construct(private readonly OpenApiFactoryInterface $decorated)
     {
     }
 
