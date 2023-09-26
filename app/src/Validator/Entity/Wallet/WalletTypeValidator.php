@@ -30,6 +30,10 @@ class WalletTypeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, Wallet::class);
         }
 
+        if (WalletTypeEnum::BANK !== $value->getType()) {
+            return;
+        }
+
         $bankWallet = $this->walletRepository->findOneBy(['type' => WalletTypeEnum::BANK]);
 
         if (

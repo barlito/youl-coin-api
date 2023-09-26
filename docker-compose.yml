@@ -7,8 +7,8 @@ services:
         volumes:
             - ./app:/app
             - ./.docker/nginx/conf.d/default.conf:/opt/docker/etc/nginx/vhost.conf
-#            todo add this config file under ./.docker
             - ./.docker/supervisor.d/messenger-worker.conf:/opt/docker/etc/supervisor.d/messenger-worker.conf
+            - ~/.composer:/root/.composer:delegated
         working_dir: /app
         environment:
             # PHP config
