@@ -17,9 +17,6 @@ jobs:
         with:
           submodules: 'true'
 
-#      - name: Deploy stack
-#        run: make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
-
       - name: Build Docker Image
         run: docker build -t latest -t ${{ secrets.DOCKER_HUB_USERNAME }}/youl-coin-api:$GITHUB_REF_NAME .
 

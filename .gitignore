@@ -5,3 +5,7 @@
 ###> Code Coverage ###
 app/code-coverage/phpunit/html-coverage
 ###< Code Coverage ###
+
+###> Castor ###
+.castor.stub.php
+###< Castor ###

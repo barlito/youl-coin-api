@@ -5,6 +5,10 @@ RUN apt-get update && \
     apt-get install -y acl && \
     rm -rf /var/lib/apt/lists/*
 
+# Set permissions
+RUN setfacl -R -m u:application:rwx /app && \
+    setfacl -dR -m u:application:rwx /app
+
 # Copy code inside the image
 COPY ./app /app
 
@@ -19,10 +23,3 @@ RUN composer install --no-interaction --no-progress --no-suggest --optimize-auto
 RUN php bin/console assets:install --env=prod --no-debug
 
 RUN php bin/console cache:warmup --env=prod
-
-RUN setfacl -R -m u:application:rwx /app/var && \
-    setfacl -dR -m u:application:rwx /app/var && \
-    setfacl -R -m u:application:rwx /app/bin && \
-    setfacl -dR -m u:application:rwx /app/bin && \
-    setfacl -R -m u:application:rwx /app/src && \
-    setfacl -dR -m u:application:rwx /app/src
