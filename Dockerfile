@@ -25,3 +25,5 @@ RUN composer install --no-interaction --no-progress --no-suggest --optimize-auto
 RUN php bin/console assets:install --env=prod --no-debug
 
 RUN php bin/console cache:warmup --env=prod
+
+USER root
