@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -74,6 +75,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
 
                 return $user;
             }),
+            [new RememberMeBadge()]
         );
     }
 
@@ -82,6 +84,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        $request->request->set('_remember_me', '1');
         $targetUrl = $this->router->generate('admin');
 
         return new RedirectResponse($targetUrl);
