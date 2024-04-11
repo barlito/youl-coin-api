@@ -4,7 +4,6 @@ monolog:
             type: stream
             path: php://stdout
             level: info
-            channels: [ "!doctrine", "!event", "!request", "!security" ]
 
         console:
             type: console
