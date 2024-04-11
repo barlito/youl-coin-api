@@ -8,6 +8,11 @@ RUN apt-get update && \
 # Copy code inside the image
 COPY ./app /app
 
+# Set permissions
+RUN chown -R application:application /app
+#RUN setfacl -R -m u:application:rwx /app && \
+#    setfacl -dR -m u:application:rwx /app
+
 # Copy configuration file inside the image
 COPY ./.docker/nginx/conf.d/default.conf /opt/docker/etc/nginx/vhost.conf
 COPY ./.docker/supervisor.d/messenger-worker.conf /opt/docker/etc/supervisor.d/messenger-worker.conf
@@ -23,7 +28,3 @@ RUN php bin/console assets:install --env=prod --no-debug
 RUN php bin/console cache:warmup --env=prod
 
 USER root
-
-# Set permissions
-RUN setfacl -R -m u:application:rwx /app && \
-    setfacl -dR -m u:application:rwx /app
