@@ -30,6 +30,4 @@ USER root
 
 # Set permissions
 RUN setfacl -R -m u:application:rwx /app/var/cache && \
-    setfacl -dR -m u:application:rwx /app/var/cache && \
-    setfacl -R -m u:application:rwx /app/public && \
-    setfacl -dR -m u:application:rwx /app/public
+    setfacl -dR -m u:application:rwx /app/var/cache
