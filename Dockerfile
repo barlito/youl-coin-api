@@ -9,9 +9,8 @@ RUN apt-get update && \
 COPY ./app /app
 
 # Set permissions
-RUN chown -R application:application /app
-#RUN setfacl -R -m u:application:rwx /app && \
-#    setfacl -dR -m u:application:rwx /app
+RUN setfacl -R -m u:application:rwx /app && \
+    setfacl -dR -m u:application:rwx /app
 
 # Copy configuration file inside the image
 COPY ./.docker/nginx/conf.d/default.conf /opt/docker/etc/nginx/vhost.conf
@@ -28,3 +27,9 @@ RUN php bin/console assets:install --env=prod --no-debug
 RUN php bin/console cache:warmup --env=prod
 
 USER root
+
+# Set permissions
+RUN setfacl -R -m u:application:rwx /app/var/cache && \
+    setfacl -dR -m u:application:rwx /app/var/cache && \
+    setfacl -R -m u:application:rwx /app/public && \
+    setfacl -dR -m u:application:rwx /app/public
