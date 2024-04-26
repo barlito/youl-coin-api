@@ -16,7 +16,7 @@ trait IdUuidTrait
      */
     #[Groups(['default'])]
     #[ORM\Id]
-    #[ORM\Column(type: 'guid', unique: true, name: 'id')]
+    #[ORM\Column(name: 'id', type: 'guid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     private ?string $id = null;

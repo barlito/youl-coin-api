@@ -14,6 +14,7 @@ use App\Repository\WalletRepository;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -36,10 +37,10 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         )],
 )]
-// #[ORM\Index(fields: ['type'], name: 'wallet_unique_bank_type', options: ['where' => "type = '" . WalletTypeEnum::BANK . "'"])]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK->value . "'::text)"])]
 #[ORM\Entity(repositoryClass: WalletRepository::class)]
 #[CustomAssert\Entity\Wallet\WalletType(groups: ['wallet:create'])]
+#[UniqueEntity(fields: ['discordUser'])]
 class Wallet
 {
     use IdUlidTrait;

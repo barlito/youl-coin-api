@@ -16,7 +16,7 @@ class DiscordUser
     #[ORM\Column(type: 'string', unique: true)]
     private string $discordId;
 
-    #[ORM\OneToOne(targetEntity: Wallet::class, mappedBy: 'discordUser')]
+    #[ORM\OneToOne(mappedBy: 'discordUser', targetEntity: Wallet::class)]
     private Wallet $wallet;
 
     #[Groups('transaction:notification')]

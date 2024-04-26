@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\Wallet;
 use App\Enum\WalletTypeEnum;
 use App\Service\Util\MoneyUtil;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -18,6 +19,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class WalletCrudController extends AbstractCrudController
 {
     public function __construct(private readonly MoneyUtil $moneyUtil)
@@ -59,7 +63,10 @@ class WalletCrudController extends AbstractCrudController
             return $this->moneyUtil->getFormattedMoney($entity->getAmount());
         });
 
-        yield AssociationField::new('discordUser');
+        yield AssociationField::new('discordUser')->setQueryBuilder(
+            fn (QueryBuilder $queryBuilder) => $queryBuilder->leftJoin('entity.wallet', 'w')
+                ->where('w.id IS NULL'),
+        );
         yield ChoiceField::new('type')
             ->setFormType(EnumType::class)
             ->setFormTypeOption('class', WalletTypeEnum::class)
