@@ -1,6 +1,25 @@
 default:
     suites:
-        default:
+        api:
+            paths:    [ "%paths.base%/features/Api" ]
+            contexts:
+                - App\Tests\Behat\DemoContext
+                - App\Tests\Behat\EntityManagerContext
+                - App\Tests\Behat\LoggerContext
+                - App\Tests\Behat\NotifierContext
+                - App\Tests\Behat\ApiContext
+                - App\Tests\Behat\InMemoryContext
+        app:
+            paths:    [ "%paths.base%/features/App" ]
+            contexts:
+                - App\Tests\Behat\DemoContext
+                - App\Tests\Behat\EntityManagerContext
+                - App\Tests\Behat\LoggerContext
+                - App\Tests\Behat\NotifierContext
+                - App\Tests\Behat\FormContext
+                - App\Tests\Behat\InMemoryContext
+        message:
+            paths:    [ "%paths.base%/features/Transaction" ]
             contexts:
                 - App\Tests\Behat\DemoContext
                 - App\Tests\Behat\MessengerContext

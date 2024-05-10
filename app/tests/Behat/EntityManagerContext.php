@@ -48,6 +48,18 @@ final class EntityManagerContext extends TestCase implements Context
         $this->assertSame($entity, null, 'Entity found.');
     }
 
+    /**
+     * @Given a :entityClass entity found by :findByQueryString should be deleted
+     */
+    public function aEntityFoundByShouldBeDeleted(string $entityClass, string $findByQueryString)
+    {
+        $findBy = $this->parseFindByQueryString($findByQueryString);
+        $this->entityManager->clear();
+        $entity = $this->getRepository($entityClass)->findOneBy($findBy);
+        $this->entityManager->remove($entity);
+        $this->entityManager->flush();
+    }
+
     private function valueShouldMatch(object $entity, TableNode $table)
     {
         foreach ($table->getRowsHash() as $path => $expected) {
