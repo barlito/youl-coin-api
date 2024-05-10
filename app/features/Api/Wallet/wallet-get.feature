@@ -17,7 +17,6 @@ Feature:
             | 123             |
             | azeaze          |
 
-
     Scenario:
     I want to test fields returned by the endpoint
 

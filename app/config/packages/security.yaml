@@ -37,3 +37,24 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
+
+when@test:
+    security:
+        providers:
+            api_user_provider:
+                entity:
+                    class: App\Entity\ApiUser
+                    property: name
+        firewalls:
+            # Disable /admin authentication for tests
+            main:
+                security: false
+            dev:
+                pattern: ^/(_(profiler|wdt)|css|images|js)/
+                security: false
+            api:
+                pattern: ^/api/
+                provider: api_user_provider
+                stateless: true
+                access_token:
+                    token_handler: App\Security\ApiTokenHandler
