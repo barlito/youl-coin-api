@@ -1,33 +1,32 @@
-FROM webdevops/php-nginx:8.2
-
-# Install acl package
-RUN apt-get update && \
-    apt-get install -y acl && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy code inside the image
-COPY ./app /app
-
-# Set permissions
-RUN setfacl -R -m u:application:rwx /app && \
-    setfacl -dR -m u:application:rwx /app
-
-# Copy configuration file inside the image
-COPY ./.docker/nginx/conf.d/default.conf /opt/docker/etc/nginx/vhost.conf
-COPY ./.docker/supervisor.d/messenger-worker.conf /opt/docker/etc/supervisor.d/messenger-worker.conf
+FROM dunglas/frankenphp:php8.2
 
 WORKDIR /app
 
-USER application
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim \
+	acl \
+    supervisor \
+	&& rm -rf /var/lib/apt/lists/*
 
-RUN composer install --no-interaction --no-progress --no-suggest --optimize-autoloader --no-scripts --no-dev
+# add additional extensions here:
+RUN install-php-extensions \
+    @composer \
+	pdo_pgsql \
+	gd \
+	intl \
+	zip \
+	opcache \
+    apcu \
+    pcntl \
+    bcmath \
+    amqp
 
-RUN php bin/console assets:install --env=prod --no-debug
 
-RUN php bin/console cache:warmup --env=prod
+# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-USER root
+HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 
-# Set permissions
-RUN setfacl -R -m u:application:rwx /app/var/cache && \
-    setfacl -dR -m u:application:rwx /app/var/cache
+#COPY ./.docker/supervisor.d /etc/supervisor
+
+CMD ["/usr/bin/supervisord"]

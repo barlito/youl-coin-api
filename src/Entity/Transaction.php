@@ -16,7 +16,8 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[CustomAssert\Entity\Transaction\TransactionConstraint]
+#[Assert\GroupSequence(['Transaction', 'Strict'])]
+#[CustomAssert\Entity\Transaction\TransactionConstraint(groups: ['Strict'])]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiResource(
     operations: [
@@ -33,32 +34,32 @@ class Transaction
     #[Assert\NotBlank]
     #[CustomAssert\Entity\Transaction\Amount]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
-    private ?string $amount = null;
+    private string $amount;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Wallet $walletFrom = null;
+    private Wallet $walletFrom;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Wallet $walletTo = null;
+    private Wallet $walletTo;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(allowNull: true)]
     #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $externalIdentifier = null;
+    private string $externalIdentifier;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank]
     #[Assert\Type(TransactionTypeEnum::class)]
     #[ORM\Column(type: 'string', enumType: TransactionTypeEnum::class)]
-    private ?TransactionTypeEnum $type = null;
+    private TransactionTypeEnum $type;
 
     public function getAmount(): ?string
     {
