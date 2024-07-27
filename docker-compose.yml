@@ -5,8 +5,6 @@ services:
             context: .
             dockerfile: .docker/Dockerfile
             target: frankenphp_dev
-        environment:
-            SERVER_NAME: ":80"
         volumes:
             - ./:/app
             - ./.docker/supervisor.d:/etc/supervisor
