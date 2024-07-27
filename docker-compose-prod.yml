@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-    nginx:
+    php:
         image: barlito/youl-coin-api:${TAG}
         environment:
             APP_ENV: prod

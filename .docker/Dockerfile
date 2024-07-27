@@ -27,7 +27,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --link .docker/php/app.ini $PHP_INI_DIR/conf.d/
 COPY --link .docker/franken/Caddyfile /etc/caddy/Caddyfile
-COPY --link .docker/supervisor.d/conf.d/messenger-worker.conf /opt/docker/etc/supervisor.d/messenger-worker.conf
+COPY --link ./.docker/supervisor.d /etc/supervisor
 
 HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
 CMD ["/usr/bin/supervisord"]
