@@ -4,6 +4,7 @@ services:
         build:
             context: .
             dockerfile: .docker/Dockerfile
+            target: frankenphp_dev
         environment:
             SERVER_NAME: ":80"
         volumes:
