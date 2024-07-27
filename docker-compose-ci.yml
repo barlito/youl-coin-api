@@ -1,7 +1,6 @@
-version: '3.4'
-
 services:
-    nginx:
+    php:
+        container_name: youl_coin_php
         ports:
             - "8081:80"
         volumes:
@@ -11,5 +10,7 @@ services:
         container_name: youl_coin_db
 
 networks:
-    traefik_traefik_proxy: ~
-    yc_api_internal: ~
+    traefik_traefik_proxy:
+        external: false
+    yc_api_internal:
+        driver: bridge
