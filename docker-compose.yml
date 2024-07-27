@@ -2,15 +2,16 @@ version: '3.4'
 
 services:
     php:
-        image: barlito/franken:latest
+        image: yc-php
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: .docker/Dockerfile
         environment:
             SERVER_NAME: ":80"
         volumes:
             - ./:/app
-            - ./.docker/supervisor.d:/opt/docker/etc/supervisor.d
+            - ./.docker/supervisor.d:/etc/supervisor
+            - ./.docker/franken/Caddyfile:/etc/caddy/Caddyfile
             - ~/.composer:/root/.composer:delegated
             - yc_caddy_data:/data
             - yc_caddy_config:/config
