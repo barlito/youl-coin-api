@@ -1,29 +1,18 @@
-version: '3.4'
-
 services:
-    nginx:
-        # @see https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html#customization
-        image: webdevops/php-nginx-dev:8.2
+    php:
+        image: yc-php
+        build:
+            context: .
+            dockerfile: .docker/Dockerfile
+            target: frankenphp_dev
         volumes:
-            - ./app:/app
-            - ./.docker/nginx/conf.d/default.conf:/opt/docker/etc/nginx/vhost.conf
-            - ./.docker/supervisor.d/messenger-worker.conf:/opt/docker/etc/supervisor.d/messenger-worker.conf
+            - ./:/app
+            - ./.docker/supervisor.d:/etc/supervisor
+            - ./.docker/franken/Caddyfile:/etc/caddy/Caddyfile
             - ~/.composer:/root/.composer:delegated
-        working_dir: /app
-        environment:
-            # PHP config
-            # @see https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html#environment-variables
-            PHP_DATE_TIMEZONE: "Europe/Paris"
-            PHP_DISPLAY_ERRORS: "on"
-            PHP_MEMORY_LIMIT: 512M
-            PHP_MAX_EXECUTION_TIME: 7200
-            PHP_REQUEST_TERMINATE_TIMEOUT: 7200
-            PHP_POST_MAX_SIZE: 50M
-            PHP_UPLOAD_MAX_FILESIZE: 50M
-            PHP_OPCACHE_REVALIDATE_FREQ: 0
-            php.xdebug.var_display_max_depth: 10
-            php.xdebug.var_display_max_data: 2048
-            XDEBUG_MODE: coverage
+            - yc_caddy_data:/data
+            - yc_caddy_config:/config
+        tty: true
         deploy:
             labels:
                 - traefik.enable=true
@@ -92,6 +81,8 @@ services:
 volumes:
     yc_api_db_data:
     yc_exchange_rabbit_mq_data:
+    yc_caddy_data:
+    yc_caddy_config:
 
 networks:
     traefik_traefik_proxy:

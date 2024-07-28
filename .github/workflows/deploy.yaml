@@ -23,7 +23,7 @@ jobs:
       OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.OAUTH_DISCORD_CLIENT_SECRET }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'true'
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Update Service
         if: ${{ ! inputs.re-deploy }}
-        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_nginx" project_url=yc.barlito.fr
+        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_php" project_url=yc.barlito.fr
 
       - name: Start Messenger Workers
         run: make start-messenger-worker

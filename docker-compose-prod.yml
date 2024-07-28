@@ -1,23 +1,12 @@
 version: '3.4'
 
 services:
-    nginx:
+    php:
         image: barlito/youl-coin-api:${TAG}
-        working_dir: /app
         environment:
-            # PHP config
-            # @see https://dockerfile.readthedocs.io/en/latest/content/DockerImages/dockerfiles/php-nginx-dev.html#environment-variables
-            PHP_DATE_TIMEZONE: "Europe/Paris"
-            PHP_DISPLAY_ERRORS: "on"
-            PHP_MEMORY_LIMIT: 512M
-            PHP_MAX_EXECUTION_TIME: 7200
-            PHP_REQUEST_TERMINATE_TIMEOUT: 7200
-            PHP_POST_MAX_SIZE: 50M
-            PHP_UPLOAD_MAX_FILESIZE: 50M
-            PHP_OPCACHE_REVALIDATE_FREQ: 0
             APP_ENV: prod
             DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=13&charset=utf8"
-            MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@rabbitmq:5672/%2f/messages"
+            MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@youl_coin_rabbitmq:5672/%2f/messages"
             DISCORD_DSN: "${DISCORD_DSN}"
             OAUTH_DISCORD_CLIENT_ID: "${OAUTH_DISCORD_CLIENT_ID}"
             OAUTH_DISCORD_CLIENT_SECRET: "${OAUTH_DISCORD_CLIENT_SECRET}"
