@@ -44,11 +44,11 @@ jobs:
         if: inputs.re-deploy
         run: |
           make undeploy
-          TAG=$GITHUB_REF_NAME make deploy.prod project_url=yc.barlito.fr
+          TAG=$GITHUB_REF_NAME make deploy.prod
 
       - name: Update Service
         if: ${{ ! inputs.re-deploy }}
-        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_php" project_url=yc.barlito.fr
+        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_php"
 
       - name: Start Messenger Workers
         run: make start-messenger-worker
