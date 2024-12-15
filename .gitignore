@@ -42,3 +42,6 @@ code-coverage/phpunit/html-coverage
 ###> Castor ###
 .castor.stub.php
 ###< Castor ###
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

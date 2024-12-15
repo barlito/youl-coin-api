@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\Admin;
+use App\Entity\DiscordUser;
 use App\Enum\Roles\RoleEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\JWTAuthenticator;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +25,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
 /**
@@ -27,11 +33,30 @@ use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
  */
 class DiscordAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
+    use TargetPathTrait;
+
     public function __construct(
+        #[Autowire(param: 'app.allowed_discord_users')]
+        private readonly array $allowedDiscordUsers,
         private readonly ClientRegistry $clientRegistry,
         private readonly EntityManagerInterface $entityManager,
         private readonly RouterInterface $router,
+        private readonly JWTTokenManagerInterface $JWTManager
     ) {
+    }
+
+    /**
+     * Called when authentication is needed, but it's not sent.
+     * This redirects to the 'login'.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function start(Request $request, AuthenticationException $authException = null): Response
+    {
+        return new RedirectResponse(
+            $this->router->generate('connect_discord_start'),
+            Response::HTTP_TEMPORARY_REDIRECT,
+        );
     }
 
     /**
@@ -55,27 +80,14 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                 /** @var DiscordResourceOwner $discordUser */
                 $discordUser = $client->fetchUserFromToken($accessToken);
 
-                $existingUser = $this->entityManager->getRepository(Admin::class)->find($discordUser->getId());
+                $existingUser = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId());
 
                 if ($existingUser) {
                     return $existingUser;
                 }
 
-                if ('188967649332428800' !== $discordUser->getId()) {
-                    throw new AuthenticationException('Your account is not allowed to access this page.');
-                }
-
-                $user = (new Admin())
-                    ->setDiscordId($discordUser->getId())
-                    ->setUsername($discordUser->getUsername())
-                    ->setRoles([RoleEnum::ROLE_ADMIN->value])
-                ;
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
-
-                return $user;
-            }),
-            [new RememberMeBadge()],
+                return $this->createDiscordUser($discordUser);
+            })
         );
     }
 
@@ -84,10 +96,24 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $request->request->set('_remember_me', '1');
-        $targetUrl = $this->router->generate('admin');
+        $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
+        if (!$targetPath) {
+            $targetPath = $this->router->generate('test');
+        }
 
-        return new RedirectResponse($targetUrl);
+        $user = $token->getUser();
+        $payload = [];
+        if($user instanceof DiscordUser) {
+            $payload = ['discordId' => $user->getDiscordId()];
+        }
+        $token = $this->JWTManager->createFromPayload($token->getUser(), $payload);
+
+        //set token in cookie
+        $cookie = Cookie::create('jwt', $token, time() + 3600, '/', '.barlito.fr', true, true, sameSite: Cookie::SAMESITE_LAX);
+
+        $response = new RedirectResponse($targetPath);
+        $response->headers->setCookie($cookie);
+        return $response;
     }
 
     /**
@@ -98,17 +124,20 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         return new Response($exception->getMessage(), Response::HTTP_FORBIDDEN);
     }
 
-    /**
-     * Called when authentication is needed, but it's not sent.
-     * This redirects to the 'login'.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    private function createDiscordUser(DiscordResourceOwner $discordUser): DiscordUser
     {
-        return new RedirectResponse(
-            $this->router->generate('connect_discord_start'),
-            Response::HTTP_TEMPORARY_REDIRECT,
-        );
+        if (!\in_array($discordUser->getId(), $this->allowedDiscordUsers)) {
+            throw new AuthenticationException('Your account is not allowed to access this app.');
+        }
+
+        $user = (new DiscordUser())
+            ->setDiscordId($discordUser->getId())
+            ->setUsername($discordUser->getUsername())
+            ->setRoles([RoleEnum::ROLE_USER->value])
+        ;
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
     }
 }

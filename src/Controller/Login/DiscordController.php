@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Admin\Login;
+namespace App\Controller\Login;
 
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class DiscordController extends AbstractController
 {
@@ -50,5 +52,12 @@ class DiscordController extends AbstractController
         // controller can be blank: it will never be called!
 
         throw new \Exception('Don\'t forget to activate logout in security.yaml');
+    }
+
+    #[Route('/test', name: 'test')]
+    #[IsGranted('ROLE_USER')]
+    public function test(): Response
+    {
+        return $this->render('base.html.twig');
     }
 }

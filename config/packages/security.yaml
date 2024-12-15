@@ -2,10 +2,10 @@ security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         # used to reload user from session & other features (e.g. switch_user)
-        app_admin_provider:
+        app_user_provider:
             entity:
-                class: App\Entity\Admin
-                property: discordId
+                class: App\Entity\DiscordUser
+                property: username
         # used to reload user from session & other features (e.g. switch_user)
         api_user_provider:
             entity:
@@ -22,12 +22,7 @@ security:
             access_token:
                 token_handler: App\Security\ApiTokenHandler
         main:
-            remember_me:
-                secret: '%kernel.secret%' # required
-                lifetime: 604800 # 1 week in seconds
-                always_remember_me: true
-                signature_properties: ['username']
-            provider: app_admin_provider
+            provider: app_user_provider
             custom_authenticators:
                 - App\Security\DiscordAuthenticator
             logout:
