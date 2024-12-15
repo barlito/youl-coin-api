@@ -20,11 +20,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Component\Security\Http\HttpUtils;
+use Symfony\Component\Security\Http\ParameterBagUtils;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
@@ -41,7 +44,8 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly ClientRegistry $clientRegistry,
         private readonly EntityManagerInterface $entityManager,
         private readonly RouterInterface $router,
-        private readonly JWTTokenManagerInterface $JWTManager
+        private readonly JWTTokenManagerInterface $JWTManager,
+        private readonly HttpUtils $httpUtils,
     ) {
     }
 
@@ -96,23 +100,17 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
-        if (!$targetPath) {
-            $targetPath = $this->router->generate('test');
-        }
-
         $user = $token->getUser();
         $payload = [];
         if($user instanceof DiscordUser) {
             $payload = ['discordId' => $user->getDiscordId()];
         }
-        $token = $this->JWTManager->createFromPayload($token->getUser(), $payload);
+        $jwtToken = $this->JWTManager->createFromPayload($token->getUser(), $payload);
+        $cookie = Cookie::create('jwt', $jwtToken, time() + 3600, '/', '.barlito.fr', true, true, sameSite: Cookie::SAMESITE_LAX);
 
-        //set token in cookie
-        $cookie = Cookie::create('jwt', $token, time() + 3600, '/', '.barlito.fr', true, true, sameSite: Cookie::SAMESITE_LAX);
-
-        $response = new RedirectResponse($targetPath);
+        $response = new RedirectResponse($this->determineTargetUrl($request, $firewallName));
         $response->headers->setCookie($cookie);
+
         return $response;
     }
 
@@ -139,5 +137,18 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         $this->entityManager->flush();
 
         return $user;
+    }
+
+    protected function determineTargetUrl(Request $request, string $firewallName): string
+    {
+        $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
+
+        if ($targetPath) {
+            $this->removeTargetPath($request->getSession(), $firewallName);
+
+            return $targetPath;
+        }
+
+        return $this->router->generate('admin');
     }
 }
