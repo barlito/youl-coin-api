@@ -1,6 +1,5 @@
 # Vars
 stack_name=youl_coin
-project_url=yc.local.barlito.fr
 app_container_id = $(shell docker ps --filter name="$(stack_name)_php" -q)
 
 # Config paths

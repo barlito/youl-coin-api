@@ -27,6 +27,9 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Setup castor
+        uses: castor-php/setup-castor@v0.1.0
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -44,11 +47,11 @@ jobs:
         if: inputs.re-deploy
         run: |
           make undeploy
-          TAG=$GITHUB_REF_NAME make deploy.prod project_url=yc.barlito.fr
+          TAG=$GITHUB_REF_NAME make deploy.prod
 
       - name: Update Service
         if: ${{ ! inputs.re-deploy }}
-        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_php" project_url=yc.barlito.fr
+        run: make update.service service_update_args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_php"
 
       - name: Start Messenger Workers
         run: make start-messenger-worker
