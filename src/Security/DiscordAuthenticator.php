@@ -7,6 +7,8 @@ namespace App\Security;
 use App\Entity\Admin;
 use App\Entity\DiscordUser;
 use App\Enum\Roles\RoleEnum;
+use App\Service\Token\JwtGenerator;
+use App\Service\Util\TargetPathRouter;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
@@ -43,9 +45,9 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly array $allowedDiscordUsers,
         private readonly ClientRegistry $clientRegistry,
         private readonly EntityManagerInterface $entityManager,
-        private readonly RouterInterface $router,
-        private readonly JWTTokenManagerInterface $JWTManager,
         private readonly HttpUtils $httpUtils,
+        private readonly JwtGenerator $jwtGenerator,
+        private readonly TargetPathRouter $targetPathRouter,
     ) {
     }
 
@@ -91,7 +93,8 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                 }
 
                 return $this->createDiscordUser($discordUser);
-            })
+            }),
+            [new RememberMeBadge()],
         );
     }
 
@@ -100,16 +103,8 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $user = $token->getUser();
-        $payload = [];
-        if($user instanceof DiscordUser) {
-            $payload = ['discordId' => $user->getDiscordId()];
-        }
-        $jwtToken = $this->JWTManager->createFromPayload($token->getUser(), $payload);
-        $cookie = Cookie::create('jwt', $jwtToken, time() + 3600, '/', '.barlito.fr', true, true, sameSite: Cookie::SAMESITE_LAX);
-
-        $response = new RedirectResponse($this->determineTargetUrl($request, $firewallName));
-        $response->headers->setCookie($cookie);
+        $response = new RedirectResponse($this->targetPathRouter->determineTargetUrl($request, $firewallName));
+        $response->headers->setCookie($this->jwtGenerator->generateCookie($token->getUser()));
 
         return $response;
     }
@@ -137,18 +132,5 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         $this->entityManager->flush();
 
         return $user;
-    }
-
-    protected function determineTargetUrl(Request $request, string $firewallName): string
-    {
-        $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
-
-        if ($targetPath) {
-            $this->removeTargetPath($request->getSession(), $firewallName);
-
-            return $targetPath;
-        }
-
-        return $this->router->generate('admin');
     }
 }

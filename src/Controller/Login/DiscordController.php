@@ -4,15 +4,23 @@ declare(strict_types=1);
 
 namespace App\Controller\Login;
 
+use App\Service\Token\JwtGenerator;
+use App\Service\Util\TargetPathRouter;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 use Symfony\Component\Security\Http\ParameterBagUtils;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
@@ -20,15 +28,13 @@ class DiscordController extends AbstractController
 {
     use TargetPathTrait;
 
-    /**
-     * Link to this controller to start the "connect" process
-     */
-    #[Route('/connect/discord', name: 'connect_discord_start')]
-    public function connectAction(
+    #[Route('/refresh_token', name: 'refresh_token')]
+    public function refreshToken(
         #[Autowire('@security.firewall.map')]
         FirewallMap $firewallMap,
         Request $request,
-        ClientRegistry $clientRegistry
+        JwtGenerator $jwtGenerator,
+        TargetPathRouter $targetPathRouter,
     ): RedirectResponse
     {
         $firewallName = $firewallMap->getFirewallConfig($request)?->getName();
@@ -38,6 +44,24 @@ class DiscordController extends AbstractController
             $this->saveTargetPath($request->getSession(), $firewallName ?? 'main', $targetUrl);
         }
 
+        if ($this->getUser() instanceof UserInterface) {
+            $response = new RedirectResponse($targetPathRouter->determineTargetUrl($request, $firewallName));
+            $response->headers->setCookie($jwtGenerator->generateCookie($this->getUser()));
+
+            return $response;
+        }
+
+        return new RedirectResponse($this->generateUrl('connect_discord_start'));
+    }
+
+    /**
+     * Link to this controller to start the "connect" process
+     */
+    #[Route('/connect/discord', name: 'connect_discord_start')]
+    public function connectAction(
+        ClientRegistry $clientRegistry
+    ): RedirectResponse
+    {
         return $clientRegistry
             ->getClient('discord')
             ->redirect([
@@ -70,12 +94,5 @@ class DiscordController extends AbstractController
         // controller can be blank: it will never be called!
 
         throw new \Exception('Don\'t forget to activate logout in security.yaml');
-    }
-
-    #[Route('/test', name: 'test')]
-    #[IsGranted('ROLE_USER')]
-    public function test(): Response
-    {
-        return $this->render('base.html.twig');
     }
 }
