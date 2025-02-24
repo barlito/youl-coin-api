@@ -14,7 +14,7 @@ class WalletDbConstraintTest extends KernelTestCase
 {
     public function setUp(): void
     {
-        system(sprintf('bin/console hautelook:fixtures:load -n --env="test"'));
+        system(\sprintf('bin/console hautelook:fixtures:load -n --env="test"'));
         self::bootKernel();
     }
 

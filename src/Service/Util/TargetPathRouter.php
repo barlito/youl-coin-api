@@ -8,14 +8,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class TargetPathRouter{
-
+class TargetPathRouter
+{
     use TargetPathTrait;
 
     public function __construct(
         private readonly RouterInterface $router,
-    )
-    {
+    ) {
     }
 
     public function determineTargetUrl(Request $request, string $firewallName): string

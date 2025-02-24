@@ -28,7 +28,7 @@ final class ApiContext extends ApiTestCase implements Context
     /**
      * @Given (I )send a :method request to :url
      */
-    public function iSendARequestTo(string $method, string $url, PyStringNode $body = null, $files = []): void
+    public function iSendARequestTo(string $method, string $url, ?PyStringNode $body = null, $files = []): void
     {
         $this->response = self::createClient()->request($method, $url);
     }

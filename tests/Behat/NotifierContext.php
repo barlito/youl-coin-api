@@ -12,7 +12,7 @@ class NotifierContext extends KernelTestCase implements Context
 {
     public function __construct(
         private readonly TransactionNotifierMock $notifier,
-        string $name = null,
+        ?string $name = null,
         array $data = [],
         $dataName = '',
     ) {

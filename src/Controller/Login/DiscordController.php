@@ -7,21 +7,13 @@ namespace App\Controller\Login;
 use App\Service\Token\JwtGenerator;
 use App\Service\Util\TargetPathRouter;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Security\Http\Event\LogoutEvent;
-use Symfony\Component\Security\Http\ParameterBagUtils;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class DiscordController extends AbstractController
@@ -35,8 +27,7 @@ class DiscordController extends AbstractController
         Request $request,
         JwtGenerator $jwtGenerator,
         TargetPathRouter $targetPathRouter,
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $firewallName = $firewallMap->getFirewallConfig($request)?->getName();
         $targetUrl = $request->get('_target_path');
 
@@ -59,9 +50,8 @@ class DiscordController extends AbstractController
      */
     #[Route('/connect/discord', name: 'connect_discord_start')]
     public function connectAction(
-        ClientRegistry $clientRegistry
-    ): RedirectResponse
-    {
+        ClientRegistry $clientRegistry,
+    ): RedirectResponse {
         return $clientRegistry
             ->getClient('discord')
             ->redirect([

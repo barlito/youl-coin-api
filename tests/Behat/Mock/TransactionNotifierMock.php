@@ -56,7 +56,7 @@ class TransactionNotifierMock implements TransactionNotifierInterface
         self::$errorNotifications = [];
     }
 
-    private function addNotification(Transaction $transaction = null): void
+    private function addNotification(?Transaction $transaction = null): void
     {
         self::$notifications[] = [
             'transaction' => $transaction,

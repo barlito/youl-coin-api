@@ -28,11 +28,11 @@ class TransactionMessage
     private ?string $externalIdentifier;
 
     public function __construct(
-        string $amount = null,
-        string $discordUserIdFrom = null,
-        string $discordUserIdTo = null,
-        TransactionTypeEnum $type = null,
-        string $externalIdentifier = null,
+        ?string $amount = null,
+        ?string $discordUserIdFrom = null,
+        ?string $discordUserIdTo = null,
+        ?TransactionTypeEnum $type = null,
+        ?string $externalIdentifier = null,
     ) {
         $this->amount = $amount;
         $this->discordUserIdFrom = $discordUserIdFrom;
