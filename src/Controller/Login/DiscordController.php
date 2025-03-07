@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Login;
 
-use App\Service\Token\JwtGenerator;
 use App\Service\Util\TargetPathRouter;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,13 +21,12 @@ class DiscordController extends AbstractController
 
     #[Route('/refresh_token', name: 'refresh_token')]
     public function refreshToken(
-        #[Autowire('@security.firewall.map')]
-        FirewallMap $firewallMap,
+        Security $security,
         Request $request,
-        JwtGenerator $jwtGenerator,
+        AuthenticationSuccessHandler $jwtAuthSuccessHandler,
         TargetPathRouter $targetPathRouter,
     ): RedirectResponse {
-        $firewallName = $firewallMap->getFirewallConfig($request)?->getName();
+        $firewallName = $security->getFirewallConfig($request)?->getName();
         $targetUrl = $request->get('_target_path');
 
         if (\is_string($targetUrl) && (str_starts_with($targetUrl, '/') || str_starts_with($targetUrl, 'http'))) {
@@ -37,7 +35,11 @@ class DiscordController extends AbstractController
 
         if ($this->getUser() instanceof UserInterface) {
             $response = new RedirectResponse($targetPathRouter->determineTargetUrl($request, $firewallName));
-            $response->headers->setCookie($jwtGenerator->generateCookie($this->getUser()));
+            $jwtResponse = $jwtAuthSuccessHandler->onAuthenticationSuccess($request, $security->getToken());
+
+            foreach ($jwtResponse->headers->getCookies() as $cookie) {
+                $response->headers->setCookie($cookie);
+            }
 
             return $response;
         }

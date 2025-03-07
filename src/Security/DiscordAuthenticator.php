@@ -6,15 +6,16 @@ namespace App\Security;
 
 use App\Entity\DiscordUser;
 use App\Enum\Roles\RoleEnum;
-use App\Service\Token\JwtGenerator;
 use App\Service\Util\TargetPathRouter;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
@@ -39,8 +40,9 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly ClientRegistry $clientRegistry,
         private readonly EntityManagerInterface $entityManager,
         private readonly HttpUtils $httpUtils,
-        private readonly JwtGenerator $jwtGenerator,
         private readonly TargetPathRouter $targetPathRouter,
+        private readonly RouterInterface $router,
+        private readonly AuthenticationSuccessHandler $jwtAuthSuccessHandler,
     ) {
     }
 
@@ -97,7 +99,11 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         $response = new RedirectResponse($this->targetPathRouter->determineTargetUrl($request, $firewallName));
-        $response->headers->setCookie($this->jwtGenerator->generateCookie($token->getUser()));
+        $jwtResponse = $this->jwtAuthSuccessHandler->onAuthenticationSuccess($request, $token);
+
+        foreach ($jwtResponse->headers->getCookies() as $cookie) {
+            $response->headers->setCookie($cookie);
+        }
 
         return $response;
     }

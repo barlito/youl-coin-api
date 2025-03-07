@@ -16,3 +16,13 @@ lexik_jwt_authentication:
         cookie:
             enabled: true
             name: jwt
+
+    set_cookies:
+        jwt:
+            lifetime: 900
+            samesite: lax
+            path: /
+            domain: '%env(JWT_COOKIE_DOMAIN)%'
+            secure: true
+            httpOnly: true
+            partitioned: false

@@ -856,6 +856,9 @@
     "tolerance/tolerance": {
         "version": "0.4.2"
     },
+    "twig/extra-bundle": {
+        "version": "v3.20.0"
+    },
     "twig/twig": {
         "version": "v3.3.2"
     },
