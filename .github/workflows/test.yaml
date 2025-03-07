@@ -28,14 +28,11 @@ jobs:
           path: ~/.composer/cache/files
           key: composer-${{ hashFiles('**/composer.lock') }}
 
-      - name: "Determine composer cache directory"
-        run: "ls -la ~/.composer/cache/files"
-
       - name: Deploy stack
         run: make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Determine composer cache directory"
-        run: "ls -la ~/.composer/cache/files"
+      - name: Generate JWT key pair
+        run: castor generate-jwt-key-pair
 
       - name: Run phpunit
         run: make phpunit
