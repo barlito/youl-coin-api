@@ -8,7 +8,6 @@ use App\Entity\DiscordUser;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
-use KnpU\OAuth2ClientBundle\Client\Provider\DiscordUser as DiscordOAuthUser;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -52,13 +51,12 @@ class DiscordAuthTest extends WebTestCase
         self::assertBrowserHasCookie('jwt');
 
         $user = $discordUserRepository->findOneBy(['discordId' => $discordResource->getId()]);
-        self::assertNotNull($user);
-        self::assertInstanceOf(DiscordUser::class, $user);
+        $this->assertNotNull($user);
+        $this->assertInstanceOf(DiscordUser::class, $user);
     }
 
     public function testLoginFailsForNonWhitelistedUser(): void
     {
-
         $discordUserRepository = $this->entityManager->getRepository(DiscordUser::class);
 
         $nonWhitelistedUserId = '999999999999999999';
@@ -74,7 +72,7 @@ class DiscordAuthTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
 
         $user = $discordUserRepository->findOneBy(['discordId' => $nonWhitelistedUserId]);
-        self::assertNull($user);
+        $this->assertNull($user);
     }
 
     private function removeUser(string $userId): void
