@@ -27,6 +27,6 @@ class TargetPathRouter
             return $targetPath;
         }
 
-        return $this->router->generate('admin');
+        return $this->router->generate('homepage');
     }
 }
