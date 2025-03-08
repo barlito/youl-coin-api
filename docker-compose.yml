@@ -7,7 +7,6 @@ services:
             target: frankenphp_dev
         volumes:
             - ./:/app
-            - ./.docker/supervisor.d:/etc/supervisor
             - ./.docker/franken/Caddyfile:/etc/caddy/Caddyfile
             - ~/.composer:/root/.cache/composer:delegated
             - yc_caddy_data:/data
@@ -30,12 +29,32 @@ services:
             - yc_api_internal
             - traefik_traefik_proxy
 
+    message-worker:
+        image: yc-worker
+        build:
+            context: .
+            dockerfile: .docker/Dockerfile
+            target: frankenphp_worker_dev
+        volumes:
+            - ./:/app
+            - ./.docker/supervisor.d:/etc/supervisor
+        tty: true
+        deploy:
+            replicas: 2
+        networks:
+            - yc_api_internal
+
     db:
         image: postgres:13
         environment:
             POSTGRES_PASSWORD: root
         volumes:
             - yc_api_db_data:/var/lib/postgresql/data:rw
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
         networks:
             - yc_api_internal
 
@@ -74,6 +93,11 @@ services:
                 - traefik.http.routers.youlcoin_rabbitmq-secure.rule=Host(`yc-rabbitmq.local.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https
                 - traefik.http.routers.youlcoin_rabbitmq-secure.tls=true
+        healthcheck:
+            test: rabbitmq-diagnostics -q ping
+            interval: 30s
+            timeout: 30s
+            retries: 3
         networks:
             - yc_api_internal
             - traefik_traefik_proxy
