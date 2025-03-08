@@ -12,7 +12,7 @@ use function Castor\context;
 #[AsContext(name: 'my_context', default: true)]
 function my_context(): Context
 {
-    return new Context(environment: ['STACK_NAME' => 'youl_coin', 'DB_NAME' => 'youl_coin_db']);
+    return new Context(environment: ['STACK_NAME' => 'youl_coin']);
 }
 
 #[AsTask('generate-jwt-key-pair')]
