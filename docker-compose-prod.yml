@@ -34,7 +34,7 @@ services:
         networks:
             - traefik_traefik_proxy
 
-    message-worker:
+    message_worker:
         image: barlito/youl-coin-worker:${TAG}
         environment:
             APP_ENV: prod
@@ -50,9 +50,6 @@ services:
             driver: loki
             options:
                 loki-url: "http://176.31.100.99:3100/loki/api/v1/push"
-        volumes:
-            - ./:/app
-            - ./.docker/supervisor.d:/etc/supervisor
         tty: true
         deploy:
             replicas: 2

@@ -49,6 +49,7 @@ jobs:
       - name: Re-Deploy Service
         if: inputs.re-deploy
         run: |
+          make undeploy
           TAG=$GITHUB_REF_NAME make deploy.prod
 
       - name: Update Service
