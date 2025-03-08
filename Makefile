@@ -9,11 +9,3 @@ config_phpmd=vendor/barlito/utils/config/phpmd.xml
 
 # Include all make rules from submodule
 include make/entrypoint.mk
-
-###> App commands ###
-start-messenger-worker:
-	make docker.command exec_params="-t" args="supervisorctl start messenger-consume:*"
-
-stop-messenger-worker:
-	make docker.command exec_params="-t" args="supervisorctl stop messenger-consume:*"
-###< App commands ###
