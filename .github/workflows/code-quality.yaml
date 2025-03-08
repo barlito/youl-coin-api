@@ -24,9 +24,9 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Cache Composer Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: ~/.composer/cache/files
+          path: ~/.composer/files
           key: composer-${{ hashFiles('**/composer.lock') }}
 
       - name: Deploy stack
