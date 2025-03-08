@@ -33,8 +33,9 @@ services:
                 - traefik.http.routers.youlcoin-secure.tls.certresolver=letsencrypt
         networks:
             - traefik_traefik_proxy
+            - yc_api_internal
 
-    message-worker:
+    message_worker:
         image: barlito/youl-coin-worker:${TAG}
         environment:
             APP_ENV: prod
@@ -50,19 +51,16 @@ services:
             driver: loki
             options:
                 loki-url: "http://176.31.100.99:3100/loki/api/v1/push"
-        volumes:
-            - ./:/app
-            - ./.docker/supervisor.d:/etc/supervisor
         tty: true
         deploy:
             replicas: 2
+        networks:
+            - yc_api_internal
 
     db:
         image: postgres:13
         environment:
             POSTGRES_PASSWORD: ${DB_PASSWORD}
-        networks:
-            - traefik_traefik_proxy
         volumes:
             - youl_coin_db:/var/lib/postgresql/data:rw
         healthcheck:
@@ -75,6 +73,9 @@ services:
               published: 5432
               protocol: tcp
               mode: host
+        networks:
+            - traefik_traefik_proxy
+            - yc_api_internal
 
     adminer:
         image: adminer
@@ -94,7 +95,7 @@ services:
                 - traefik.http.routers.youlcoin_adminer-secure.tls.certresolver=letsencrypt
         networks:
             - traefik_traefik_proxy
-
+            - yc_api_internal
     rabbitmq:
         image: rabbitmq:3-management
         hostname: yc-rabbitmq
@@ -124,6 +125,7 @@ services:
             retries: 3
         networks:
             - traefik_traefik_proxy
+            - yc_api_internal
 
 volumes:
     youl_coin_db:
@@ -132,3 +134,5 @@ volumes:
 networks:
     traefik_traefik_proxy:
         external: true
+    yc_api_internal:
+        driver: overlay
