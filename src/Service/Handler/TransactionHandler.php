@@ -61,7 +61,7 @@ class TransactionHandler extends AbstractHandler
      * @throws MathException
      * @throws NumberFormatException
      */
-    public function handleTransaction(Transaction $transaction): void
+    public function handleTransaction(Transaction $transaction): Transaction
     {
         $lock = $this->getLock();
         $lock->acquire(true);
@@ -88,6 +88,8 @@ class TransactionHandler extends AbstractHandler
             $this->persistOneEntity($transaction);
 
             $this->notify($transaction);
+
+            return $transaction;
         } finally {
             $lock->release();
         }

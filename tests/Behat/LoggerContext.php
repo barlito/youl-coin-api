@@ -12,7 +12,7 @@ class LoggerContext extends KernelTestCase implements Context
 {
     public function __construct(
         private readonly LoggerMock $logger,
-        string $name = null,
+        ?string $name = null,
         array $data = [],
         $dataName = '',
     ) {

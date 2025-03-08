@@ -21,7 +21,7 @@ abstract class AbstractHandler
     /**
      * @throws ConstraintDefinitionException
      */
-    protected function validate(mixed $data, Constraint | array $constraints = null, string | GroupSequence | array $groups = []): void
+    protected function validate(mixed $data, Constraint | array | null $constraints = null, string | GroupSequence | array $groups = []): void
     {
         $violations = $this->validator->validate($data, $constraints, $groups);
 

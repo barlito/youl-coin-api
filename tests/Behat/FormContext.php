@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat;
 
-use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class FormContext extends WebTestCase implements Context
+final class FormContext extends AuthContext
 {
     /**
      * @When (I )submit the form with :button on button to :url with body:
      */
-    public function iSubmitTheFormToUrlWithBody(string $button, string $url, PyStringNode $string)
+    public function iSubmitTheFormToUrlWithBody(string $button, string $url, PyStringNode $string): void
     {
-        $payload = json_decode($string->getRaw(), true);
+        $payload = json_decode($string->getRaw(), true, 512, JSON_THROW_ON_ERROR);
 
-        $client = FormContext::createClient();
+        $client = self::getClient();
         $client->followRedirects();
 
         $client->request('GET', $url);

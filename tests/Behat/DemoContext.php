@@ -30,7 +30,7 @@ final class DemoContext extends KernelTestCase implements Context
      */
     public static function prepareFixtures()
     {
-        system(sprintf('bin/console hautelook:fixtures:load -n --env="test"'));
+        system(\sprintf('bin/console hautelook:fixtures:load -n --env="test"'));
     }
 
     /**
@@ -40,7 +40,7 @@ final class DemoContext extends KernelTestCase implements Context
      */
     public static function clearCachePool(): void
     {
-        system(sprintf('bin/console cache:pool:clear cache.app --env="test"'));
+        system(\sprintf('bin/console cache:pool:clear cache.app --env="test"'));
     }
 
     /**

@@ -15,10 +15,10 @@ use Brick\Money\Exception\MoneyMismatchException;
 use Brick\Money\Exception\UnknownCurrencyException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-class TransactionStateProcessor implements ProcessorInterface
+readonly class TransactionStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly TransactionHandler $transactionHandler,
+        private TransactionHandler $transactionHandler,
     ) {
     }
 
@@ -31,12 +31,12 @@ class TransactionStateProcessor implements ProcessorInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Transaction
     {
         if (!$data instanceof Transaction) {
             throw new UnexpectedTypeException($data, Transaction::class);
         }
 
-        $this->transactionHandler->handleTransaction($data);
+        return $this->transactionHandler->handleTransaction($data);
     }
 }

@@ -24,7 +24,7 @@ trait PropertyAssertTrait
             return;
         }
 
-        $callable($expected, $actualValue, sprintf(
+        $callable($expected, $actualValue, \sprintf(
             "The element '%s' value '%s' is not equal to expected '%s'",
             $path,
             $this->getAsString($actualValue),
@@ -67,19 +67,19 @@ trait PropertyAssertTrait
                 $enum = substr($enum, 0, -7);
             }
             if (!\defined($enum)) {
-                throw new ParseException(sprintf('The enum "%s" is not defined.', $enum));
+                throw new ParseException(\sprintf('The enum "%s" is not defined.', $enum));
             }
 
             $value = \constant($enum);
 
             if (!$value instanceof \UnitEnum) {
-                throw new ParseException(sprintf('The string "%s" is not the name of a valid enum.', $enum));
+                throw new ParseException(\sprintf('The string "%s" is not the name of a valid enum.', $enum));
             }
             if (!$useValue) {
                 return $value;
             }
             if (!$value instanceof \BackedEnum) {
-                throw new ParseException(sprintf('The enum "%s" defines no value next to its name.', $enum));
+                throw new ParseException(\sprintf('The enum "%s" defines no value next to its name.', $enum));
             }
 
             return $value->value;

@@ -9,6 +9,7 @@ Feature:
     BankWallet should be created successfully
 
     Given a "Wallet" entity found by "type=bank" should be deleted
+    And an admin user is logged in
 
     When I submit the form with "Create" on button to "admin?crudAction=new&crudControllerFqcn=App\Controller\Admin\WalletCrudController" with body:
     """

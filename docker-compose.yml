@@ -9,7 +9,7 @@ services:
             - ./:/app
             - ./.docker/supervisor.d:/etc/supervisor
             - ./.docker/franken/Caddyfile:/etc/caddy/Caddyfile
-            - ~/.composer:/root/.composer:delegated
+            - ~/.composer:/root/.cache/composer:delegated
             - yc_caddy_data:/data
             - yc_caddy_config:/config
         tty: true
