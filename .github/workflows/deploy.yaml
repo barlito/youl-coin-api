@@ -21,9 +21,9 @@ jobs:
       DISCORD_DSN: ${{ secrets.DISCORD_DSN }}
       OAUTH_DISCORD_CLIENT_ID: ${{ secrets.OAUTH_DISCORD_CLIENT_ID }}
       OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.OAUTH_DISCORD_CLIENT_SECRET }}
-      JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
-      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-      JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+      JWT_PUBLIC_KEY: "${{ secrets.JWT_PUBLIC_KEY }}"
+      JWT_SECRET_KEY: "${{ secrets.JWT_SECRET_KEY }}"
+      JWT_PASSPHRASE: "${{ secrets.JWT_PASSPHRASE }}"
 
     steps:
       - uses: actions/checkout@v4
