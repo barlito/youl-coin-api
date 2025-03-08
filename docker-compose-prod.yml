@@ -10,6 +10,9 @@ services:
             DISCORD_DSN: "${DISCORD_DSN}"
             OAUTH_DISCORD_CLIENT_ID: "${OAUTH_DISCORD_CLIENT_ID}"
             OAUTH_DISCORD_CLIENT_SECRET: "${OAUTH_DISCORD_CLIENT_SECRET}"
+            JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
+            JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
+            JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
         logging:
             driver: loki
             options:
