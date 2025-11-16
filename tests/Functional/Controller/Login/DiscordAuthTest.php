@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller\Login;
 
+use App\Entity\DiscordUser;
 use App\Repository\DiscordUserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -17,7 +18,8 @@ class DiscordAuthTest extends WebTestCase
     {
         $client = $this->getCustomClient();
 
-        $client->loginUser($this->getAdminUser());
+        $user = $this->getAdminUser();
+        $client->loginUser($user);
 
         self::assertBrowserNotHasCookie('jwt', '/', $_ENV['JWT_COOKIE_DOMAIN']);
 
@@ -34,6 +36,11 @@ class DiscordAuthTest extends WebTestCase
         $this->assertSame($_ENV['JWT_COOKIE_DOMAIN'], $jwtCookie->getDomain());
         $this->assertSame('/', $jwtCookie->getPath());
         $this->assertNotNull($jwtCookie->getExpiresTime());
+
+        $jwtManager = static::getContainer()->get(JWTTokenManagerInterface::class);
+        $jwt = $jwtManager->parse($jwtCookie->getValue());
+        self::assertEquals($user->getDiscordId(), $jwt['discordId']);
+        self::assertEquals($user->getUsername(), $jwt['username']);
 
         self::assertResponseHasCookie('jwt', '/', $_ENV['JWT_COOKIE_DOMAIN']);
         self::assertBrowserHasCookie('jwt', '/', $_ENV['JWT_COOKIE_DOMAIN']);
@@ -68,7 +75,7 @@ class DiscordAuthTest extends WebTestCase
         return static::createClient(server: ['HTTP_HOST' => 'test' . $_ENV['JWT_COOKIE_DOMAIN'], 'HTTPS' => 'on']);
     }
 
-    private function getAdminUser(): UserInterface
+    private function getAdminUser(): DiscordUser
     {
         /** @var DiscordUserRepository $discordUserRepository */
         $discordUserRepository = static::getContainer()->get(DiscordUserRepository::class);

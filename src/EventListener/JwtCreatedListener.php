@@ -6,9 +6,10 @@ namespace App\EventListener;
 
 use App\Entity\DiscordUser;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
+use Lexik\Bundle\JWTAuthenticationBundle\Events;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-#[AsEventListener(event: 'lexik_jwt_authentication.on_jwt_created', method: 'onJwtCreated')]
+#[AsEventListener(event: Events::JWT_CREATED, method: 'onJwtCreated')]
 readonly class JwtCreatedListener
 {
     public function onJwtCreated(JWTCreatedEvent $event): void
@@ -18,7 +19,7 @@ readonly class JwtCreatedListener
         $payload = $event->getData();
 
         if ($user instanceof DiscordUser) {
-            $payload['discordId'] = $user->getDiscordId();
+            $payload['username'] = $user->getUsername();
         }
 
         $event->setData($payload);
