@@ -5,10 +5,13 @@ services:
             context: .
             dockerfile: .docker/Dockerfile
             target: frankenphp_dev
+            args:
+                USER_ID: ${USER_ID:-1000}
+                GROUP_ID: ${GROUP_ID:-1000}
         volumes:
             - ./:/app
             - ./.docker/franken/Caddyfile:/etc/caddy/Caddyfile
-            - ~/.composer:/root/.cache/composer:delegated
+            - ~/.composer:/home/www/.composer:delegated
             - yc_caddy_data:/data
             - yc_caddy_config:/config
         tty: true
@@ -35,6 +38,9 @@ services:
             context: .
             dockerfile: .docker/Dockerfile
             target: frankenphp_worker_dev
+            args:
+                USER_ID: ${USER_ID:-1000}
+                GROUP_ID: ${GROUP_ID:-1000}
         volumes:
             - ./:/app
             - ./.docker/supervisor.d:/etc/supervisor

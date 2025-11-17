@@ -4,7 +4,7 @@ services:
         ports:
             - "8081:80"
         volumes:
-            - ~/.composer/cache/files:/root/.composer/cache/files
+            - ~/.composer/cache/files:/home/www/.composer/cache/files
 
     db:
         container_name: youl_coin_db
