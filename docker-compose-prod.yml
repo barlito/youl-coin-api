@@ -25,7 +25,6 @@ services:
 
                 - traefik.http.routers.youlcoin.rule=Host(`yc.barlito.fr`)
                 - traefik.http.routers.youlcoin.entrypoints=http
-                - traefik.http.routers.youlcoin.middlewares=tls-redirectscheme
 
                 - traefik.http.routers.youlcoin-secure.rule=Host(`yc.barlito.fr`)
                 - traefik.http.routers.youlcoin-secure.entrypoints=https
@@ -87,7 +86,6 @@ services:
 
                 - traefik.http.routers.youlcoin_adminer.rule=Host(`yc-adminer.barlito.fr`)
                 - traefik.http.routers.youlcoin_adminer.entrypoints=http
-                - traefik.http.routers.youlcoin_adminer.middlewares=tls-redirectscheme
 
                 - traefik.http.routers.youlcoin_adminer-secure.rule=Host(`yc-adminer.barlito.fr`)
                 - traefik.http.routers.youlcoin_adminer-secure.entrypoints=https
@@ -112,7 +110,6 @@ services:
 
                 - traefik.http.routers.youlcoin_rabbitmq.rule=Host(`yc-rabbitmq.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq.entrypoints=http
-                - traefik.http.routers.youlcoin_rabbitmq.middlewares=tls-redirectscheme
 
                 - traefik.http.routers.youlcoin_rabbitmq-secure.rule=Host(`yc-rabbitmq.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https

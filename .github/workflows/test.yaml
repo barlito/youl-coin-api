@@ -29,7 +29,7 @@ jobs:
           key: composer-${{ hashFiles('**/composer.lock') }}
 
       - name: Deploy stack
-        run: make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
+        run: USER_ID=$(id -u) GROUP_ID=$(id -g) make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate JWT key pair
         run: castor generate-jwt-key-pair

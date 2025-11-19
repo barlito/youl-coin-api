@@ -30,7 +30,7 @@ jobs:
           key: composer-${{ hashFiles('**/composer.lock') }}
 
       - name: Deploy stack
-        run: make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
+        run: USER_ID=$(id -u) GROUP_ID=$(id -g) make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
 
       - name: Run php cs fixer
         run: make cs_fixer.dry_run
