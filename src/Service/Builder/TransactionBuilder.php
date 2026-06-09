@@ -21,7 +21,7 @@ class TransactionBuilder
         $walletFrom = $this->findWallet($transactionMessage->getDiscordUserIdFrom());
         $walletTo = $this->findWallet($transactionMessage->getDiscordUserIdTo());
 
-        return (new Transaction())
+        return new Transaction()
             ->setAmount($transactionMessage->getAmount())
             ->setWalletFrom($walletFrom)
             ->setWalletTo($walletTo)

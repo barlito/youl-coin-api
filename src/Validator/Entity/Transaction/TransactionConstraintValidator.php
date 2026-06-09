@@ -65,7 +65,7 @@ class TransactionConstraintValidator extends ConstraintValidator
 
     private function isPositive(Transaction $value): bool
     {
-        return bcsub($value->getWalletFrom()->getAmount(), $value->getAmount()) > 0;
+        return bcsub($value->getWalletFrom()->getAmount(), (string) $value->getAmount()) > 0;
     }
 
     private function validateAirDropType(Transaction $transaction, TransactionConstraint $constraint): void

@@ -19,6 +19,7 @@ class TransactionConstraint extends Constraint
 
     public const SEASON_REWARD_WRONG_WALLET_FROM = 'Season Reward Transaction must have the Bank Wallet as Wallet From.';
 
+    #[\Override]
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

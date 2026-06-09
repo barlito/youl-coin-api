@@ -11,6 +11,7 @@ class WalletType extends Constraint
 {
     public const UNIQUE_BANK_WALLET_ERROR = 'Only one bank wallet can exist at a time.';
 
+    #[\Override]
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

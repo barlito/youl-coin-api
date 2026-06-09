@@ -11,14 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 trait IdUuidTrait
 {
-    /**
-     * @Assert\Uuid()
-     */
     #[Groups(['default'])]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'guid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
+    #[Assert\Uuid]
     private ?string $id = null;
 
     public function getId(): ?string

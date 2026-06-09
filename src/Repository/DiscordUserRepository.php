@@ -13,6 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method DiscordUser|null findOneBy(array $criteria, array $orderBy = null)
  * @method DiscordUser[]    findAll()
  * @method DiscordUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @extends ServiceEntityRepository<DiscordUser>
  */
 class DiscordUserRepository extends ServiceEntityRepository
 {
