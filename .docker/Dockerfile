@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1-php8.3 AS frankenphp_upstream
+FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
 
 ### Base Image ###############################################################
 FROM frankenphp_upstream AS frankenphp_base
@@ -53,6 +53,10 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
 
 ### Prod Image ###############################################################
 FROM frankenphp_base AS frankenphp_prod
+
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
+
 ENV APP_ENV=prod
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY --link .docker/php/app.prod.ini $PHP_INI_DIR/conf.d/
@@ -81,13 +85,13 @@ USER www
 ### Worker Dev Image ###############################################################
 FROM frankenphp_dev AS frankenphp_worker_dev
 COPY --link ./.docker/supervisor.d /etc/supervisor
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --start-period=10s --interval=30s --timeout=10s --retries=3 \
   CMD pgrep -f "messenger:consume" > /dev/null || exit 1
 CMD ["/usr/bin/supervisord"]
 
 ### Worker Prod Image ###############################################################
 FROM frankenphp_prod AS frankenphp_worker_prod
 COPY --link ./.docker/supervisor.d /etc/supervisor
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --start-period=10s --interval=30s --timeout=10s --retries=3 \
   CMD pgrep -f "messenger:consume" > /dev/null || exit 1
 CMD ["/usr/bin/supervisord"]

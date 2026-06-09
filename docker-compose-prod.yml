@@ -1,11 +1,9 @@
-version: '3.4'
-
 services:
     php:
         image: barlito/youl-coin-api:${TAG}
         environment:
             APP_ENV: prod
-            DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=13&charset=utf8"
+            DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=18&charset=utf8"
             MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@youl_coin_rabbitmq:5672/%2f/messages"
             DISCORD_DSN: "${DISCORD_DSN}"
             OAUTH_DISCORD_CLIENT_ID: "${OAUTH_DISCORD_CLIENT_ID}"
@@ -13,11 +11,17 @@ services:
             JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
             JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
             JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
-        logging:
-            driver: loki
-            options:
-                loki-url: "http://176.31.100.99:3100/loki/api/v1/push"
         deploy:
+            replicas: 1
+            update_config:
+                order: stop-first
+                parallelism: 1
+                monitor: 30s
+                failure_action: rollback
+                max_failure_ratio: 0
+            rollback_config:
+                parallelism: 1
+                order: stop-first
             labels:
                 - traefik.enable=true
 
@@ -38,7 +42,7 @@ services:
         image: barlito/youl-coin-worker:${TAG}
         environment:
             APP_ENV: prod
-            DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=13&charset=utf8"
+            DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=18&charset=utf8"
             MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@youl_coin_rabbitmq:5672/%2f/messages"
             DISCORD_DSN: "${DISCORD_DSN}"
             OAUTH_DISCORD_CLIENT_ID: "${OAUTH_DISCORD_CLIENT_ID}"
@@ -46,22 +50,29 @@ services:
             JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
             JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
             JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
-        logging:
-            driver: loki
-            options:
-                loki-url: "http://176.31.100.99:3100/loki/api/v1/push"
         tty: true
+        stop_grace_period: 60s
         deploy:
             replicas: 2
+            update_config:
+                order: stop-first
+                parallelism: 1
+                monitor: 30s
+                failure_action: rollback
         networks:
             - yc_api_internal
 
     db:
-        image: postgres:13
+        image: postgres:18
         environment:
             POSTGRES_PASSWORD: ${DB_PASSWORD}
+            TZ: Europe/Paris
+            PGTZ: Europe/Paris
         volumes:
-            - youl_coin_db:/var/lib/postgresql/data:rw
+            # postgres:18 a déplacé PGDATA : on monte /var/lib/postgresql (et plus .../data)
+            - youl_coin_db:/var/lib/postgresql:rw
+            # Dumps pg_dump écrits par `make db.backup` avant chaque migration
+            - /srv/youl_coin/backups:/backups
         healthcheck:
             test: [ "CMD-SHELL", "pg_isready" ]
             interval: 10s
@@ -95,7 +106,7 @@ services:
             - traefik_traefik_proxy
             - yc_api_internal
     rabbitmq:
-        image: rabbitmq:3-management
+        image: rabbitmq:4-management
         hostname: yc-rabbitmq
         volumes:
             - yc_exchange_rabbit_mq_data:/var/lib/rabbitmq:rw
