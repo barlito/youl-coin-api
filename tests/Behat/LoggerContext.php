@@ -6,17 +6,15 @@ namespace App\Tests\Behat;
 
 use App\Tests\Behat\Mock\LoggerMock;
 use Behat\Behat\Context\Context;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\Assert;
 
-class LoggerContext extends KernelTestCase implements Context
+// N'étend plus KernelTestCase : TestCase::__construct est final depuis PHPUnit 10,
+// incompatible avec l'injection par constructeur des contexts Behat.
+class LoggerContext implements Context
 {
     public function __construct(
         private readonly LoggerMock $logger,
-        ?string $name = null,
-        array $data = [],
-        $dataName = '',
     ) {
-        parent::__construct($name, $data, $dataName);
     }
 
     /**
@@ -24,7 +22,7 @@ class LoggerContext extends KernelTestCase implements Context
      */
     public function theLoggerLoggedTheErrorWithMessage(string $message): void
     {
-        $this->assertTrue(
+        Assert::assertTrue(
             null !== $this->logger->getLoggedMessage($message),
             "Error with message '" . $message . "' is not logged by the logger",
         );
@@ -35,7 +33,7 @@ class LoggerContext extends KernelTestCase implements Context
      */
     public function theLoggerLoggedAnErrorContaining(string $message): void
     {
-        $this->assertTrue(
+        Assert::assertTrue(
             null !== $this->logger->containsLoggedMessage($message),
             "Error with message '" . $message . "' is not logged by the logger",
         );

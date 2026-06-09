@@ -6,17 +6,15 @@ namespace App\Tests\Behat;
 
 use App\Tests\Behat\Mock\TransactionNotifierMock;
 use Behat\Behat\Context\Context;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\Assert;
 
-class NotifierContext extends KernelTestCase implements Context
+// N'étend plus KernelTestCase : TestCase::__construct est final depuis PHPUnit 10,
+// incompatible avec l'injection par constructeur des contexts Behat.
+class NotifierContext implements Context
 {
     public function __construct(
         private readonly TransactionNotifierMock $notifier,
-        ?string $name = null,
-        array $data = [],
-        $dataName = '',
     ) {
-        parent::__construct($name, $data, $dataName);
     }
 
     /**
@@ -24,7 +22,7 @@ class NotifierContext extends KernelTestCase implements Context
      */
     public function theNotifierShouldHaveNotifiedNotifications($number)
     {
-        $this->assertEquals($number, $this->notifier->countNotifications());
+        Assert::assertEquals($number, $this->notifier->countNotifications());
     }
 
     /**
@@ -32,7 +30,7 @@ class NotifierContext extends KernelTestCase implements Context
      */
     public function theNotifierShouldHaveNotifiedError($number)
     {
-        $this->assertEquals($number, $this->notifier->countErrorNotifications());
+        Assert::assertEquals($number, $this->notifier->countErrorNotifications());
     }
 
     /**

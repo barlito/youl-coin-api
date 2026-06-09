@@ -14,11 +14,6 @@ class InMemoryContext extends KernelTestCase implements Context
 {
     use PropertyAssertTrait;
 
-    public function __construct()
-    {
-        parent::__construct('InMemory Behat Context');
-    }
-
     /**
      * @Given /^"([^"]*)" message(?:s|) has been sent on "([^"]*)" transport$/
      *

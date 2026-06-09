@@ -15,6 +15,27 @@ services:
 
     # Services
 
+    # Depuis PHPUnit 10, TestCase::__construct(string $name) est final et $name
+    # obligatoire : les contexts Behat qui héritent de KernelTestCase/WebTestCase/
+    # ApiTestCase doivent recevoir cet argument explicitement.
+    App\Tests\Behat\DemoContext:
+        arguments: ['DemoContext']
+
+    App\Tests\Behat\InMemoryContext:
+        arguments: ['InMemoryContext']
+
+    App\Tests\Behat\MessengerContext:
+        arguments: ['MessengerContext']
+
+    App\Tests\Behat\AuthContext:
+        arguments: ['AuthContext']
+
+    App\Tests\Behat\FormContext:
+        arguments: ['FormContext']
+
+    App\Tests\Behat\ApiContext:
+        arguments: ['ApiContext']
+
     App\Tests\Behat\EntityManagerContext:
         $entityNamespace: App\Entity
 
