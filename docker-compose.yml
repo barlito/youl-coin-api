@@ -51,11 +51,14 @@ services:
             - yc_api_internal
 
     db:
-        image: postgres:13
+        image: postgres:18
         environment:
             POSTGRES_PASSWORD: root
+            TZ: Europe/Paris
+            PGTZ: Europe/Paris
         volumes:
-            - yc_api_db_data:/var/lib/postgresql/data:rw
+            # postgres:18 a déplacé PGDATA : on monte /var/lib/postgresql (et plus .../data)
+            - yc_api_db_data:/var/lib/postgresql:rw
         healthcheck:
             test: [ "CMD-SHELL", "pg_isready" ]
             interval: 10s
@@ -83,7 +86,7 @@ services:
             - traefik_traefik_proxy
 
     rabbitmq:
-        image: rabbitmq:3-management
+        image: rabbitmq:4-management
         hostname: yc-rabbitmq
         volumes:
             - yc_exchange_rabbit_mq_data:/var/lib/rabbitmq:rw
