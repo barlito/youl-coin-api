@@ -13,6 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Wallet|null findOneBy(array $criteria, array $orderBy = null)
  * @method Wallet[]    findAll()
  * @method Wallet[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @extends ServiceEntityRepository<Wallet>
  */
 class WalletRepository extends ServiceEntityRepository
 {

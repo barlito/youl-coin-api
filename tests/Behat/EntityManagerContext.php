@@ -9,21 +9,22 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Assert;
 use Symfony\Component\PropertyAccess\Exception\AccessException;
 use Symfony\Component\PropertyAccess\Exception\NoSuchIndexException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 
-final class EntityManagerContext extends TestCase implements Context
+// N'étend plus TestCase : TestCase::__construct est final depuis PHPUnit 10,
+// incompatible avec l'injection par constructeur des contexts Behat.
+final class EntityManagerContext implements Context
 {
     public function __construct(
-        protected EntityManagerInterface $entityManager,
-        protected SerializerInterface $serializer,
-        protected string $entityNamespace,
+        private EntityManagerInterface $entityManager,
+        private SerializerInterface $serializer,
+        private string $entityNamespace,
     ) {
-        parent::__construct();
     }
 
     /**
@@ -45,7 +46,7 @@ final class EntityManagerContext extends TestCase implements Context
         $findBy = $this->parseFindByQueryString($findByQueryString);
         $this->entityManager->clear();
         $entity = $this->getRepository($entityClass)->findOneBy($findBy);
-        $this->assertSame($entity, null, 'Entity found.');
+        Assert::assertSame($entity, null, 'Entity found.');
     }
 
     /**
@@ -70,16 +71,10 @@ final class EntityManagerContext extends TestCase implements Context
     private function assertRow(string $path, mixed $expected, mixed $entity)
     {
         $expected = $this->parseExpected($expected);
-        $assert = 'assertEquals';
 
         $actualValue = $this->getValueAtPath($entity, $path, false);
 
-        $callable = [$this, $assert];
-        if (!\is_callable($callable)) {
-            return;
-        }
-
-        $callable($expected, $actualValue, \sprintf(
+        Assert::assertEquals($expected, $actualValue, \sprintf(
             "The element '%s' value '%s' is not equal to expected '%s'",
             $path,
             $this->getAsString($actualValue),
@@ -87,7 +82,7 @@ final class EntityManagerContext extends TestCase implements Context
         ));
     }
 
-    protected function parseFindByQueryString(string $findByQueryString): array
+    private function parseFindByQueryString(string $findByQueryString): array
     {
         parse_str($findByQueryString, $findBy);
 
@@ -128,7 +123,7 @@ final class EntityManagerContext extends TestCase implements Context
         };
     }
 
-    protected function getRepository(string $entityClass): ObjectRepository
+    private function getRepository(string $entityClass): ObjectRepository
     {
         return $this->entityManager->getRepository($this->entityNamespace . '\\' . $entityClass);
     }

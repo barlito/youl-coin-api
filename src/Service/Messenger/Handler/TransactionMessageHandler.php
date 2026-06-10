@@ -45,7 +45,7 @@ class TransactionMessageHandler extends AbstractHandler
     private function handleException(\Throwable $exception, TransactionMessage $transactionMessage): void
     {
         // todo create a class on barlito/utils and move this
-        $serializerContext = (new ObjectNormalizerContextBuilder())
+        $serializerContext = new ObjectNormalizerContextBuilder()
             ->withGroups(['default', 'test'])
             ->toArray()
         ;

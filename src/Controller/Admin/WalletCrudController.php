@@ -33,6 +33,7 @@ class WalletCrudController extends AbstractCrudController
         return Wallet::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
@@ -43,6 +44,7 @@ class WalletCrudController extends AbstractCrudController
         ;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
@@ -51,11 +53,12 @@ class WalletCrudController extends AbstractCrudController
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield Field::new('id')->onlyOnDetail();
 
-        yield IntegerField::new('amount')->formatValue(function ($value, $entity) {
+        yield IntegerField::new('amount')->formatValue(function ($value, $entity): string {
             if (!$entity instanceof Wallet) {
                 throw new UnexpectedTypeException($entity, Wallet::class);
             }
@@ -64,7 +67,7 @@ class WalletCrudController extends AbstractCrudController
         });
 
         yield AssociationField::new('discordUser')->setQueryBuilder(
-            fn (QueryBuilder $queryBuilder) => $queryBuilder->leftJoin('entity.wallet', 'w')
+            fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->leftJoin('entity.wallet', 'w')
                 ->where('w.id IS NULL'),
         );
         yield ChoiceField::new('type')

@@ -21,6 +21,7 @@ class ApiUserCrudController extends AbstractCrudController
         return ApiUser::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
@@ -28,6 +29,7 @@ class ApiUserCrudController extends AbstractCrudController
         ;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
@@ -36,16 +38,17 @@ class ApiUserCrudController extends AbstractCrudController
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('id');
         yield TextField::new('name');
-        yield TextField::new('apiKey')->formatValue(function ($value, $entity) {
+        yield TextField::new('apiKey')->formatValue(function ($value, $entity): string {
             if (!$entity instanceof ApiUser) {
                 throw new UnexpectedTypeException($entity, ApiUser::class);
             }
 
-            return substr($entity->getApiKey(), 0, 5) . '...' . substr($entity->getApiKey(), -5);
+            return substr((string) $entity->getApiKey(), 0, 5) . '...' . substr((string) $entity->getApiKey(), -5);
         });
 
         yield ChoiceField::new('roles')

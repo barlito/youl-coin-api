@@ -11,14 +11,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: DiscordUserRepository::class)]
-class DiscordUser implements UserInterface
+class DiscordUser implements UserInterface, \Stringable
 {
     #[Groups('transaction:notification')]
     #[ORM\Id]
     #[ORM\Column(type: 'string', unique: true)]
     private string $discordId;
 
-    #[ORM\OneToOne(mappedBy: 'discordUser', targetEntity: Wallet::class)]
+    #[ORM\OneToOne(targetEntity: Wallet::class, mappedBy: 'discordUser')]
     private Wallet $wallet;
 
     #[Groups('transaction:notification')]

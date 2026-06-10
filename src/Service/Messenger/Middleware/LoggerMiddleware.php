@@ -16,24 +16,19 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class LoggerMiddleware implements MiddlewareInterface
 {
-    private LoggerInterface $logger;
-
-    public function __construct(
-        LoggerInterface $messengerAuditLogger,
-        private readonly SerializerInterface $serializer,
-    ) {
-        $this->logger = $messengerAuditLogger;
+    public function __construct(private readonly LoggerInterface $logger, private readonly SerializerInterface $serializer)
+    {
     }
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
         $context = [
-            'class' => \get_class($envelope->getMessage()),
+            'class' => $envelope->getMessage()::class,
             'message' => $this->serializer->serialize($envelope->getMessage(), 'json'),
         ];
         // Call other middlewares if we need something from another middleware job
         $envelope = $stack->next()->handle($envelope, $stack);
-        if ($envelope->last(ReceivedStamp::class)) {
+        if ($envelope->last(ReceivedStamp::class) instanceof ReceivedStamp) {
             $this->logger->info('Received {class}', $context);
         }
 

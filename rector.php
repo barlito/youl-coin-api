@@ -2,15 +2,10 @@
 
 declare(strict_types=1);
 
-use Rector\Config\RectorConfig;
-use Rector\Doctrine\Set\DoctrineSetList;
+$builder = require __DIR__ . '/vendor/barlito/utils/config/rector.php';
 
-return function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
-        __DIR__ . '/tests',
-        __DIR__ . '/src',
-    ]);
-    $rectorConfig->sets([
-        DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
-    ]);
-};
+return $builder
+    ->withPaths([__DIR__ . '/src'])
+    ->withCache(__DIR__ . '/var/cache/rector')
+    ->withRootFiles()
+    ->withSkip([__DIR__ . '/.castor.stub.php']);

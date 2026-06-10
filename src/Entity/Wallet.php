@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: WalletRepository::class)]
 #[CustomAssert\Entity\Wallet\WalletType(groups: ['wallet:create'])]
 #[UniqueEntity(fields: ['discordUser'])]
-class Wallet
+class Wallet implements \Stringable
 {
     use IdUlidTrait;
     use TimestampableEntity;
@@ -51,7 +51,7 @@ class Wallet
     private string $amount;
 
     #[Groups('transaction:notification')]
-    #[ORM\OneToOne(inversedBy: 'wallet', targetEntity: DiscordUser::class)]
+    #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 

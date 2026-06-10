@@ -35,6 +35,12 @@
 phpstan.neon
 ###< phpstan/phpstan ###
 
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.cache/
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
 ###> Code Coverage ###
 code-coverage/phpunit/html-coverage
 ###< Code Coverage ###

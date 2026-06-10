@@ -77,13 +77,13 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
+            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client): DiscordUser {
                 /** @var DiscordResourceOwner $discordUser */
                 $discordUser = $client->fetchUserFromToken($accessToken);
 
                 $existingUser = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId());
 
-                if ($existingUser) {
+                if ($existingUser instanceof DiscordUser) {
                     return $existingUser;
                 }
 
@@ -122,7 +122,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
             throw new AuthenticationException('Your account is not allowed to access this app.');
         }
 
-        $user = (new DiscordUser())
+        $user = new DiscordUser()
             ->setDiscordId($discordUser->getId())
             ->setUsername($discordUser->getUsername())
             ->setRoles([RoleEnum::ROLE_USER->value])

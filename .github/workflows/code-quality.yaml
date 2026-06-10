@@ -38,5 +38,8 @@ jobs:
       - name: Run php cs
         run: make phpcs
 
+      - name: Run phpstan
+        run: make phpstan
+
       - name: Undeploy stack
         run: make docker.undeploy.ci
