@@ -10,7 +10,7 @@
         "ext-bcmath": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "api-platform/core": "^3.4",
+        "api-platform/core": "^4.1",
         "barlito/utils": "^2.0",
         "brick/money": "^0.8.1",
         "doctrine/doctrine-bundle": "^2.13.2",
