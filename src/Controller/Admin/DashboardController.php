@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Entity\AllowedDiscordUser;
 use App\Entity\ApiUser;
 use App\Entity\Wallet;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -45,8 +46,9 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
 
-        yield MenuItem::section('Wallet Settings');
+        yield MenuItem::section('Access');
         yield MenuItem::linkToCrud('API Users', 'fa-solid fa-globe', ApiUser::class);
+        yield MenuItem::linkToCrud('Discord Whitelist', 'fa-brands fa-discord', AllowedDiscordUser::class);
 
         yield MenuItem::section('Wallet Settings');
         yield MenuItem::linkToCrud('Wallets', 'fas fa-wallet', Wallet::class);

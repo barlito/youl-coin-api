@@ -11,7 +11,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,8 +34,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
     use TargetPathTrait;
 
     public function __construct(
-        #[Autowire(param: 'app.allowed_discord_users')]
-        private readonly array $allowedDiscordUsers,
+        private readonly DiscordUserWhitelist $discordUserWhitelist,
         private readonly ClientRegistry $clientRegistry,
         private readonly EntityManagerInterface $entityManager,
         private readonly HttpUtils $httpUtils,
@@ -81,6 +79,10 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                 /** @var DiscordResourceOwner $discordUser */
                 $discordUser = $client->fetchUserFromToken($accessToken);
 
+                if (!$this->discordUserWhitelist->isAllowed((string) $discordUser->getId())) {
+                    throw new AuthenticationException('Your account is not allowed to access this app.');
+                }
+
                 $existingUser = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId());
 
                 if ($existingUser instanceof DiscordUser) {
@@ -118,10 +120,6 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
 
     private function createDiscordUser(DiscordResourceOwner $discordUser): DiscordUser
     {
-        if (!\in_array($discordUser->getId(), $this->allowedDiscordUsers)) {
-            throw new AuthenticationException('Your account is not allowed to access this app.');
-        }
-
         $user = new DiscordUser()
             ->setDiscordId($discordUser->getId())
             ->setUsername($discordUser->getUsername())

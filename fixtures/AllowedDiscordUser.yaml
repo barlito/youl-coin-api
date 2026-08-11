@@ -1,0 +1,5 @@
+# api/fixtures/AllowedDiscordUser.yaml
+App\Entity\AllowedDiscordUser:
+  allowed_discord_user_dynamic:
+    discordId: "297453953120075778"
+    label: "Whitelisted from the admin"
