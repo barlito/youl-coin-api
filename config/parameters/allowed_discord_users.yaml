@@ -1,5 +1,7 @@
 parameters:
-  # List of allowed Discord user IDs
+  # Bootstrap Discord whitelist: safety net that can never be edited at runtime, so
+  # emptying the allowed_discord_user table can never lock everyone out of the app.
+  # Day-to-day whitelisting is done from the admin (Access > Discord Whitelist).
     app.allowed_discord_users:
       - 232457563910832129
       - 195659530363731968

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Security;
 
 use App\Entity\DiscordUser;
+use App\Enum\Roles\RoleEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
@@ -53,6 +54,47 @@ class DiscordAuthTest extends WebTestCase
         $user = $discordUserRepository->findOneBy(['discordId' => $discordResource->getId()]);
         $this->assertNotNull($user);
         $this->assertInstanceOf(DiscordUser::class, $user);
+    }
+
+    public function testSuccessfulLoginWithDynamicallyWhitelistedUser(): void
+    {
+        $discordUserRepository = $this->entityManager->getRepository(DiscordUser::class);
+
+        // Only whitelisted through the AllowedDiscordUser table, not through the bootstrap parameter.
+        $userId = '297453953120075778';
+
+        $discordResource = new DiscordResourceOwner([
+            'id' => $userId,
+            'username' => 'Dynamo',
+        ]);
+
+        $this->mockClientRegistry($discordResource);
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+        self::assertBrowserHasCookie('jwt');
+
+        $this->assertInstanceOf(DiscordUser::class, $discordUserRepository->findOneBy(['discordId' => $userId]));
+    }
+
+    public function testLoginFailsForExistingUserRemovedFromWhitelist(): void
+    {
+        $userId = '111111111111111111';
+        $this->entityManager->persist(
+            new DiscordUser()
+                ->setDiscordId($userId)
+                ->setUsername('Revoked')
+                ->setRoles([RoleEnum::ROLE_USER->value]),
+        );
+        $this->entityManager->flush();
+
+        $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Revoked']));
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertBrowserNotHasCookie('jwt');
     }
 
     public function testLoginFailsForNonWhitelistedUser(): void
