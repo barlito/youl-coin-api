@@ -11,7 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-// Shared by the Mint and Burn forms on the bank wallet page: amount in coins + a mandatory reason, no wallet fields
 /**
  * @extends AbstractType<Transaction>
  */

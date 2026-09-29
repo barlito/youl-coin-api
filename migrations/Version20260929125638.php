@@ -16,11 +16,18 @@ final class Version20260929125638 extends AbstractMigration
 
     public function getDescription(): string
     {
-        return 'Mint/Burn: nullable transaction wallets, reason and initiatedBy, genesis Mint of the existing supply';
+        return 'Mint/Burn: nullable transaction wallets, reason and initiatedBy, genesis Mint of the existing supply to the bank (the invariant is global: no per-wallet reconciliation of balances predating the ledger)';
     }
 
     public function up(Schema $schema): void
     {
+        $supply = (string) $this->connection->fetchOne('SELECT COALESCE(SUM(amount::numeric), 0) FROM wallet');
+        $this->abortIf(bccomp($supply, '0') < 0, 'The wallets sum to a negative supply: fix the balances before introducing the ledger.');
+        $this->abortIf(
+            bccomp($supply, '0') > 0 && 0 === (int) $this->connection->fetchOne("SELECT COUNT(*) FROM wallet WHERE type = 'bank'"),
+            'Coins exist but there is no bank wallet to receive the genesis Mint: create the bank wallet first.',
+        );
+
         $this->addSql('ALTER TABLE transaction ALTER wallet_from_id DROP NOT NULL');
         $this->addSql('ALTER TABLE transaction ALTER wallet_to_id DROP NOT NULL');
         $this->addSql('ALTER TABLE transaction ADD reason TEXT DEFAULT NULL');
@@ -44,6 +51,11 @@ final class Version20260929125638 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
+        $this->abortIf(
+            (int) $this->connection->fetchOne("SELECT COUNT(*) FROM transaction WHERE type IN ('mint', 'burn') AND id <> :id", ['id' => self::GENESIS_TRANSACTION_ID]) > 0,
+            'Mint/Burn transactions other than the genesis exist: they have no wallet and would break the NOT NULL restoration.',
+        );
+
         $this->addSql(\sprintf("DELETE FROM transaction WHERE id = '%s'", self::GENESIS_TRANSACTION_ID));
 
         $this->addSql('ALTER TABLE transaction DROP CONSTRAINT FK_723705D1C4EF1FC7');

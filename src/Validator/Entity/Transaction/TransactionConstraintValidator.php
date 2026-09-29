@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Validator\Entity\Transaction;
 
+use App\Entity\DiscordUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Enum\TransactionTypeEnum;
 use App\Enum\WalletTypeEnum;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
@@ -31,17 +33,17 @@ class TransactionConstraintValidator extends ConstraintValidator
             return;
         }
 
-        if (\in_array($value->getType(), [TransactionTypeEnum::MINT, TransactionTypeEnum::BURN], true)) {
+        if ($value->getType()?->isSupplyChange()) {
             $this->validateMintOrBurn($value, $constraint);
 
             return;
         }
 
         if (!$value->getWalletFrom() instanceof Wallet) {
-            $this->context->buildViolation($constraint::WALLET_REQUIRED)->atPath('walletFrom')->addViolation();
+            $this->context->buildViolation($constraint::WALLET_REQUIRED)->atPath('walletFrom')->setCode(NotBlank::IS_BLANK_ERROR)->addViolation();
         }
         if (!$value->getWalletTo() instanceof Wallet) {
-            $this->context->buildViolation($constraint::WALLET_REQUIRED)->atPath('walletTo')->addViolation();
+            $this->context->buildViolation($constraint::WALLET_REQUIRED)->atPath('walletTo')->setCode(NotBlank::IS_BLANK_ERROR)->addViolation();
         }
         if (!$value->getWalletFrom() instanceof Wallet || !$value->getWalletTo() instanceof Wallet) {
             return;
@@ -61,27 +63,31 @@ class TransactionConstraintValidator extends ConstraintValidator
     {
         $this->validateReason($transaction, $constraint);
 
+        if (!$transaction->getInitiatedBy() instanceof DiscordUser) {
+            $this->context->buildViolation($constraint::INITIATED_BY_REQUIRED)->atPath('initiatedBy')->addViolation();
+        }
+
         if (TransactionTypeEnum::MINT === $transaction->getType()) {
             if ($transaction->getWalletFrom() instanceof Wallet) {
-                $this->context->buildViolation($constraint::MINT_WALLET_FROM_FORBIDDEN)->addViolation();
+                $this->context->buildViolation($constraint::MINT_WALLET_FROM_FORBIDDEN)->atPath('walletFrom')->addViolation();
             }
             if (!$transaction->getWalletTo() instanceof Wallet || WalletTypeEnum::BANK !== $transaction->getWalletTo()->getType()) {
-                $this->context->buildViolation($constraint::MINT_WRONG_WALLET_TO)->addViolation();
+                $this->context->buildViolation($constraint::MINT_WRONG_WALLET_TO)->atPath('walletTo')->addViolation();
             }
 
             return;
         }
 
         if ($transaction->getWalletTo() instanceof Wallet) {
-            $this->context->buildViolation($constraint::BURN_WALLET_TO_FORBIDDEN)->addViolation();
+            $this->context->buildViolation($constraint::BURN_WALLET_TO_FORBIDDEN)->atPath('walletTo')->addViolation();
         }
         if (!$transaction->getWalletFrom() instanceof Wallet || WalletTypeEnum::BANK !== $transaction->getWalletFrom()->getType()) {
-            $this->context->buildViolation($constraint::BURN_WRONG_WALLET_FROM)->addViolation();
+            $this->context->buildViolation($constraint::BURN_WRONG_WALLET_FROM)->atPath('walletFrom')->addViolation();
 
             return;
         }
         if (!$this->hasEnoughCoins($transaction)) {
-            $this->context->buildViolation($constraint::NOT_ENOUGH_CURRENCY_IN_WALLET)->addViolation();
+            $this->context->buildViolation($constraint::NOT_ENOUGH_CURRENCY_IN_WALLET)->atPath('walletFrom')->addViolation();
         }
     }
 

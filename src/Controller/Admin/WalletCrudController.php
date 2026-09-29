@@ -47,7 +47,11 @@ class WalletCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+        // Deleting a wallet would destroy coins without a Burn (or fail on the transactions FK)
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->disable(Action::DELETE, Action::BATCH_DELETE)
+        ;
     }
 
     /**

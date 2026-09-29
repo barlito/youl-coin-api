@@ -31,6 +31,8 @@ class TransactionConstraint extends Constraint
 
     public const REASON_REQUIRED = 'Mint and Burn Transactions must have a reason between 3 and 500 characters.';
 
+    public const INITIATED_BY_REQUIRED = 'Mint and Burn Transactions must have an initiating admin.';
+
     #[\Override]
     public function getTargets(): string
     {

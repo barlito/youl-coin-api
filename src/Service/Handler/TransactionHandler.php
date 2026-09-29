@@ -7,7 +7,6 @@ namespace App\Service\Handler;
 use App\Entity\ApiUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
-use App\Enum\TransactionTypeEnum;
 use App\Message\TransactionMessage;
 use App\Repository\TransactionRepository;
 use App\Service\Builder\TransactionBuilder;
@@ -165,7 +164,7 @@ class TransactionHandler extends AbstractHandler
         $this->discordNotifier->notifyNewTransaction($transaction);
 
         // The Discord bot consuming this transport assumes two wallets: Mint/Burn stay Discord-webhook-only
-        if (!\in_array($transaction->getType(), [TransactionTypeEnum::MINT, TransactionTypeEnum::BURN], true)) {
+        if (!$transaction->getType()?->isSupplyChange()) {
             $this->transactionPublisher->publishTransactionNotification($transaction);
         }
     }

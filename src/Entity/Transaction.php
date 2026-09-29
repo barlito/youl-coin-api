@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_TRANSACTION_BANK_TO_USER") or is_granted("ROLE_TRANSACTION_USER_TO_BANK") or is_granted("ROLE_TRANSACTION_USER_TO_USER")',
             // The required role depends on the wallets, only known once the payload is denormalized
             securityPostDenormalize: 'is_granted("TRANSACTION_CREATE", object)',
-            securityPostDenormalizeMessage: 'This API key cannot make this transaction, or the X-Player-Token header does not belong to the owner of walletFrom.',
+            securityPostDenormalizeMessage: 'This API key cannot make this transaction, or the X-Player-Token header does not belong to the owner of walletFrom. Mint and Burn are not available through the API.',
             validate: false,
             processor: TransactionStateProcessor::class,
         ),
@@ -55,7 +55,7 @@ class Transaction
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $amount;
 
-    // Blank/type checks live in TransactionConstraintValidator: required or forbidden depends on the transaction type (Mint has no walletFrom, Burn no walletTo)
+    // Presence rules per type live in TransactionConstraintValidator
     #[Groups('transaction:notification')]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
@@ -176,7 +176,7 @@ class Transaction
 
     public function setReason(?string $reason): self
     {
-        $this->reason = $reason;
+        $this->reason = null === $reason ? null : trim($reason);
 
         return $this;
     }

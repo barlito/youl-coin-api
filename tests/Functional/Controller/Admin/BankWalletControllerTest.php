@@ -11,6 +11,7 @@ use App\Repository\DiscordUserRepository;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -41,7 +42,8 @@ class BankWalletControllerTest extends WebTestCase
             'mint[reason]' => 'Genesis top-up',
         ]));
 
-        self::assertResponseIsSuccessful();
+        self::assertResponseRedirects();
+        self::assertResponseHeaderSame('Location', 'http://localhost/admin?routeName=admin_bank_wallet');
 
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
@@ -67,7 +69,8 @@ class BankWalletControllerTest extends WebTestCase
             'burn[reason]' => 'Destroying unused coins',
         ]));
 
-        self::assertResponseIsSuccessful();
+        self::assertResponseRedirects();
+        self::assertResponseHeaderSame('Location', 'http://localhost/admin?routeName=admin_bank_wallet');
 
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
@@ -82,7 +85,67 @@ class BankWalletControllerTest extends WebTestCase
         $this->assertSame('Destroying unused coins', $burn->getReason());
     }
 
-    public function testAMintWithoutAReasonIsRejected(): void
+    public function testARefreshAfterASuccessfulMintDoesNotMintTwice(): void
+    {
+        $crawler = $this->client->request('GET', $this->bankWalletUrl());
+        $this->client->submit($crawler->filter('form[name="mint"]')->form([
+            'mint[amount]' => '5',
+            'mint[reason]' => 'Genesis top-up',
+        ]));
+        self::assertResponseRedirects();
+        self::assertResponseHeaderSame('Location', 'http://localhost/admin?routeName=admin_bank_wallet');
+
+        $this->client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Mint de');
+
+        $this->client->request('GET', $this->bankWalletUrl());
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextNotContains('body', 'Mint de');
+
+        $this->assertCount(1, static::getContainer()->get(TransactionRepository::class)->findBy(['type' => TransactionTypeEnum::MINT]));
+        $this->assertSame('1000500000000', $this->bankAmount());
+    }
+
+    public function testAMintAcceptsADecimalAmountOfCoins(): void
+    {
+        $crawler = $this->client->request('GET', $this->bankWalletUrl());
+        $this->client->submit($crawler->filter('form[name="mint"]')->form([
+            'mint[amount]' => '0.5',
+            'mint[reason]' => 'Half a coin',
+        ]));
+
+        self::assertResponseRedirects();
+        self::assertResponseHeaderSame('Location', 'http://localhost/admin?routeName=admin_bank_wallet');
+        $this->assertSame('1000050000000', $this->bankAmount());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidAmounts(): iterable
+    {
+        yield 'too many decimals' => ['0.000000001'];
+        yield 'zero' => ['0'];
+        yield 'negative' => ['-5'];
+        yield 'not a number' => ['abc'];
+    }
+
+    #[DataProvider('invalidAmounts')]
+    public function testAnInvalidAmountIsRejectedWithAReadableMessage(string $amount): void
+    {
+        $crawler = $this->client->request('GET', $this->bankWalletUrl());
+        $this->client->submit($crawler->filter('form[name="mint"]')->form([
+            'mint[amount]' => $amount,
+            'mint[reason]' => 'Invalid amount',
+        ]));
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'Montant invalide');
+        $this->assertNull(static::getContainer()->get(TransactionRepository::class)->findOneBy(['type' => TransactionTypeEnum::MINT]));
+    }
+
+    public function testAMintWithATooShortReasonIsRejected(): void
     {
         $crawler = $this->client->request('GET', $this->bankWalletUrl());
 
@@ -96,6 +159,14 @@ class BankWalletControllerTest extends WebTestCase
 
         $mint = static::getContainer()->get(TransactionRepository::class)->findOneBy(['type' => TransactionTypeEnum::MINT]);
         $this->assertNull($mint);
+    }
+
+    private function bankAmount(): string
+    {
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+
+        return (string) $entityManager->find(Wallet::class, self::BANK_WALLET_ID)?->getAmount();
     }
 
     // The route only carries the EasyAdmin layout context (ea()) when reached through the dashboard proxy

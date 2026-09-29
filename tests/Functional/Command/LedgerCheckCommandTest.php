@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Command;
 
-use App\Command\LedgerCheckCommand;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -70,6 +69,6 @@ class LedgerCheckCommandTest extends KernelTestCase
     {
         $application = new Application(self::$kernel);
 
-        return new CommandTester($application->find(LedgerCheckCommand::getDefaultName() ?? 'app:ledger:check'));
+        return new CommandTester($application->find('app:ledger:check'));
     }
 }
