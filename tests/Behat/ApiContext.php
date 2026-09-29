@@ -95,7 +95,7 @@ final class ApiContext extends ApiTestCase implements Context
      */
     public function jsonSchemaShouldValidateWallet(): void
     {
-        self::assertMatchesResourceItemJsonSchema(Wallet::class);
+        self::assertMatchesResourceItemJsonSchema(Wallet::class, 'wallet_by_discord_user');
     }
 
     /**
@@ -145,5 +145,13 @@ final class ApiContext extends ApiTestCase implements Context
             'hydra:title' => 'An error occurred',
             'hydra:description' => $message,
         ]);
+    }
+
+    /**
+     * @Then the JSON should not have the key :key
+     */
+    public function theJsonShouldNotHaveTheKey(string $key): void
+    {
+        Assert::assertArrayNotHasKey($key, $this->response->toArray(false));
     }
 }

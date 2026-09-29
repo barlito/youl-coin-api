@@ -15,7 +15,7 @@ use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -35,7 +35,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                     fromClass: DiscordUser::class,
                 ),
             ],
+            // 'default' exposes the ULID id, needed to build /api/wallets/{id} IRIs
+            normalizationContext: ['groups' => ['wallet:read', 'default']],
             security: 'is_granted("ROLE_WALLET_READ")',
+            name: 'wallet_by_discord_user',
         )],
 )]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK->value . "'::text)"])]
@@ -48,21 +51,22 @@ class Wallet implements \Stringable
     use TimestampableEntity;
 
     // Only ever moved by a Transaction (TransactionHandler); a wallet created from the admin starts at 0
-    #[Groups('transaction:notification')]
+    #[Groups(['transaction:notification', 'wallet:read'])]
     #[ORM\Column(type: 'string', length: 255)]
     private string $amount = '0';
 
+    // Not in 'wallet:read': exposed flat through getDiscordId()
     #[Groups('transaction:notification')]
     #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 
     #[Assert\Type(WalletTypeEnum::class)]
-    #[Groups('transaction:notification')]
+    #[Groups(['transaction:notification', 'wallet:read'])]
     #[ORM\Column(type: 'string', enumType: WalletTypeEnum::class)]
     private WalletTypeEnum $type;
 
-    #[Groups('transaction:notification')]
+    #[Groups(['transaction:notification', 'wallet:read'])]
     #[ORM\Column(type: 'string')]
     private string $name;
 
@@ -93,6 +97,13 @@ class Wallet implements \Stringable
         $this->discordUser = $discordUser;
 
         return $this;
+    }
+
+    // Flat, minimal owner reference for 'wallet:read'; null for the bank wallet
+    #[Groups('wallet:read')]
+    public function getDiscordId(): ?string
+    {
+        return $this->discordUser?->getDiscordId();
     }
 
     public function getType(): WalletTypeEnum
