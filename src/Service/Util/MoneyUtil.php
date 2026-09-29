@@ -45,6 +45,25 @@ class MoneyUtil
     }
 
     /**
+     * @throws NumberFormatException
+     * @throws RoundingNecessaryException
+     */
+    public function coinsToMinor(string $coins): string
+    {
+        return (string) Money::of($coins, $this->getCurrency(), roundingMode: RoundingMode::UNNECESSARY)->getMinorAmount();
+    }
+
+    /**
+     * @throws UnknownCurrencyException
+     * @throws NumberFormatException
+     * @throws RoundingNecessaryException
+     */
+    public function minorToCoins(string $minor): string
+    {
+        return (string) $this->getMoney($minor)->getAmount();
+    }
+
+    /**
      * @throws UnknownCurrencyException
      * @throws NumberFormatException
      * @throws RoundingNecessaryException

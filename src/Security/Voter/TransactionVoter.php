@@ -31,6 +31,11 @@ class TransactionVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
+        // Mint/Burn (admin bank wallet page) and WelcomeBonus (login) are never reachable through the API, whatever the role
+        if ($subject->getType()?->isSystemOnly()) {
+            return false;
+        }
+
         // Incomplete payload: nothing can move, let the handler answer 422 instead of a 403
         if (!$subject->getWalletFrom() instanceof Wallet || !$subject->getWalletTo() instanceof Wallet) {
             return true;

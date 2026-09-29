@@ -26,7 +26,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[CustomAssert\Entity\Transaction\TransactionConstraint(groups: ['Strict'])]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['externalIdentifier' => 'exact'])]
+// Wallet history (source or destination, createdAt DESC then id): each side is a range scan on its own index
+#[ORM\Index(name: 'idx_transaction_wallet_from_history', columns: ['wallet_from_id', 'created_at', 'id'])]
+#[ORM\Index(name: 'idx_transaction_wallet_to_history', columns: ['wallet_to_id', 'created_at', 'id'])]
 #[ORM\UniqueConstraint(name: 'transaction_issuer_external_identifier_unique', columns: ['issuer_id', 'external_identifier'])]
+#[ORM\UniqueConstraint(name: 'transaction_unique_welcome_bonus_per_wallet', fields: ['walletTo'], options: ['where' => "((type)::text = '" . TransactionTypeEnum::WELCOME_BONUS->value . "'::text)"])]
 #[ApiResource(
     operations: [
         // Reads are scoped to the transactions of the calling API client (IssuerScopedTransactionExtension)
@@ -38,7 +42,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_TRANSACTION_BANK_TO_USER") or is_granted("ROLE_TRANSACTION_USER_TO_BANK") or is_granted("ROLE_TRANSACTION_USER_TO_USER")',
             // The required role depends on the wallets, only known once the payload is denormalized
             securityPostDenormalize: 'is_granted("TRANSACTION_CREATE", object)',
-            securityPostDenormalizeMessage: 'This API key cannot make this transaction, or the X-Player-Token header does not belong to the owner of walletFrom.',
+            securityPostDenormalizeMessage: 'This API key cannot make this transaction, or the X-Player-Token header does not belong to the owner of walletFrom. Mint and Burn are not available through the API.',
             validate: false,
             processor: TransactionStateProcessor::class,
         ),
@@ -55,19 +59,18 @@ class Transaction
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $amount;
 
+    // Presence rules per type live in TransactionConstraintValidator
     #[Groups('transaction:notification')]
-    #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Wallet $walletFrom;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Wallet $walletFrom = null;
 
     #[Groups('transaction:notification')]
-    #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Wallet $walletTo;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Wallet $walletTo = null;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(allowNull: true)]
@@ -86,6 +89,17 @@ class Transaction
     #[ORM\Column(type: 'string', enumType: TransactionTypeEnum::class)]
     private TransactionTypeEnum $type;
 
+    // Required for Mint/Burn (checked in TransactionConstraintValidator), never writable through the API
+    #[Ignore]
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $reason = null;
+
+    // The admin who triggered a Mint/Burn from the bank wallet page, never writable through the API
+    #[Ignore]
+    #[ORM\ManyToOne(targetEntity: DiscordUser::class)]
+    #[ORM\JoinColumn(referencedColumnName: 'discord_id', nullable: true)]
+    private ?DiscordUser $initiatedBy = null;
+
     public function getAmount(): ?string
     {
         // Unset until denormalized: a payload missing the field must reach validation, not crash
@@ -101,10 +115,10 @@ class Transaction
 
     public function getWalletFrom(): ?Wallet
     {
-        return $this->walletFrom ?? null;
+        return $this->walletFrom;
     }
 
-    public function setWalletFrom(Wallet $walletFrom): self
+    public function setWalletFrom(?Wallet $walletFrom): self
     {
         $this->walletFrom = $walletFrom;
 
@@ -113,10 +127,10 @@ class Transaction
 
     public function getWalletTo(): ?Wallet
     {
-        return $this->walletTo ?? null;
+        return $this->walletTo;
     }
 
-    public function setWalletTo(Wallet $walletTo): self
+    public function setWalletTo(?Wallet $walletTo): self
     {
         $this->walletTo = $walletTo;
 
@@ -155,6 +169,30 @@ class Transaction
     public function setType(TransactionTypeEnum $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getReason(): ?string
+    {
+        return $this->reason;
+    }
+
+    public function setReason(?string $reason): self
+    {
+        $this->reason = null === $reason ? null : trim($reason);
+
+        return $this;
+    }
+
+    public function getInitiatedBy(): ?DiscordUser
+    {
+        return $this->initiatedBy;
+    }
+
+    public function setInitiatedBy(?DiscordUser $initiatedBy): self
+    {
+        $this->initiatedBy = $initiatedBy;
 
         return $this;
     }

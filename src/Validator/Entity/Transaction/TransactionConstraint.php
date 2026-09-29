@@ -19,6 +19,21 @@ class TransactionConstraint extends Constraint
 
     public const SEASON_REWARD_WRONG_WALLET_FROM = 'Season Reward Transaction must have the Bank Wallet as Wallet From.';
 
+    public const WALLET_REQUIRED = 'This value should not be blank.';
+
+    public const MINT_WALLET_FROM_FORBIDDEN = 'Mint Transaction must not have a Wallet From.';
+
+    public const MINT_WRONG_WALLET_TO = 'Mint Transaction must have the Bank Wallet as Wallet To.';
+
+    public const BURN_WALLET_TO_FORBIDDEN = 'Burn Transaction must not have a Wallet To.';
+
+    public const BURN_WRONG_WALLET_FROM = 'Burn Transaction must have the Bank Wallet as Wallet From.';
+
+    public const REASON_REQUIRED = 'Mint and Burn Transactions must have a reason between 3 and 500 characters.';
+
+    public const INITIATED_BY_REQUIRED = 'Mint and Burn Transactions must have an initiating admin.';
+    public const WELCOME_BONUS_WRONG_WALLETS = 'Welcome Bonus Transaction must go from the Bank Wallet to a user Wallet.';
+
     #[\Override]
     public function getTargets(): string
     {

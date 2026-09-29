@@ -30,19 +30,22 @@ Feature:
         And the Discord notifier should have notified "1" error
 
         Examples:
-            | amount        | discordUserIdFrom  | discordUserIdTo    | type          | message                                                                       |
-            |               | 188967649332428800 | 195659530363731968 | classic       | The amount value should not be blank.                                         |
-            | -10           | 188967649332428800 | 195659530363731968 | classic       | The amount value is not a positive integer                                    |
-            | 9999900000000 | 188967649332428800 | 195659530363731968 | classic       | Not enough coins in from wallet.                                              |
-            | 10            |                    | 195659530363731968 | classic       | The discordUserIdFrom value should not be blank.                              |
-            | 10            | 188967649332428800 |                    | classic       | The discordUserIdTo value should not be blank.                                |
-            | 10            | 188967649332428800 | 188967649332428800 | classic       | WalletFrom and WalletTo are the same.                                         |
-            | 10            | 188967649332428800 | 195659530363731968 | wrong         | The type value you selected is not a valid Transaction Type or is null.       |
-            | 10            | wrong              | 195659530363731968 | classic       | The Wallet with the given Discord ID was not found.                           |
-            | 10            | 188967649332428800 | wrong              | classic       | The Wallet with the given Discord ID was not found.                           |
-            | 10            | 188967649332428800 | bank               | air_drop      | AirDrop Transaction must have the Bank Wallet as Wallet From.                 |
-            | 10            | 188967649332428800 | 195659530363731968 | regulation    | Regulation Transaction must have the Bank Wallet as Wallet From or Wallet To. |
-            | 10            | 188967649332428800 | bank               | season_reward | Season Reward Transaction must have the Bank Wallet as Wallet From.           |
+            | amount        | discordUserIdFrom  | discordUserIdTo    | type          | message                                                                               |
+            |               | 188967649332428800 | 195659530363731968 | classic       | The amount value should not be blank.                                                 |
+            | -10           | 188967649332428800 | 195659530363731968 | classic       | The amount value is not a positive integer                                            |
+            | 9999900000000 | 188967649332428800 | 195659530363731968 | classic       | Not enough coins in from wallet.                                                      |
+            | 10            |                    | 195659530363731968 | classic       | The discordUserIdFrom value should not be blank.                                      |
+            | 10            | 188967649332428800 |                    | classic       | The discordUserIdTo value should not be blank.                                        |
+            | 10            | 188967649332428800 | 188967649332428800 | classic       | WalletFrom and WalletTo are the same.                                                 |
+            | 10            | 188967649332428800 | 195659530363731968 | wrong         | The type value you selected is not a valid Transaction Type or is null.               |
+            | 10            | wrong              | 195659530363731968 | classic       | The Wallet with the given Discord ID was not found.                                   |
+            | 10            | 188967649332428800 | wrong              | classic       | The Wallet with the given Discord ID was not found.                                   |
+            | 10            | 188967649332428800 | bank               | air_drop      | AirDrop Transaction must have the Bank Wallet as Wallet From.                         |
+            | 10            | 188967649332428800 | 195659530363731968 | mint          | Mint, Burn and WelcomeBonus transactions cannot be created through the message queue. |
+            | 10            | 188967649332428800 | 195659530363731968 | burn          | Mint, Burn and WelcomeBonus transactions cannot be created through the message queue. |
+            | 10            | bank               | 195659530363731968 | welcome_bonus | Mint, Burn and WelcomeBonus transactions cannot be created through the message queue. |
+            | 10            | 188967649332428800 | 195659530363731968 | regulation    | Regulation Transaction must have the Bank Wallet as Wallet From or Wallet To.         |
+            | 10            | 188967649332428800 | bank               | season_reward | Season Reward Transaction must have the Bank Wallet as Wallet From.                   |
 
     Scenario: I send a correct Message
     TransactionMessage should be processed

@@ -32,10 +32,19 @@ class TransactionMessageHandler extends AbstractHandler
     public function __invoke(TransactionMessage $transactionMessage): void
     {
         try {
+            $this->assertNotReservedToAdmin($transactionMessage);
             $this->validate($transactionMessage);
             $this->transactionHandler->handleTransactionMessage($transactionMessage);
         } catch (\Throwable $exception) {
             $this->handleException($exception, $transactionMessage);
+        }
+    }
+
+    // Mint/Burn (admin bank wallet page) and WelcomeBonus (login) never happen through the bot queue
+    private function assertNotReservedToAdmin(TransactionMessage $transactionMessage): void
+    {
+        if ($transactionMessage->getType()?->isSystemOnly()) {
+            throw new \RuntimeException('Mint, Burn and WelcomeBonus transactions cannot be created through the message queue.');
         }
     }
 

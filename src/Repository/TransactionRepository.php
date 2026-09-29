@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Transaction;
+use App\Entity\Wallet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,6 +23,25 @@ class TransactionRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Transaction::class);
+    }
+
+    // Transactions where the wallet is source or destination, most recent first
+    public function findWalletHistory(Wallet $wallet, int $offset, int $limit): WalletHistoryPage
+    {
+        // The ulid type must be given explicitly: parameter type inference does not reach the custom type
+        $queryBuilder = $this->createQueryBuilder('t')
+            ->andWhere('t.walletFrom = :wallet OR t.walletTo = :wallet')
+            ->setParameter('wallet', $wallet->getId(), 'ulid')
+            // createdAt has second precision: id as tiebreak keeps pagination stable across pages
+            ->orderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+        ;
+
+        $paginator = new DoctrinePaginator($queryBuilder, fetchJoinCollection: false);
+
+        return new WalletHistoryPage(iterator_to_array($paginator, false), $paginator->count());
     }
 
     // /**

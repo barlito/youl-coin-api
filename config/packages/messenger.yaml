@@ -1,7 +1,5 @@
 framework:
     messenger:
-#        failure_transport: failed
-
         buses:
             messenger.bus.default:
                 middleware:
@@ -31,7 +29,20 @@ framework:
                         name: transaction_notification_exchange
                     queues: []
 
+            # Transactional outbox: written in the money movement's DB transaction, consumed by the worker
+            outbox:
+                dsn: 'doctrine://default?queue_name=outbox&auto_setup=false'
+                failure_transport: failed
+                retry_strategy:
+                    max_retries: 5
+                    delay: 5000
+                    multiplier: 3
+
+            failed:
+                dsn: 'doctrine://default?queue_name=failed&auto_setup=false'
+
         routing:
             # Route your messages to the transports
             'App\Message\TransactionMessage': async_transaction
             'App\Entity\Transaction': transaction_notification
+            'App\Message\TransactionCommitted': outbox

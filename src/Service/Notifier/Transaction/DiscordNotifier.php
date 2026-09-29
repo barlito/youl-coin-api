@@ -6,6 +6,7 @@ namespace App\Service\Notifier\Transaction;
 
 use App\Entity\DiscordUser;
 use App\Entity\Transaction;
+use App\Entity\Wallet;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
 use Psr\Log\LoggerInterface;
@@ -30,35 +31,43 @@ class DiscordNotifier implements TransactionNotifierInterface
     {
         try {
             $chatMessage = new ChatMessage('');
-            $fromUser = $transaction->getWalletFrom()->getDiscordUser() instanceof DiscordUser ? "<@{$transaction->getWalletFrom()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
-            $toUser = $transaction->getWalletTo()->getDiscordUser() instanceof DiscordUser ? "<@{$transaction->getWalletTo()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+            $fromUser = $this->describeWallet($transaction->getWalletFrom(), 'Mint');
+            $toUser = $this->describeWallet($transaction->getWalletTo(), 'Burn');
+
+            $embed = new DiscordEmbed()
+                ->title($this->discordOptionsParams['transaction']['success_title'])
+                ->author(
+                    new DiscordAuthorEmbedObject()
+                        ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
+                        ->name($this->discordOptionsParams['transaction']['username']),
+                )
+                ->color($this->discordOptionsParams['transaction']['success_color'])
+                ->timestamp(new \DateTime())
+                ->addField(
+                    new DiscordFieldEmbedObject()
+                        ->name('-' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
+                        ->value($fromUser)
+                        ->inline(true),
+                )
+                ->addField(
+                    new DiscordFieldEmbedObject()
+                        ->name('+' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
+                        ->value($toUser)
+                        ->inline(true),
+                )
+            ;
+
+            if ($transaction->getType()?->isSupplyChange()) {
+                $embed
+                    ->addField(new DiscordFieldEmbedObject()->name('Reason')->value((string) $transaction->getReason()))
+                    ->addField(new DiscordFieldEmbedObject()->name('Admin')->value($this->describeInitiator($transaction)))
+                ;
+            }
 
             $discordOptions = new DiscordOptions()
                 ->username($this->discordOptionsParams['transaction']['username'])
                 ->avatarUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                ->addEmbed(
-                    new DiscordEmbed()
-                        ->title($this->discordOptionsParams['transaction']['success_title'])
-                        ->author(
-                            new DiscordAuthorEmbedObject()
-                                ->iconUrl($this->discordOptionsParams['transaction']['avatar_url'])
-                                ->name($this->discordOptionsParams['transaction']['username']),
-                        )
-                        ->color($this->discordOptionsParams['transaction']['success_color'])
-                        ->timestamp(new \DateTime())
-                        ->addField(
-                            new DiscordFieldEmbedObject()
-                                ->name('-' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
-                                ->value($fromUser)
-                                ->inline(true),
-                        )
-                        ->addField(
-                            new DiscordFieldEmbedObject()
-                                ->name('+' . $this->moneyUtil->getFormattedMoney($transaction->getAmount()))
-                                ->value($toUser)
-                                ->inline(true),
-                        ),
-                )
+                ->addEmbed($embed)
             ;
 
             $chatMessage->options($discordOptions);
@@ -67,6 +76,23 @@ class DiscordNotifier implements TransactionNotifierInterface
         } catch (\Throwable $e) {
             $this->logger->critical($e->getMessage(), [json_encode($e)]);
         }
+    }
+
+    // Missing wallet only happens on Mint (no walletFrom) or Burn (no walletTo)
+    private function describeWallet(?Wallet $wallet, string $missingWalletLabel): string
+    {
+        if (!$wallet instanceof Wallet) {
+            return $missingWalletLabel;
+        }
+
+        return $wallet->getDiscordUser() instanceof DiscordUser ? "<@{$wallet->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+    }
+
+    private function describeInitiator(Transaction $transaction): string
+    {
+        $initiator = $transaction->getInitiatedBy();
+
+        return $initiator instanceof DiscordUser ? "<@{$initiator->getDiscordId()}>" : 'Unknown';
     }
 
     public function notifyErrorOnTransaction(string $errorMessage, string $messageContent): void

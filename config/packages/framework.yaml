@@ -20,6 +20,12 @@ framework:
     php_errors:
         log: true
 
+    # Login grants the welcome bonus synchronously, and its Discord webhook must not hold the request
+    http_client:
+        default_options:
+            timeout: 3
+            max_duration: 5
+
 when@test:
     framework:
         test: true

@@ -47,7 +47,11 @@ class WalletCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+        // Deleting a wallet would destroy coins without a Burn (or fail on the transactions FK)
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->disable(Action::DELETE, Action::BATCH_DELETE)
+        ;
     }
 
     /**
@@ -58,13 +62,18 @@ class WalletCrudController extends AbstractCrudController
     {
         yield Field::new('id')->onlyOnDetail();
 
-        yield IntegerField::new('amount')->formatValue(function ($value, $entity): string {
-            if (!$entity instanceof Wallet) {
-                throw new UnexpectedTypeException($entity, Wallet::class);
-            }
+        // Only ever moved by a Transaction (Mint/Burn/transfer): read-only here, never on create or edit
+        yield IntegerField::new('amount')
+            ->hideWhenCreating()
+            ->hideWhenUpdating()
+            ->formatValue(function ($value, $entity): string {
+                if (!$entity instanceof Wallet) {
+                    throw new UnexpectedTypeException($entity, Wallet::class);
+                }
 
-            return $this->moneyUtil->getFormattedMoney($entity->getAmount());
-        });
+                return $this->moneyUtil->getFormattedMoney($entity->getAmount());
+            })
+        ;
 
         yield AssociationField::new('discordUser')->setQueryBuilder(
             fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->leftJoin('entity.wallet', 'w')

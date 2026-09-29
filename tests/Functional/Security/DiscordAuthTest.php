@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Security;
 
 use App\Entity\DiscordUser;
+use App\Entity\EconomySettings;
+use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
+use App\Enum\TransactionTypeEnum;
 use App\Enum\WalletTypeEnum;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Uid\Ulid;
 use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
 class DiscordAuthTest extends WebTestCase
 {
     use MocksDiscordOAuthTrait;
 
+    private const string BANK_WALLET_ID = '01HAJGPGCP28GFA6QD08NMH764';
+
     private KernelBrowser $client;
-    private ContainerInterface $container;
     private EntityManagerInterface $entityManager;
 
     public function setUp(): void
@@ -29,7 +34,6 @@ class DiscordAuthTest extends WebTestCase
         system('bin/console hautelook:fixtures:load -n --env="test"');
 
         $this->client = static::createClient();
-        $this->container = static::getContainer();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
 
@@ -58,8 +62,11 @@ class DiscordAuthTest extends WebTestCase
 
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame('0', $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
         $this->assertSame(WalletTypeEnum::USER, $wallet->getType());
+
+        $this->assertSame('900000000000', $this->fetchAmount(self::BANK_WALLET_ID));
+        $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
     public function testLoginCreatesTheMissingWalletOfAnExistingUser(): void
@@ -83,10 +90,11 @@ class DiscordAuthTest extends WebTestCase
         self::assertResponseRedirects('/');
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame('0', $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
-    public function testLoginKeepsTheExistingWallet(): void
+    public function testLoginKeepsTheExistingWalletAndGrantsItTheBonusOnce(): void
     {
         $userId = '188967949963362304';
 
@@ -98,7 +106,8 @@ class DiscordAuthTest extends WebTestCase
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
         $this->assertSame('01FPD1DRHVBMZEM5EGS95F5N3E', (string) $wallet->getId());
-        $this->assertSame('700000000000', $wallet->getAmount());
+        $this->assertSame('800000000000', $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
     public function testSuccessfulLoginWithDynamicallyWhitelistedUser(): void
@@ -163,11 +172,114 @@ class DiscordAuthTest extends WebTestCase
         $this->assertNull($this->findWallet($nonWhitelistedUserId));
     }
 
+    public function testWelcomeBonusIsNotGrantedTwiceOnASecondLogin(): void
+    {
+        $userId = '189029821328785409';
+        $this->removeUser($userId);
+
+        $discordResource = new DiscordResourceOwner(['id' => $userId, 'username' => 'Veli']);
+
+        $this->mockClientRegistry($discordResource);
+        $this->client->request('GET', '/connect/discord/check');
+        self::assertResponseRedirects('/');
+
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+
+        $this->restartClient();
+        $this->mockClientRegistry($discordResource);
+        $this->client->request('GET', '/connect/discord/check');
+        self::assertResponseRedirects('/');
+
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 1);
+    }
+
+    // The key guarantee: an empty bank must never turn the login itself into a failure
+    public function testLoginSucceedsWhenTheBankIsEmptyThenGrantsTheBonusOnceRefilled(): void
+    {
+        $userId = '189029821328785409';
+        $this->removeUser($userId);
+
+        $this->setWalletAmount(self::BANK_WALLET_ID, '0');
+
+        $discordResource = new DiscordResourceOwner(['id' => $userId, 'username' => 'Veli']);
+        $this->mockClientRegistry($discordResource);
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+        self::assertBrowserHasCookie('jwt');
+
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame('0', $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 0);
+
+        $this->setWalletAmount(self::BANK_WALLET_ID, '1000000000000');
+
+        $this->restartClient();
+        $this->mockClientRegistry($discordResource);
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 1);
+    }
+
+    public function testNoBonusIsGrantedWhenTheConfiguredAmountIsZero(): void
+    {
+        $userId = '189029821328785409';
+        $this->removeUser($userId);
+
+        $settings = $this->entityManager->find(EconomySettings::class, EconomySettings::SINGLETON_ID);
+        $this->assertInstanceOf(EconomySettings::class, $settings);
+        $settings->setWelcomeBonusAmountCoins(0);
+        $this->entityManager->flush();
+
+        $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Veli']));
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame('0', $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 0);
+    }
+
+    // A real login boots a fresh kernel: the mocked ClientRegistry would be rejected as already initialized otherwise
+    private function restartClient(): void
+    {
+        static::ensureKernelShutdown();
+        $this->client = static::createClient();
+        $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
+    }
+
     private function findWallet(string $discordId): ?Wallet
     {
         $this->entityManager->clear();
 
         return $this->entityManager->getRepository(Wallet::class)->findOneBy(['discordUser' => $discordId]);
+    }
+
+    private function assertWelcomeBonusTransactionCount(Wallet $wallet, int $expectedCount): void
+    {
+        $this->entityManager->clear();
+
+        $transactions = $this->entityManager->getRepository(Transaction::class)->findBy([
+            'walletTo' => $wallet,
+            'type' => TransactionTypeEnum::WELCOME_BONUS,
+        ]);
+
+        $this->assertCount($expectedCount, $transactions);
     }
 
     private function removeUser(string $userId): void
@@ -180,5 +292,26 @@ class DiscordAuthTest extends WebTestCase
         $entityManager->remove($userToRemove->getWallet());
         $entityManager->remove($userToRemove);
         $entityManager->flush();
+    }
+
+    private function setWalletAmount(string $walletId, string $amount): void
+    {
+        $this->connection()->executeStatement(
+            'UPDATE wallet SET amount = :amount WHERE id = :id',
+            ['amount' => $amount, 'id' => Ulid::fromString($walletId)->toRfc4122()],
+        );
+    }
+
+    private function fetchAmount(string $walletId): string
+    {
+        return (string) $this->connection()->fetchOne(
+            'SELECT amount FROM wallet WHERE id = :id',
+            ['id' => Ulid::fromString($walletId)->toRfc4122()],
+        );
+    }
+
+    private function connection(): Connection
+    {
+        return $this->entityManager->getConnection();
     }
 }

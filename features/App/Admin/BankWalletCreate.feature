@@ -6,7 +6,7 @@ Feature:
   Scenario:
     I want to create a BankWallet
     No BankWallet exist in the database
-    BankWallet should be created successfully
+    BankWallet should be created successfully, starting at 0 (amount is not part of the create form)
 
     Given a "Wallet" entity found by "type=bank" should be deleted
     And an admin user is logged in
@@ -15,7 +15,6 @@ Feature:
     """
     {
       "ea[newForm][btn]": "saveAndReturn",
-      "Wallet[amount]": 123123,
       "Wallet[discordUser]": "",
       "Wallet[type]": "bank",
       "Wallet[name]": "jkljkljkllkjl"
@@ -23,6 +22,8 @@ Feature:
     """
 
     Then the response status code should be 200
+    And a "Wallet" entity found by "type=bank" should match:
+        | amount | 0 |
 
 
   Scenario:
@@ -35,7 +36,6 @@ Feature:
     """
     {
       "ea[newForm][btn]": "saveAndReturn",
-      "Wallet[amount]": 123123,
       "Wallet[discordUser]": "",
       "Wallet[type]": "bank",
       "Wallet[name]": "jkljkljkllkjl"
@@ -47,7 +47,7 @@ Feature:
   Scenario:
   I want to create a User Wallet
   User has no Wallet yet on database
-  User Wallet should be created successfully
+  User Wallet should be created successfully, starting at 0 (amount is not part of the create form)
 
     Given a "Wallet" entity found by "discordUser=189029821328785409" should be deleted
 
@@ -55,7 +55,6 @@ Feature:
     """
     {
       "ea[newForm][btn]": "saveAndReturn",
-      "Wallet[amount]": 123123,
       "Wallet[discordUser]": "189029821328785409",
       "Wallet[type]": "user",
       "Wallet[name]": "jkljkljkllkjl"
@@ -63,3 +62,5 @@ Feature:
     """
 
     Then the response status code should be 200
+    And a "Wallet" entity found by "discordUser=189029821328785409" should match:
+        | amount | 0 |

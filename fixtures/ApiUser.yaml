@@ -2,7 +2,7 @@
 App\Entity\ApiUser:
   api_user_test:
     name: 'test'
-    apiKey: "api_key_test"
+    plainApiKey: "api_key_test"
     roles:
       - ROLE_USER
       - ROLE_TRANSACTION_BANK_TO_USER
@@ -13,7 +13,7 @@ App\Entity\ApiUser:
 
   api_user_other:
     name: 'other'
-    apiKey: "api_key_other"
+    plainApiKey: "api_key_other"
     roles:
       - ROLE_USER
       - ROLE_TRANSACTION_BANK_TO_USER
@@ -25,7 +25,7 @@ App\Entity\ApiUser:
   # A game backend: may credit and debit players against the bank, never move coins between players
   api_user_bank_only:
     name: 'bank_only'
-    apiKey: "api_key_bank_only"
+    plainApiKey: "api_key_bank_only"
     roles:
       - ROLE_USER
       - ROLE_TRANSACTION_BANK_TO_USER
@@ -34,7 +34,23 @@ App\Entity\ApiUser:
 
   api_user_reader:
     name: 'reader'
-    apiKey: "api_key_reader"
+    plainApiKey: "api_key_reader"
     roles:
       - ROLE_USER
       - ROLE_WALLET_READ
+
+  # youl-tcg: shows the connected player's own history, forwards their X-Player-Token
+  api_user_wallet_history:
+    name: 'wallet_history'
+    plainApiKey: "api_key_wallet_history"
+    roles:
+      - ROLE_USER
+      - ROLE_WALLET_HISTORY_READ
+
+  # Discord bot: reads any player's history without a player token
+  api_user_wallet_history_any:
+    name: 'wallet_history_any'
+    plainApiKey: "api_key_wallet_history_any"
+    roles:
+      - ROLE_USER
+      - ROLE_WALLET_HISTORY_READ_ANY
