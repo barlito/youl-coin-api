@@ -6,6 +6,7 @@ namespace App\Service\Notifier\Transaction;
 
 use App\Entity\DiscordUser;
 use App\Entity\Transaction;
+use App\Entity\Wallet;
 use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
 use Psr\Log\LoggerInterface;
@@ -30,8 +31,8 @@ class DiscordNotifier implements TransactionNotifierInterface
     {
         try {
             $chatMessage = new ChatMessage('');
-            $fromUser = $transaction->getWalletFrom()->getDiscordUser() instanceof DiscordUser ? "<@{$transaction->getWalletFrom()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
-            $toUser = $transaction->getWalletTo()->getDiscordUser() instanceof DiscordUser ? "<@{$transaction->getWalletTo()->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
+            $fromUser = $this->describeWallet($transaction->getWalletFrom(), 'Mint');
+            $toUser = $this->describeWallet($transaction->getWalletTo(), 'Burn');
 
             $discordOptions = new DiscordOptions()
                 ->username($this->discordOptionsParams['transaction']['username'])
@@ -67,6 +68,16 @@ class DiscordNotifier implements TransactionNotifierInterface
         } catch (\Throwable $e) {
             $this->logger->critical($e->getMessage(), [json_encode($e)]);
         }
+    }
+
+    // Missing wallet only happens on Mint (no walletFrom) or Burn (no walletTo)
+    private function describeWallet(?Wallet $wallet, string $missingWalletLabel): string
+    {
+        if (!$wallet instanceof Wallet) {
+            return $missingWalletLabel;
+        }
+
+        return $wallet->getDiscordUser() instanceof DiscordUser ? "<@{$wallet->getDiscordUser()?->getDiscordId()}>" : 'Bank Wallet';
     }
 
     public function notifyErrorOnTransaction(string $errorMessage, string $messageContent): void

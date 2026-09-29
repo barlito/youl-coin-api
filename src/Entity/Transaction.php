@@ -55,19 +55,18 @@ class Transaction
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $amount;
 
+    // Blank/type checks live in TransactionConstraintValidator: required or forbidden depends on the transaction type (Mint has no walletFrom, Burn no walletTo)
     #[Groups('transaction:notification')]
-    #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Wallet $walletFrom;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Wallet $walletFrom = null;
 
     #[Groups('transaction:notification')]
-    #[Assert\NotBlank]
     #[Assert\Valid]
     #[ORM\ManyToOne(targetEntity: Wallet::class, fetch: 'EAGER')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Wallet $walletTo;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Wallet $walletTo = null;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(allowNull: true)]
@@ -86,6 +85,17 @@ class Transaction
     #[ORM\Column(type: 'string', enumType: TransactionTypeEnum::class)]
     private TransactionTypeEnum $type;
 
+    // Required for Mint/Burn (checked in TransactionConstraintValidator), never writable through the API
+    #[Ignore]
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $reason = null;
+
+    // The admin who triggered a Mint/Burn from the bank wallet page, never writable through the API
+    #[Ignore]
+    #[ORM\ManyToOne(targetEntity: DiscordUser::class)]
+    #[ORM\JoinColumn(referencedColumnName: 'discord_id', nullable: true)]
+    private ?DiscordUser $initiatedBy = null;
+
     public function getAmount(): ?string
     {
         // Unset until denormalized: a payload missing the field must reach validation, not crash
@@ -101,10 +111,10 @@ class Transaction
 
     public function getWalletFrom(): ?Wallet
     {
-        return $this->walletFrom ?? null;
+        return $this->walletFrom;
     }
 
-    public function setWalletFrom(Wallet $walletFrom): self
+    public function setWalletFrom(?Wallet $walletFrom): self
     {
         $this->walletFrom = $walletFrom;
 
@@ -113,10 +123,10 @@ class Transaction
 
     public function getWalletTo(): ?Wallet
     {
-        return $this->walletTo ?? null;
+        return $this->walletTo;
     }
 
-    public function setWalletTo(Wallet $walletTo): self
+    public function setWalletTo(?Wallet $walletTo): self
     {
         $this->walletTo = $walletTo;
 
@@ -155,6 +165,30 @@ class Transaction
     public function setType(TransactionTypeEnum $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getReason(): ?string
+    {
+        return $this->reason;
+    }
+
+    public function setReason(?string $reason): self
+    {
+        $this->reason = $reason;
+
+        return $this;
+    }
+
+    public function getInitiatedBy(): ?DiscordUser
+    {
+        return $this->initiatedBy;
+    }
+
+    public function setInitiatedBy(?DiscordUser $initiatedBy): self
+    {
+        $this->initiatedBy = $initiatedBy;
 
         return $this;
     }

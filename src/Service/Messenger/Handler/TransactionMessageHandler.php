@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Messenger\Handler;
 
+use App\Enum\TransactionTypeEnum;
 use App\Message\TransactionMessage;
 use App\Service\Handler\Abstraction\AbstractHandler;
 use App\Service\Handler\TransactionHandler;
@@ -32,10 +33,19 @@ class TransactionMessageHandler extends AbstractHandler
     public function __invoke(TransactionMessage $transactionMessage): void
     {
         try {
+            $this->assertNotReservedToAdmin($transactionMessage);
             $this->validate($transactionMessage);
             $this->transactionHandler->handleTransactionMessage($transactionMessage);
         } catch (\Throwable $exception) {
             $this->handleException($exception, $transactionMessage);
+        }
+    }
+
+    // Mint/Burn only happen from the admin bank wallet page, never through the bot queue
+    private function assertNotReservedToAdmin(TransactionMessage $transactionMessage): void
+    {
+        if (\in_array($transactionMessage->getType(), [TransactionTypeEnum::MINT, TransactionTypeEnum::BURN], true)) {
+            throw new \RuntimeException('Mint and Burn transactions can only be created from the admin panel.');
         }
     }
 

@@ -23,21 +23,21 @@ App\Entity\Wallet:
 
   wallet_benj:
     id: 01FPD1DYNAMHV939ARCCRPK864
-    amount: <numberBetween(100000000000, 900000000000)>
+    amount: 300000000000
     discordUser: '@discord_user_benj'
     type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Benj"
 
   wallet_weeby:
     id: 01FPD1E1T67SBB4EWATRB9DAJV
-    amount: <numberBetween(100000000000, 900000000000)>
+    amount: 400000000000
     discordUser: '@discord_user_weeby'
     type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Weeby"
 
   wallet_veli:
     id: 01FPD1E4QEM3TE3W9HT3ECAAVF
-    amount: <numberBetween(100000000000, 900000000000)>
+    amount: 200000000000
     discordUser: '@discord_user_veli'
     type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet Veli"

@@ -7,6 +7,7 @@ namespace App\Service\Handler;
 use App\Entity\ApiUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
+use App\Enum\TransactionTypeEnum;
 use App\Message\TransactionMessage;
 use App\Repository\TransactionRepository;
 use App\Service\Builder\TransactionBuilder;
@@ -98,27 +99,32 @@ class TransactionHandler extends AbstractHandler
         return $transaction;
     }
 
+    // Mint has no walletFrom, Burn no walletTo: only the wallets present move
     private function moveCoins(Transaction $transaction): void
     {
         $amount = $this->moneyUtil->getMoney((string) $transaction->getAmount());
         $walletFrom = $transaction->getWalletFrom();
         $walletTo = $transaction->getWalletTo();
 
-        if (!$walletFrom instanceof Wallet || !$walletTo instanceof Wallet) {
-            throw new \LogicException('A validated transaction always has both wallets.');
+        if (!$walletFrom instanceof Wallet && !$walletTo instanceof Wallet) {
+            throw new \LogicException('A validated transaction always has at least one wallet.');
         }
 
-        $walletFrom->setAmount(
-            (string)
-            $this->moneyUtil->getMoney($walletFrom->getAmount())
-                ->minus($amount)->getMinorAmount()->toInt(),
-        );
+        if ($walletFrom instanceof Wallet) {
+            $walletFrom->setAmount(
+                (string)
+                $this->moneyUtil->getMoney($walletFrom->getAmount())
+                    ->minus($amount)->getMinorAmount()->toInt(),
+            );
+        }
 
-        $walletTo->setAmount(
-            (string)
-            $this->moneyUtil->getMoney($walletTo->getAmount())
-                ->plus($amount)->getMinorAmount()->toInt(),
-        );
+        if ($walletTo instanceof Wallet) {
+            $walletTo->setAmount(
+                (string)
+                $this->moneyUtil->getMoney($walletTo->getAmount())
+                    ->plus($amount)->getMinorAmount()->toInt(),
+            );
+        }
     }
 
     private function findReplayedTransaction(Transaction $transaction): ?Transaction
@@ -157,7 +163,11 @@ class TransactionHandler extends AbstractHandler
     private function notify(Transaction $transaction): void
     {
         $this->discordNotifier->notifyNewTransaction($transaction);
-        $this->transactionPublisher->publishTransactionNotification($transaction);
+
+        // The Discord bot consuming this transport assumes two wallets: Mint/Burn stay Discord-webhook-only
+        if (!\in_array($transaction->getType(), [TransactionTypeEnum::MINT, TransactionTypeEnum::BURN], true)) {
+            $this->transactionPublisher->publishTransactionNotification($transaction);
+        }
     }
 
     /**

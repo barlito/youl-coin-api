@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Enum\Roles\ApiUserRoleEnum;
+use App\Enum\TransactionTypeEnum;
 use App\Enum\WalletTypeEnum;
 use App\Security\PlayerTokenResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -31,6 +32,11 @@ class TransactionVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
+        // Mint/Burn are admin-only (bank wallet page): never reachable through the API, whatever the role
+        if (\in_array($subject->getType(), [TransactionTypeEnum::MINT, TransactionTypeEnum::BURN], true)) {
+            return false;
+        }
+
         // Incomplete payload: nothing can move, let the handler answer 422 instead of a 403
         if (!$subject->getWalletFrom() instanceof Wallet || !$subject->getWalletTo() instanceof Wallet) {
             return true;

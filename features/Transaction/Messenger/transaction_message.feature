@@ -41,6 +41,8 @@ Feature:
             | 10            | wrong              | 195659530363731968 | classic       | The Wallet with the given Discord ID was not found.                           |
             | 10            | 188967649332428800 | wrong              | classic       | The Wallet with the given Discord ID was not found.                           |
             | 10            | 188967649332428800 | bank               | air_drop      | AirDrop Transaction must have the Bank Wallet as Wallet From.                 |
+            | 10            | 188967649332428800 | 195659530363731968 | mint          | Mint and Burn transactions can only be created from the admin panel.         |
+            | 10            | 188967649332428800 | 195659530363731968 | burn          | Mint and Burn transactions can only be created from the admin panel.         |
             | 10            | 188967649332428800 | 195659530363731968 | regulation    | Regulation Transaction must have the Bank Wallet as Wallet From or Wallet To. |
             | 10            | 188967649332428800 | bank               | season_reward | Season Reward Transaction must have the Bank Wallet as Wallet From.           |
 

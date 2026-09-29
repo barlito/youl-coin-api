@@ -2,5 +2,12 @@
 
 {% block content_title 'Bank Wallet' %}
 {% block main %}
+    <h3>Transfer</h3>
     {{ form(form) }}
+
+    <h3>Mint</h3>
+    {{ form(mintForm) }}
+
+    <h3>Burn</h3>
+    {{ form(burnForm) }}
 {% endblock %}

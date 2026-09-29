@@ -27,12 +27,23 @@ class TransactionConstraintValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, Transaction::class);
         }
 
-        if (
-            !$value->getWalletFrom() instanceof Wallet
-            || !$value->getWalletTo() instanceof Wallet
-            || !\is_string($value->getAmount())
-            || !is_numeric($value->getAmount())
-        ) {
+        if (!\is_string($value->getAmount()) || !is_numeric($value->getAmount())) {
+            return;
+        }
+
+        if (\in_array($value->getType(), [TransactionTypeEnum::MINT, TransactionTypeEnum::BURN], true)) {
+            $this->validateMintOrBurn($value, $constraint);
+
+            return;
+        }
+
+        if (!$value->getWalletFrom() instanceof Wallet) {
+            $this->context->buildViolation($constraint::WALLET_REQUIRED)->atPath('walletFrom')->addViolation();
+        }
+        if (!$value->getWalletTo() instanceof Wallet) {
+            $this->context->buildViolation($constraint::WALLET_REQUIRED)->atPath('walletTo')->addViolation();
+        }
+        if (!$value->getWalletFrom() instanceof Wallet || !$value->getWalletTo() instanceof Wallet) {
             return;
         }
 
@@ -43,6 +54,43 @@ class TransactionConstraintValidator extends ConstraintValidator
         $this->validateAirDropType($value, $constraint);
         $this->validateRegulationType($value, $constraint);
         $this->validateSeasonRewardType($value, $constraint);
+    }
+
+    // Mint credits the bank out of nowhere (no balance check), Burn debits it
+    private function validateMintOrBurn(Transaction $transaction, TransactionConstraint $constraint): void
+    {
+        $this->validateReason($transaction, $constraint);
+
+        if (TransactionTypeEnum::MINT === $transaction->getType()) {
+            if ($transaction->getWalletFrom() instanceof Wallet) {
+                $this->context->buildViolation($constraint::MINT_WALLET_FROM_FORBIDDEN)->addViolation();
+            }
+            if (!$transaction->getWalletTo() instanceof Wallet || WalletTypeEnum::BANK !== $transaction->getWalletTo()->getType()) {
+                $this->context->buildViolation($constraint::MINT_WRONG_WALLET_TO)->addViolation();
+            }
+
+            return;
+        }
+
+        if ($transaction->getWalletTo() instanceof Wallet) {
+            $this->context->buildViolation($constraint::BURN_WALLET_TO_FORBIDDEN)->addViolation();
+        }
+        if (!$transaction->getWalletFrom() instanceof Wallet || WalletTypeEnum::BANK !== $transaction->getWalletFrom()->getType()) {
+            $this->context->buildViolation($constraint::BURN_WRONG_WALLET_FROM)->addViolation();
+
+            return;
+        }
+        if (!$this->hasEnoughCoins($transaction)) {
+            $this->context->buildViolation($constraint::NOT_ENOUGH_CURRENCY_IN_WALLET)->addViolation();
+        }
+    }
+
+    private function validateReason(Transaction $transaction, TransactionConstraint $constraint): void
+    {
+        $reason = $transaction->getReason();
+        if (!\is_string($reason) || mb_strlen(trim($reason)) < 3 || mb_strlen($reason) > 500) {
+            $this->context->buildViolation($constraint::REASON_REQUIRED)->atPath('reason')->addViolation();
+        }
     }
 
     private function validateSameWallet(Transaction $transaction, TransactionConstraint $constraint): void

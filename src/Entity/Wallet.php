@@ -47,9 +47,10 @@ class Wallet implements \Stringable
     use IdUlidTrait;
     use TimestampableEntity;
 
+    // Only ever moved by a Transaction (TransactionHandler); a wallet created from the admin starts at 0
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string', length: 255)]
-    private string $amount;
+    private string $amount = '0';
 
     #[Groups('transaction:notification')]
     #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
