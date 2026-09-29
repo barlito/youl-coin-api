@@ -26,6 +26,7 @@ jobs:
       JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+      APP_SECRET: ${{ secrets.APP_SECRET }}
 
     steps:
       - uses: actions/checkout@v6
