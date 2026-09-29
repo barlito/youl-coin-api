@@ -6,3 +6,10 @@ App\Entity\ApiUser:
     roles:
       - ROLE_USER
       - ROLE_TRANSACTION_CREATE
+
+  api_user_other:
+    name: 'other'
+    apiKey: "api_key_other"
+    roles:
+      - ROLE_USER
+      - ROLE_TRANSACTION_CREATE

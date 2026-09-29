@@ -14,15 +14,18 @@ use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Assert\GroupSequence(['Transaction', 'Strict'])]
 #[CustomAssert\Entity\Transaction\TransactionConstraint(groups: ['Strict'])]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\UniqueConstraint(name: 'transaction_issuer_external_identifier_unique', columns: ['issuer_id', 'external_identifier'])]
 #[ApiResource(
     operations: [
         // Better to use a DTO than the entity just because of fields type validation in payload
-        new Post(security: 'is_granted("ROLE_TRANSACTION_CREATE")', processor: TransactionStateProcessor::class),
+        // Validated by the handler, under the wallet locks and after the idempotent replay lookup
+        new Post(security: 'is_granted("ROLE_TRANSACTION_CREATE")', validate: false, processor: TransactionStateProcessor::class),
     ],
 )]
 class Transaction
@@ -53,7 +56,13 @@ class Transaction
     #[Groups('transaction:notification')]
     #[Assert\NotBlank(allowNull: true)]
     #[ORM\Column(type: 'text', nullable: true)]
-    private string $externalIdentifier;
+    private ?string $externalIdentifier = null;
+
+    // API client that created the transaction: scopes the externalIdentifier idempotency key
+    #[Ignore]
+    #[ORM\ManyToOne(targetEntity: ApiUser::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?ApiUser $issuer = null;
 
     #[Groups('transaction:notification')]
     #[Assert\NotBlank]
@@ -105,6 +114,18 @@ class Transaction
     public function setExternalIdentifier(?string $externalIdentifier): Transaction
     {
         $this->externalIdentifier = $externalIdentifier;
+
+        return $this;
+    }
+
+    public function getIssuer(): ?ApiUser
+    {
+        return $this->issuer;
+    }
+
+    public function setIssuer(?ApiUser $issuer): self
+    {
+        $this->issuer = $issuer;
 
         return $this;
     }

@@ -183,7 +183,7 @@ final class EntityManagerContext implements Context
         $this->entityManager->clear();
         $entities = $this->getRepository($entityClass)->findBy($findBy);
 
-        $this->assertCount($number, $entities, \sprintf('Found %d entities instead of %d', \count($entities), $number));
+        Assert::assertCount($number, $entities, \sprintf('Found %d entities instead of %d', \count($entities), $number));
     }
 
     private function parseExpected(mixed $expected): mixed

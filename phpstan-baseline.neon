@@ -133,18 +133,6 @@ parameters:
 			path: src/Entity/DiscordUser.php
 
 		-
-			message: '#^Property App\\Entity\\Transaction\:\:\$externalIdentifier \(string\) does not accept string\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Entity/Transaction.php
-
-		-
-			message: '#^Property App\\Entity\\Transaction\:\:\$externalIdentifier type mapping mismatch\: database can contain string\|null but property expects string\.$#'
-			identifier: doctrine.columnType
-			count: 1
-			path: src/Entity/Transaction.php
-
-		-
 			message: '#^Class App\\Form\\Type\\TransactionType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
 			identifier: missingType.generics
 			count: 1
