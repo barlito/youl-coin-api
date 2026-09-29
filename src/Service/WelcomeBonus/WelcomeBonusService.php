@@ -14,21 +14,17 @@ use App\Repository\EconomySettingsRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\WalletRepository;
 use App\Service\Handler\TransactionHandler;
-use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 // Grants the bank-funded welcome bonus at login (DiscordAuthenticator); this login also signs players into youl-tcg, so nothing here may ever throw out
 class WelcomeBonusService
 {
-    private const string ELIGIBILITY_WINDOW = '-30 days';
-
     public function __construct(
         private readonly EconomySettingsRepository $economySettingsRepository,
         private readonly WalletRepository $walletRepository,
         private readonly TransactionRepository $transactionRepository,
         private readonly TransactionHandler $transactionHandler,
-        private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -49,7 +45,7 @@ class WelcomeBonusService
             }
 
             $amount = $settings->getWelcomeBonusAmount();
-            if (is_numeric($amount) && bccomp($amount, '0') > 0 && $this->isEligible($wallet, $settings)) {
+            if (is_numeric($amount) && bccomp($amount, '0') > 0 && !$this->hasReceived($wallet)) {
                 $this->grant($wallet, $amount);
             }
         } catch (ConflictHttpException $exception) {
@@ -60,7 +56,7 @@ class WelcomeBonusService
         }
     }
 
-    // Unconditional bank-funded grant, throws on failure: the eligibility rules belong to the caller
+    // Throws on failure: callers decide how a refused grant is reported
     public function grant(Wallet $wallet, string $amount): void
     {
         $bankWallet = $this->walletRepository->findOneBy(['type' => WalletTypeEnum::BANK]);
@@ -77,20 +73,12 @@ class WelcomeBonusService
         );
     }
 
+    // Pre-check only: the partial unique index on transaction(wallet_to_id) is the real, race-proof guarantee
     public function hasReceived(Wallet $wallet): bool
     {
         return null !== $this->transactionRepository->findOneBy([
             'walletTo' => $wallet,
             'type' => TransactionTypeEnum::WELCOME_BONUS,
         ]);
-    }
-
-    // Pre-check only: the partial unique index on transaction(wallet_to_id) is the real, race-proof guarantee
-    private function isEligible(Wallet $wallet, EconomySettings $settings): bool
-    {
-        $createdAt = $wallet->getCreatedAt();
-        $eligibleSince = max($settings->getWelcomeBonusSince(), $this->clock->now()->modify(self::ELIGIBILITY_WINDOW));
-
-        return $createdAt instanceof \DateTimeInterface && $createdAt >= $eligibleSince && !$this->hasReceived($wallet);
     }
 }

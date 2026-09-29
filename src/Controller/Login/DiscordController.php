@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller\Login;
 
+use App\Entity\DiscordUser;
+use App\Security\DiscordUserWhitelist;
+use App\Security\NotAllowedResponseFactory;
+use App\Security\RedirectTargetPolicy;
 use App\Service\Util\TargetPathRouter;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
@@ -11,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
@@ -25,15 +30,27 @@ class DiscordController extends AbstractController
         Request $request,
         AuthenticationSuccessHandler $jwtAuthSuccessHandler,
         TargetPathRouter $targetPathRouter,
-    ): RedirectResponse {
-        $firewallName = $security->getFirewallConfig($request)?->getName();
-        $targetUrl = $request->get('_target_path');
+        RedirectTargetPolicy $redirectTargetPolicy,
+        DiscordUserWhitelist $discordUserWhitelist,
+        NotAllowedResponseFactory $notAllowedResponseFactory,
+    ): Response {
+        $user = $this->getUser();
 
-        if (\is_string($targetUrl) && (str_starts_with($targetUrl, '/') || str_starts_with($targetUrl, 'http'))) {
-            $this->saveTargetPath($request->getSession(), $firewallName ?? 'main', $targetUrl);
+        // The user checker only runs at login: a session outliving the whitelist entry must be cut here
+        if ($user instanceof DiscordUser && !$discordUserWhitelist->isAllowed($user->getDiscordId())) {
+            $security->logout(false);
+
+            return $notAllowedResponseFactory->create();
         }
 
-        if ($this->getUser() instanceof UserInterface) {
+        $firewallName = $security->getFirewallConfig($request)?->getName();
+        $sanitizedTargetUrl = $redirectTargetPolicy->sanitize($request->query->getString('_target_path'));
+
+        if (null !== $sanitizedTargetUrl) {
+            $this->saveTargetPath($request->getSession(), $firewallName ?? 'main', $sanitizedTargetUrl);
+        }
+
+        if ($user instanceof UserInterface) {
             $response = new RedirectResponse($targetPathRouter->determineTargetUrl($request, $firewallName));
             $jwtResponse = $jwtAuthSuccessHandler->onAuthenticationSuccess($request, $security->getToken());
 

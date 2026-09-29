@@ -2,4 +2,3 @@
 App\Entity\EconomySettings:
   economy_settings_singleton:
     welcomeBonusAmount: '<(App\Entity\EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT)>'
-    welcomeBonusSince: '<(new \DateTimeImmutable("2020-01-01"))>'
