@@ -5,17 +5,13 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\DiscordUser;
-use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
 use App\Security\Exception\DiscordUserNotAllowedException;
 use App\Service\Util\TargetPathRouter;
-use App\Service\Wallet\UserWalletFactory;
-use App\Service\WelcomeBonus\WelcomeBonusService;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,9 +42,6 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly TargetPathRouter $targetPathRouter,
         private readonly RouterInterface $router,
         private readonly AuthenticationSuccessHandler $jwtAuthSuccessHandler,
-        private readonly LoggerInterface $logger,
-        private readonly WelcomeBonusService $welcomeBonusService,
-        private readonly UserWalletFactory $userWalletFactory,
     ) {
     }
 
@@ -91,16 +84,8 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     throw new DiscordUserNotAllowedException();
                 }
 
-                $user = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId())
+                return $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId())
                     ?? $this->createDiscordUser($discordUser);
-
-                // Also covers accounts created before wallets were provisioned at login
-                $hasPersistedWallet = $user->getWallet() instanceof Wallet || $this->createWallet($user);
-                if ($hasPersistedWallet && $this->entityManager->isOpen()) {
-                    $this->welcomeBonusService->grantIfEligible($user);
-                }
-
-                return $user;
             }),
             [new RememberMeBadge()],
         );
@@ -140,23 +125,5 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         $this->entityManager->flush();
 
         return $user;
-    }
-
-    private function createWallet(DiscordUser $user): bool
-    {
-        // This login also signs players into youl-tcg: a failed wallet must never block it, the next login retries
-        try {
-            $this->entityManager->persist($this->userWalletFactory->create($user));
-            $this->entityManager->flush();
-
-            return true;
-        } catch (\Throwable $exception) {
-            $this->logger->error('Wallet creation at login failed.', [
-                'discordId' => $user->getDiscordId(),
-                'exception' => $exception,
-            ]);
-
-            return false;
-        }
     }
 }
