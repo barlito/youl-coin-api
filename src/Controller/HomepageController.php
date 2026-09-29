@@ -12,6 +12,7 @@ use App\Repository\DiscordUserRepository;
 use App\Repository\TransactionRepository;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -25,6 +26,9 @@ class HomepageController extends AbstractController
     private const int PAGE_SIZE = 20;
     private const int FLOW_DAYS = 30;
 
+    /**
+     * @param list<array{name: string, tagline: string, url: string, logo: string, cta: string}> $hubApps
+     */
     #[Route('/', name: 'homepage')]
     public function index(
         #[CurrentUser] DiscordUser $user,
@@ -32,11 +36,12 @@ class HomepageController extends AbstractController
         TransactionRepository $transactionRepository,
         DiscordUserRepository $discordUserRepository,
         ClockInterface $clock,
+        #[Autowire(param: 'app.hub_apps')] array $hubApps,
     ): Response {
         $wallet = $user->getWallet();
 
         if (!$wallet instanceof Wallet) {
-            return $this->render('player/index.html.twig', ['user' => $user, 'wallet' => null]);
+            return $this->render('player/index.html.twig', ['user' => $user, 'wallet' => null, 'hubApps' => $hubApps]);
         }
 
         $page = max(1, $request->query->getInt('page', 1));
@@ -55,6 +60,7 @@ class HomepageController extends AbstractController
 
         return $this->render('player/index.html.twig', [
             'user' => $user,
+            'hubApps' => $hubApps,
             'wallet' => $wallet,
             'flow' => $transactionRepository->sumFlowSince(
                 $wallet,

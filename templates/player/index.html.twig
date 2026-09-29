@@ -1,48 +1,71 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon solde - Youl Coin{% endblock %}
+{% block title %}Mon hub - Youl Coin{% endblock %}
 
 {% block body %}
     <header class="site-header">
-        <p class="site-title">Youl Coin</p>
-        <nav class="site-nav" aria-label="Navigation principale">
-            <a href="{{ ytcg_url }}">Aller sur Youl TCG</a>
-            <a href="{{ path('admin_logout') }}">Se déconnecter</a>
-        </nav>
+        <a href="{{ path('homepage') }}" class="brand" aria-label="Youl Coin, accueil">
+            <img src="{{ asset('images/apps/ytcg-64.png') }}" alt="" width="40" height="40" class="brand-logo">
+            <span class="brand-text">
+                <span class="brand-name">YOUL</span>
+                <span class="brand-sub">COIN · HUB</span>
+            </span>
+        </a>
+        <a href="{{ path('admin_logout') }}" class="chip-mono chip-link">Se déconnecter</a>
     </header>
 
     <main class="container">
-        <h1>Bonjour {{ user.username }}</h1>
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="glow-ambient" aria-hidden="true"></div>
+            <p class="eyebrow">Ton portefeuille</p>
+            <h1 id="hero-title">Bonjour {{ user.username }}</h1>
 
-        {% if wallet is null %}
-            <p class="notice" role="status">Tu n'as pas encore de portefeuille. Il sera créé à ta prochaine connexion.</p>
-        {% else %}
-            <section class="balance" aria-labelledby="balance-title">
-                <h2 id="balance-title">Solde</h2>
-                <p class="balance-amount">{{ wallet.amount|coins }}</p>
-            </section>
-
-            <section class="flows" aria-labelledby="flows-title">
-                <h2 id="flows-title">Sur les {{ flowDays }} derniers jours</h2>
-                <dl>
-                    <div>
-                        <dt>Reçus</dt>
-                        <dd class="amount-in">{{ flow.received|coins }}</dd>
+            {% if wallet is null %}
+                <p class="notice notched-corner" role="status">Tu n'as pas encore de portefeuille. Il sera créé à ta prochaine connexion.</p>
+            {% else %}
+                <p class="balance">
+                    <span class="balance-amount">{{ wallet.amount|coins }}</span>
+                    <span class="chip-mono unit">YLC</span>
+                </p>
+                <dl class="flows" aria-label="Sur les {{ flowDays }} derniers jours">
+                    <div class="flow notched-corner">
+                        <dt class="chip-mono">Reçus · {{ flowDays }} j</dt>
+                        <dd class="amount-in">+{{ flow.received|coins }}</dd>
                     </div>
-                    <div>
-                        <dt>Envoyés</dt>
-                        <dd class="amount-out">{{ flow.sent|coins }}</dd>
+                    <div class="flow notched-corner">
+                        <dt class="chip-mono">Envoyés · {{ flowDays }} j</dt>
+                        <dd class="amount-out">−{{ flow.sent|coins }}</dd>
                     </div>
                 </dl>
-            </section>
+            {% endif %}
+        </section>
 
+        <section aria-labelledby="apps-title">
+            <p class="eyebrow">01 / Apps</p>
+            <h2 id="apps-title">Tes applications</h2>
+            <ul class="apps">
+                {% for app in hubApps %}
+                    <li class="app-tile notched-corner">
+                        <img src="{{ asset(app.logo) }}" alt="Logo {{ app.name }}" width="96" height="96" class="app-logo">
+                        <div class="app-body">
+                            <h3>{{ app.name }}</h3>
+                            <p>{{ app.tagline }}</p>
+                            <a href="{{ app.url }}" class="btn-arcade">{{ app.cta }} →</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        {% if wallet is not null %}
             <section aria-labelledby="history-title">
+                <p class="eyebrow">02 / Activité</p>
                 <h2 id="history-title">Historique</h2>
 
                 {% if entries is empty %}
-                    <p class="notice">Aucune transaction pour le moment.</p>
+                    <p class="notice notched-corner">Aucune transaction pour le moment.</p>
                 {% else %}
-                    <div class="table-wrap">
+                    <div class="table-wrap notched-corner">
                         <table>
                             <thead>
                                 <tr>
@@ -56,8 +79,8 @@
                                 {% for entry in entries %}
                                     {% set incoming = entry.direction.value == 'in' %}
                                     <tr>
-                                        <td><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
-                                        <td>{{ entry.type.getLabel() }}</td>
+                                        <td class="mono"><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
+                                        <td><span class="chip-mono type-chip">{{ entry.type.getLabel() }}</span></td>
                                         <td>
                                             {% if entry.counterpartType?.value == 'bank' %}
                                                 Banque
@@ -67,7 +90,7 @@
                                                 -
                                             {% endif %}
                                         </td>
-                                        <td class="numeric {{ incoming ? 'amount-in' : 'amount-out' }}">{{ incoming ? '+' : '−' }}{{ entry.amount|coins }}</td>
+                                        <td class="numeric mono {{ incoming ? 'amount-in' : 'amount-out' }}">{{ incoming ? '+' : '−' }}{{ entry.amount|coins }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -77,11 +100,11 @@
                     {% if pageCount > 1 %}
                         <nav class="pagination" aria-label="Pagination de l'historique">
                             {% if page > 1 %}
-                                <a href="{{ path('homepage', {page: page - 1}) }}" rel="prev">Précédent</a>
+                                <a href="{{ path('homepage', {page: page - 1}) }}" rel="prev" class="btn-ghost">Précédent</a>
                             {% endif %}
-                            <span>Page {{ page }} sur {{ pageCount }}</span>
+                            <span class="chip-mono">Page {{ page }} sur {{ pageCount }}</span>
                             {% if page < pageCount %}
-                                <a href="{{ path('homepage', {page: page + 1}) }}" rel="next">Suivant</a>
+                                <a href="{{ path('homepage', {page: page + 1}) }}" rel="next" class="btn-ghost">Suivant</a>
                             {% endif %}
                         </nav>
                     {% endif %}

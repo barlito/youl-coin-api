@@ -51,7 +51,9 @@ class HomepageControllerTest extends WebTestCase
         self::assertSelectorTextContains('h1', 'WalletHistoryBulk');
         self::assertSelectorTextContains('.balance-amount', '5.61');
         self::assertSelectorExists('a[href="/logout"]');
-        self::assertSelectorExists('a[href="https://ytcg.youlz.fr"]');
+        self::assertSelectorTextContains('.app-tile h3', 'Youl TCG');
+        self::assertSelectorTextContains('.app-tile a.btn-arcade[href="https://ytcg.youlz.fr"]', 'Jouer à Youl TCG');
+        self::assertSelectorExists('.app-tile img[src="/images/apps/ytcg.png"][alt="Logo Youl TCG"]');
         $newestRow = $crawler->filter('tbody tr')->first()->text();
         $this->assertStringContainsString('Bonus de bienvenue', $newestRow);
         $this->assertStringContainsString('Banque', $newestRow);
@@ -144,6 +146,7 @@ class HomepageControllerTest extends WebTestCase
         self::assertSelectorTextContains('h1', 'NoWalletPlayer');
         self::assertSelectorTextContains('.notice', 'pas encore de portefeuille');
         self::assertSelectorNotExists('.balance-amount');
+        self::assertSelectorExists('.app-tile a[href="https://ytcg.youlz.fr"]');
     }
 
     private function queryCount(): int

@@ -1,0 +1,7 @@
+parameters:
+    app.hub_apps:
+        - name: 'Youl TCG'
+          tagline: 'Collectionne, ouvre des boosters et échange tes cartes.'
+          url: '%env(YTCG_URL)%'
+          logo: 'images/apps/ytcg.png'
+          cta: 'Jouer à Youl TCG'
