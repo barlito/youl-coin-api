@@ -15,7 +15,7 @@ class EconomySettings
 {
     public const int SINGLETON_ID = 1;
 
-    // Minor units (100 coins)
+    // Minor units (1000 coins)
     public const string DEFAULT_WELCOME_BONUS_AMOUNT = '100000000000';
 
     public const int MAX_WELCOME_BONUS_COINS = 100_000;
@@ -27,15 +27,6 @@ class EconomySettings
     // Minor units (1 coin = 10^8), 0 = disabled. Admin edits/reads this through welcomeBonusAmountCoins
     #[ORM\Column(type: 'string')]
     private string $welcomeBonusAmount = self::DEFAULT_WELCOME_BONUS_AMOUNT;
-
-    // UTC, set by the migration at deployment: only wallets created since then are eligible
-    #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $welcomeBonusSince;
-
-    public function __construct()
-    {
-        $this->welcomeBonusSince = new \DateTimeImmutable();
-    }
 
     public function getId(): int
     {
@@ -50,18 +41,6 @@ class EconomySettings
     public function setWelcomeBonusAmount(string $welcomeBonusAmount): self
     {
         $this->welcomeBonusAmount = $welcomeBonusAmount;
-
-        return $this;
-    }
-
-    public function getWelcomeBonusSince(): \DateTimeImmutable
-    {
-        return $this->welcomeBonusSince;
-    }
-
-    public function setWelcomeBonusSince(\DateTimeImmutable $welcomeBonusSince): self
-    {
-        $this->welcomeBonusSince = $welcomeBonusSince;
 
         return $this;
     }
