@@ -15,7 +15,7 @@ use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -35,9 +35,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                     fromClass: DiscordUser::class,
                 ),
             ],
-            // 'default' carries the id group from IdUlidTrait; no discordUser/roles/username leak here
+            // 'default' exposes the ULID id, needed to build /api/wallets/{id} IRIs
             normalizationContext: ['groups' => ['wallet:read', 'default']],
             security: 'is_granted("ROLE_WALLET_READ")',
+            name: 'wallet_by_discord_user',
         )],
 )]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK->value . "'::text)"])]
@@ -53,7 +54,7 @@ class Wallet implements \Stringable
     #[ORM\Column(type: 'string', length: 255)]
     private string $amount;
 
-    // Never exposed in the 'wallet:read' group: use getDiscordId() instead, which only leaks the owner's discord id
+    // Not in 'wallet:read': exposed flat through getDiscordId()
     #[Groups('transaction:notification')]
     #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
@@ -102,20 +103,6 @@ class Wallet implements \Stringable
     public function getDiscordId(): ?string
     {
         return $this->discordUser?->getDiscordId();
-    }
-
-    // Overrides TimestampableEntity's getter only to attach the 'wallet:read' group
-    #[Groups('wallet:read')]
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    // Overrides TimestampableEntity's getter only to attach the 'wallet:read' group
-    #[Groups('wallet:read')]
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
     }
 
     public function getType(): WalletTypeEnum

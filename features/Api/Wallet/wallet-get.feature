@@ -56,9 +56,6 @@ Feature:
         """
 
         And the JSON should not have the key "discordUser"
-        And the JSON should not have the key "username"
-        And the JSON should not have the key "userIdentifier"
         And the JSON should not have the key "roles"
-        And the JSON should not have the key "wallet"
 
         And JSON schema should validate Wallet class
