@@ -5,11 +5,33 @@ App\Entity\ApiUser:
     apiKey: "api_key_test"
     roles:
       - ROLE_USER
-      - ROLE_TRANSACTION_CREATE
+      - ROLE_TRANSACTION_BANK_TO_USER
+      - ROLE_TRANSACTION_USER_TO_BANK
+      - ROLE_TRANSACTION_USER_TO_USER
+      - ROLE_WALLET_READ
 
   api_user_other:
     name: 'other'
     apiKey: "api_key_other"
     roles:
       - ROLE_USER
-      - ROLE_TRANSACTION_CREATE
+      - ROLE_TRANSACTION_BANK_TO_USER
+      - ROLE_TRANSACTION_USER_TO_BANK
+      - ROLE_TRANSACTION_USER_TO_USER
+      - ROLE_WALLET_READ
+
+  # A game backend: may credit and debit players against the bank, never move coins between players
+  api_user_bank_only:
+    name: 'bank_only'
+    apiKey: "api_key_bank_only"
+    roles:
+      - ROLE_USER
+      - ROLE_TRANSACTION_BANK_TO_USER
+      - ROLE_TRANSACTION_USER_TO_BANK
+
+  api_user_reader:
+    name: 'reader'
+    apiKey: "api_key_reader"
+    roles:
+      - ROLE_USER
+      - ROLE_WALLET_READ

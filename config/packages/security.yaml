@@ -43,3 +43,5 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
+        # Every API route needs a valid API key (the OpenAPI docs stay public)
+        - { path: ^/api/(?!docs), roles: ROLE_USER }

@@ -25,7 +25,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         // Better to use a DTO than the entity just because of fields type validation in payload
         // Validated by the handler, under the wallet locks and after the idempotent replay lookup
-        new Post(security: 'is_granted("ROLE_TRANSACTION_CREATE")', validate: false, processor: TransactionStateProcessor::class),
+        new Post(
+            security: 'is_granted("ROLE_TRANSACTION_BANK_TO_USER") or is_granted("ROLE_TRANSACTION_USER_TO_BANK") or is_granted("ROLE_TRANSACTION_USER_TO_USER")',
+            // The required role depends on the wallets, only known once the payload is denormalized
+            securityPostDenormalize: 'is_granted("TRANSACTION_CREATE", object)',
+            validate: false,
+            processor: TransactionStateProcessor::class,
+        ),
     ],
 )]
 class Transaction
