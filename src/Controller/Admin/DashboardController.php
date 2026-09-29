@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\AllowedDiscordUser;
 use App\Entity\ApiUser;
 use App\Entity\EconomySettings;
+use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Service\Admin\EconomyStatsProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -51,6 +52,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Wallet Settings');
         yield MenuItem::linkToCrud('Wallets', 'fas fa-wallet', Wallet::class);
+        yield MenuItem::linkToCrud('Transactions', 'fas fa-right-left', Transaction::class);
         yield MenuItem::linktoRoute('Bank Wallet', 'fa fa-chart-bar', 'admin_bank_wallet');
         yield MenuItem::linkToCrud('Economy Settings', 'fas fa-sliders-h', EconomySettings::class);
 
