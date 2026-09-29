@@ -18,8 +18,11 @@ class ApiUser implements UserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 180, unique: true)]
-    private ?string $apiKey = null;
+    #[ORM\Column(length: 64, unique: true)]
+    private string $apiKeyHash;
+
+    #[ORM\Column(length: 6)]
+    private string $apiKeyPrefix;
 
     #[ORM\Column]
     private array $roles = [];
@@ -46,14 +49,21 @@ class ApiUser implements UserInterface
         return (string) $this->name;
     }
 
-    public function getApiKey(): ?string
+    public static function hashApiKey(#[\SensitiveParameter] string $plainApiKey): string
     {
-        return $this->apiKey;
+        return hash('sha256', $plainApiKey);
     }
 
-    public function setApiKey(?string $apiKey): ApiUser
+    public function getApiKeyPrefix(): string
     {
-        $this->apiKey = $apiKey;
+        return $this->apiKeyPrefix;
+    }
+
+    // Only the hash and a recognisable prefix are kept: the key itself is never stored
+    public function setPlainApiKey(#[\SensitiveParameter] string $plainApiKey): static
+    {
+        $this->apiKeyHash = self::hashApiKey($plainApiKey);
+        $this->apiKeyPrefix = substr($plainApiKey, 0, 6);
 
         return $this;
     }

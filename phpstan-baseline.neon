@@ -7,18 +7,6 @@ parameters:
 			path: src/Controller/Admin/AllowedDiscordUserCrudController.php
 
 		-
-			message: '#^Class App\\Controller\\Admin\\ApiUserCrudController extends generic class EasyCorp\\Bundle\\EasyAdminBundle\\Controller\\AbstractCrudController but does not specify its types\: TEntity$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Controller/Admin/ApiUserCrudController.php
-
-		-
-			message: '#^PHPDoc tag @SuppressWarnings has invalid value \(\(PHPMD\.UnusedFormalParameter\)\)\: Unexpected token "\.UnusedFormalParameter\)", expected ''\)'' at offset 34 on line 2$#'
-			identifier: phpDoc.parseError
-			count: 1
-			path: src/Controller/Admin/ApiUserCrudController.php
-
-		-
 			message: '#^Method App\\Controller\\Admin\\DashboardController\:\:__construct\(\) has parameter \$adminUrls with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -81,12 +69,6 @@ parameters:
 		-
 			message: '#^Method App\\Entity\\ApiUser\:\:setRoles\(\) has parameter \$roles with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/Entity/ApiUser.php
-
-		-
-			message: '#^Property App\\Entity\\ApiUser\:\:\$apiKey type mapping mismatch\: property can contain string\|null but database expects string\.$#'
-			identifier: doctrine.columnType
 			count: 1
 			path: src/Entity/ApiUser.php
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Entity\ApiUser;
 use App\Repository\ApiUserRepository;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
@@ -17,7 +18,7 @@ class ApiTokenHandler implements AccessTokenHandlerInterface
 
     public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
     {
-        $apiUser = $this->apiUserRepository->findOneBy(['apiKey' => $accessToken]);
+        $apiUser = $this->apiUserRepository->findOneBy(['apiKeyHash' => ApiUser::hashApiKey($accessToken)]);
 
         if (!$apiUser) {
             throw new BadCredentialsException();
