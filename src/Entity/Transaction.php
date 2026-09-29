@@ -37,6 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_TRANSACTION_BANK_TO_USER") or is_granted("ROLE_TRANSACTION_USER_TO_BANK") or is_granted("ROLE_TRANSACTION_USER_TO_USER")',
             // The required role depends on the wallets, only known once the payload is denormalized
             securityPostDenormalize: 'is_granted("TRANSACTION_CREATE", object)',
+            securityPostDenormalizeMessage: 'This API key cannot make this transaction, or the X-Player-Token header does not belong to the owner of walletFrom.',
             validate: false,
             processor: TransactionStateProcessor::class,
         ),

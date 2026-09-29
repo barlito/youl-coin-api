@@ -8,6 +8,7 @@ Feature:
 
         Given I reload the fixtures
         And I set header "Authorization" with value "Bearer <apiKey>"
+        And I send the player token of "188967649332428800"
 
         When I send a POST request to "api/transactions" with body:
         """
@@ -35,6 +36,7 @@ Feature:
 
         Given I reload the fixtures
         And I set header "Authorization" with value "Bearer api_key_bank_only"
+        And I send the player token of "188967649332428800"
 
         When I send a POST request to "api/transactions" with body:
         """

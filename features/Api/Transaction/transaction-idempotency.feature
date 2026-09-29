@@ -6,6 +6,7 @@ Feature:
     Background:
         Given I reload the fixtures
         And I set header "Authorization" with value "Bearer api_key_test"
+        And I send the player token of "188967649332428800"
 
     Scenario:
     A retry returns the original transaction, even once the balance no longer covers it

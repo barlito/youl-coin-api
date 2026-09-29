@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\DiscordUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
+use App\Security\PlayerTokenResolver;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
+use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\BlockedTokenManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use PHPUnit\Framework\Assert;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class ApiContext extends ApiTestCase implements Context
@@ -23,6 +29,32 @@ final class ApiContext extends ApiTestCase implements Context
     public function iSetHeaderWithValue($key, $value)
     {
         $this->headers[$key] = $value;
+    }
+
+    /**
+     * @Given I send the player token of :discordId
+     */
+    public function iSendThePlayerTokenOf(string $discordId): void
+    {
+        $this->headers[PlayerTokenResolver::HEADER] = $this->createPlayerToken($discordId);
+    }
+
+    /**
+     * @Given I send an expired player token of :discordId
+     */
+    public function iSendAnExpiredPlayerTokenOf(string $discordId): void
+    {
+        $this->headers[PlayerTokenResolver::HEADER] = $this->createPlayerToken($discordId, ['exp' => time() - 60]);
+    }
+
+    /**
+     * @Given the player token has been revoked
+     */
+    public function thePlayerTokenHasBeenRevoked(): void
+    {
+        $container = static::getContainer();
+        $payload = $container->get(JWTTokenManagerInterface::class)->parse($this->headers[PlayerTokenResolver::HEADER]);
+        $container->get(BlockedTokenManagerInterface::class)->add($payload);
     }
 
     /**
@@ -72,6 +104,18 @@ final class ApiContext extends ApiTestCase implements Context
     public function jsonSchemaShouldValidateTransaction(): void
     {
         self::assertMatchesResourceItemJsonSchema(Transaction::class);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createPlayerToken(string $discordId, array $payload = []): string
+    {
+        $container = static::getContainer();
+        $player = $container->get(EntityManagerInterface::class)->find(DiscordUser::class, $discordId);
+        Assert::assertInstanceOf(DiscordUser::class, $player);
+
+        return $container->get(JWTTokenManagerInterface::class)->createFromPayload($player, $payload);
     }
 
     /**
