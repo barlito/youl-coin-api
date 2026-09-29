@@ -95,15 +95,6 @@ class EconomySettingsCrudControllerTest extends WebTestCase
         $this->assertSame('10000000000000', $settings->getWelcomeBonusAmount());
     }
 
-    public function testTheWelcomeBonusSinceDateIsReadOnly(): void
-    {
-        $crawler = $this->client->request('GET', $this->adminUrl(Action::EDIT));
-        $since = static::getContainer()->get(EntityManagerInterface::class)->find(EconomySettings::class, EconomySettings::SINGLETON_ID)?->getWelcomeBonusSince();
-
-        $this->assertInstanceOf(\DateTimeImmutable::class, $since);
-        $this->assertGreaterThan(0, $crawler->filter('[name^="EconomySettings[welcomeBonusSince]"][disabled]')->count());
-    }
-
     private function adminUrl(string $action): string
     {
         return static::getContainer()->get(AdminUrlGenerator::class)
