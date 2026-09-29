@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service\Handler;
 
+use App\Entity\ApiUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
-use App\Enum\LockEnum;
 use App\Message\TransactionMessage;
+use App\Repository\TransactionRepository;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\Abstraction\AbstractHandler;
 use App\Service\Messenger\Publisher\TransactionNotificationPublisher;
@@ -18,9 +19,10 @@ use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Exception\RoundingNecessaryException;
 use Brick\Money\Exception\MoneyMismatchException;
 use Brick\Money\Exception\UnknownCurrencyException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -28,12 +30,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class TransactionHandler extends AbstractHandler
 {
+    public const string EXTERNAL_IDENTIFIER_CONFLICT = 'This externalIdentifier was already used for a different transaction.';
+
     public function __construct(
-        private readonly LockFactory $factory,
         private readonly TransactionNotifierInterface $discordNotifier,
         private readonly TransactionNotificationPublisher $transactionPublisher,
         private readonly TransactionBuilder $transactionBuilder,
         private readonly MoneyUtil $moneyUtil,
+        private readonly TransactionRepository $transactionRepository,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
     ) {
@@ -63,36 +67,91 @@ class TransactionHandler extends AbstractHandler
      */
     public function handleTransaction(Transaction $transaction): Transaction
     {
-        $lock = $this->getLock();
-        $lock->acquire(true);
-
         try {
-            $this->validate($transaction);
+            $replayed = $this->entityManager->wrapInTransaction(function () use ($transaction): ?Transaction {
+                $this->lockWallets($transaction);
 
-            $walletFrom = $this->refreshWallet($transaction->getWalletFrom());
-            $walletTo = $this->refreshWallet($transaction->getWalletTo());
-            $amount = $this->moneyUtil->getMoney($transaction->getAmount());
+                // A retry must get the original transaction back, even if the balance has changed since.
+                $replayed = $this->findReplayedTransaction($transaction);
+                if ($replayed instanceof Transaction) {
+                    return $replayed;
+                }
 
-            $walletFrom->setAmount(
-                (string)
-                $this->moneyUtil->getMoney($walletFrom->getAmount())
-                    ->minus($amount)->getMinorAmount()->toInt(),
-            );
+                // Validated after the lock: the balance check must read the locked rows, not the deserialized ones.
+                $this->validate($transaction);
+                $this->moveCoins($transaction);
+                $this->entityManager->persist($transaction);
 
-            $walletTo->setAmount(
-                (string)
-                $this->moneyUtil->getMoney($walletTo->getAmount())
-                    ->plus($amount)->getMinorAmount()->toInt(),
-            );
-
-            $this->persistOneEntity($transaction);
-
-            $this->notify($transaction);
-
-            return $transaction;
-        } finally {
-            $lock->release();
+                return null;
+            });
+        } catch (UniqueConstraintViolationException $exception) {
+            // Same key sent concurrently for other wallets: the replay lookup could not see the other row yet.
+            throw new ConflictHttpException(self::EXTERNAL_IDENTIFIER_CONFLICT, $exception);
         }
+
+        if ($replayed instanceof Transaction) {
+            return $replayed;
+        }
+
+        $this->notify($transaction);
+
+        return $transaction;
+    }
+
+    private function moveCoins(Transaction $transaction): void
+    {
+        $amount = $this->moneyUtil->getMoney((string) $transaction->getAmount());
+        $walletFrom = $transaction->getWalletFrom();
+        $walletTo = $transaction->getWalletTo();
+
+        if (!$walletFrom instanceof Wallet || !$walletTo instanceof Wallet) {
+            throw new \LogicException('A validated transaction always has both wallets.');
+        }
+
+        $walletFrom->setAmount(
+            (string)
+            $this->moneyUtil->getMoney($walletFrom->getAmount())
+                ->minus($amount)->getMinorAmount()->toInt(),
+        );
+
+        $walletTo->setAmount(
+            (string)
+            $this->moneyUtil->getMoney($walletTo->getAmount())
+                ->plus($amount)->getMinorAmount()->toInt(),
+        );
+    }
+
+    private function findReplayedTransaction(Transaction $transaction): ?Transaction
+    {
+        $issuer = $transaction->getIssuer();
+        $externalIdentifier = $transaction->getExternalIdentifier();
+
+        if (!$issuer instanceof ApiUser || null === $externalIdentifier) {
+            return null;
+        }
+
+        $existing = $this->transactionRepository->findOneBy([
+            'issuer' => $issuer,
+            'externalIdentifier' => $externalIdentifier,
+        ]);
+
+        if (!$existing instanceof Transaction) {
+            return null;
+        }
+
+        if (!$this->isSamePayload($existing, $transaction)) {
+            throw new ConflictHttpException(self::EXTERNAL_IDENTIFIER_CONFLICT);
+        }
+
+        return $existing;
+    }
+
+    private function isSamePayload(Transaction $existing, Transaction $transaction): bool
+    {
+        return $existing->getAmount() === $transaction->getAmount()
+            && $existing->getType() === $transaction->getType()
+            && $existing->getWalletFrom()?->getId() === $transaction->getWalletFrom()?->getId()
+            && $existing->getWalletTo()?->getId() === $transaction->getWalletTo()?->getId();
     }
 
     private function notify(Transaction $transaction): void
@@ -101,15 +160,22 @@ class TransactionHandler extends AbstractHandler
         $this->transactionPublisher->publishTransactionNotification($transaction);
     }
 
-    private function refreshWallet(Wallet $wallet): Wallet
+    /**
+     * SELECT ... FOR UPDATE on both wallets, in id order so two opposite transfers cannot deadlock.
+     */
+    private function lockWallets(Transaction $transaction): void
     {
-        $this->entityManager->refresh($wallet);
+        $wallets = [];
+        foreach ([$transaction->getWalletFrom(), $transaction->getWalletTo()] as $wallet) {
+            if ($wallet instanceof Wallet && null !== $wallet->getId()) {
+                $wallets[$wallet->getId()] = $wallet;
+            }
+        }
 
-        return $wallet;
-    }
+        ksort($wallets, SORT_STRING);
 
-    private function getLock(): LockInterface
-    {
-        return $this->factory->createLock(LockEnum::TRANSACTION_LOCK->value);
+        foreach ($wallets as $wallet) {
+            $this->entityManager->refresh($wallet, LockMode::PESSIMISTIC_WRITE);
+        }
     }
 }

@@ -35,6 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                     fromClass: DiscordUser::class,
                 ),
             ],
+            security: 'is_granted("ROLE_WALLET_READ")',
         )],
 )]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK->value . "'::text)"])]

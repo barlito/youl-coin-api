@@ -38,7 +38,7 @@ class TransactionConstraintValidator extends ConstraintValidator
 
         $this->validateSameWallet($value, $constraint);
 
-        $this->positiveAmount($value, $constraint);
+        $this->validateEnoughCoins($value, $constraint);
 
         $this->validateAirDropType($value, $constraint);
         $this->validateRegulationType($value, $constraint);
@@ -54,18 +54,21 @@ class TransactionConstraintValidator extends ConstraintValidator
         }
     }
 
-    private function positiveAmount(Transaction $transaction, TransactionConstraint $constraint): void
+    private function validateEnoughCoins(Transaction $transaction, TransactionConstraint $constraint): void
     {
-        if (!$this->isPositive($transaction)) {
+        if (!$this->hasEnoughCoins($transaction)) {
             $this->context->buildViolation($constraint::NOT_ENOUGH_CURRENCY_IN_WALLET)
                 ->addViolation()
             ;
         }
     }
 
-    private function isPositive(Transaction $value): bool
+    private function hasEnoughCoins(Transaction $value): bool
     {
-        return bcsub($value->getWalletFrom()->getAmount(), (string) $value->getAmount()) > 0;
+        $balance = (string) $value->getWalletFrom()?->getAmount();
+        $amount = (string) $value->getAmount();
+
+        return is_numeric($balance) && is_numeric($amount) && bccomp($balance, $amount) >= 0;
     }
 
     private function validateAirDropType(Transaction $transaction, TransactionConstraint $constraint): void

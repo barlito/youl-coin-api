@@ -30,7 +30,7 @@ final class ApiContext extends ApiTestCase implements Context
      */
     public function iSendARequestTo(string $method, string $url, ?PyStringNode $body = null, $files = []): void
     {
-        $this->response = self::createClient()->request($method, $url);
+        $this->response = self::createClient()->request($method, $url, ['headers' => array_filter($this->headers)]);
     }
 
     /**
@@ -80,6 +80,16 @@ final class ApiContext extends ApiTestCase implements Context
     public function responseShouldBeInJson()
     {
         self::assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+    }
+
+    /**
+     * @Then the JSON should contain:
+     *
+     * @throws \JsonException
+     */
+    public function theJsonShouldContain(PyStringNode $expected): void
+    {
+        self::assertJsonContains(json_decode($expected->getRaw(), true, 512, JSON_THROW_ON_ERROR));
     }
 
     /**
