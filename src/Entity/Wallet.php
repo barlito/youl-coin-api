@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Action\NotFoundAction;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Symfony\Action\NotFoundAction;
 use App\Entity\Traits\IdUlidTrait;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
