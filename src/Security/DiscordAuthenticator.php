@@ -7,8 +7,8 @@ namespace App\Security;
 use App\Entity\DiscordUser;
 use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
-use App\Enum\WalletTypeEnum;
 use App\Service\Util\TargetPathRouter;
+use App\Service\Wallet\UserWalletFactory;
 use App\Service\WelcomeBonus\WelcomeBonusService;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -47,6 +47,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly AuthenticationSuccessHandler $jwtAuthSuccessHandler,
         private readonly LoggerInterface $logger,
         private readonly WelcomeBonusService $welcomeBonusService,
+        private readonly UserWalletFactory $userWalletFactory,
     ) {
     }
 
@@ -142,16 +143,9 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
 
     private function createWallet(DiscordUser $user): bool
     {
-        $wallet = new Wallet()
-            ->setAmount('0')
-            ->setType(WalletTypeEnum::USER)
-            ->setName('Wallet ' . $user->getUsername())
-        ;
-        $user->setWallet($wallet);
-
         // This login also signs players into youl-tcg: a failed wallet must never block it, the next login retries
         try {
-            $this->entityManager->persist($wallet);
+            $this->entityManager->persist($this->userWalletFactory->create($user));
             $this->entityManager->flush();
 
             return true;

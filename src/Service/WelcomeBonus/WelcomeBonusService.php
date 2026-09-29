@@ -41,9 +41,16 @@ class WelcomeBonusService
         }
 
         try {
-            $transaction = $this->buildTransaction($wallet);
-            if ($transaction instanceof Transaction) {
-                $this->transactionHandler->handleTransaction($transaction);
+            $settings = $this->economySettingsRepository->find(EconomySettings::SINGLETON_ID);
+            if (!$settings instanceof EconomySettings) {
+                $this->logger->error('Welcome bonus disabled: the economy settings row is missing.');
+
+                return;
+            }
+
+            $amount = $settings->getWelcomeBonusAmount();
+            if (is_numeric($amount) && bccomp($amount, '0') > 0 && $this->isEligible($wallet, $settings)) {
+                $this->grant($wallet, $amount);
             }
         } catch (ConflictHttpException $exception) {
             // The partial unique index is the only conflict a welcome bonus can hit: a concurrent login granted it first
@@ -53,31 +60,29 @@ class WelcomeBonusService
         }
     }
 
-    private function buildTransaction(Wallet $wallet): ?Transaction
+    // Unconditional bank-funded grant, throws on failure: the eligibility rules belong to the caller
+    public function grant(Wallet $wallet, string $amount): void
     {
-        $settings = $this->economySettingsRepository->find(EconomySettings::SINGLETON_ID);
-        if (!$settings instanceof EconomySettings) {
-            $this->logger->error('Welcome bonus disabled: the economy settings row is missing.');
-
-            return null;
-        }
-
-        $amount = $settings->getWelcomeBonusAmount();
-        if (!is_numeric($amount) || bccomp($amount, '0') <= 0 || !$this->isEligible($wallet, $settings)) {
-            return null;
-        }
-
         $bankWallet = $this->walletRepository->findOneBy(['type' => WalletTypeEnum::BANK]);
         if (!$bankWallet instanceof Wallet) {
             throw new \RuntimeException('No bank wallet configured.');
         }
 
-        return new Transaction()
-            ->setAmount($amount)
-            ->setType(TransactionTypeEnum::WELCOME_BONUS)
-            ->setWalletFrom($bankWallet)
-            ->setWalletTo($wallet)
-        ;
+        $this->transactionHandler->handleTransaction(
+            new Transaction()
+                ->setAmount($amount)
+                ->setType(TransactionTypeEnum::WELCOME_BONUS)
+                ->setWalletFrom($bankWallet)
+                ->setWalletTo($wallet),
+        );
+    }
+
+    public function hasReceived(Wallet $wallet): bool
+    {
+        return null !== $this->transactionRepository->findOneBy([
+            'walletTo' => $wallet,
+            'type' => TransactionTypeEnum::WELCOME_BONUS,
+        ]);
     }
 
     // Pre-check only: the partial unique index on transaction(wallet_to_id) is the real, race-proof guarantee
@@ -85,13 +90,7 @@ class WelcomeBonusService
     {
         $createdAt = $wallet->getCreatedAt();
         $eligibleSince = max($settings->getWelcomeBonusSince(), $this->clock->now()->modify(self::ELIGIBILITY_WINDOW));
-        if (!$createdAt instanceof \DateTimeInterface || $createdAt < $eligibleSince) {
-            return false;
-        }
 
-        return null === $this->transactionRepository->findOneBy([
-            'walletTo' => $wallet,
-            'type' => TransactionTypeEnum::WELCOME_BONUS,
-        ]);
+        return $createdAt instanceof \DateTimeInterface && $createdAt >= $eligibleSince && !$this->hasReceived($wallet);
     }
 }
