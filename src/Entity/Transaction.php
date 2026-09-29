@@ -17,6 +17,7 @@ use App\State\TransactionStateProcessor;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -29,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         // Reads are scoped to the transactions of the calling API client (IssuerScopedTransactionExtension)
-        new Get(security: 'is_granted("ROLE_TRANSACTION_READ")'),
+        new Get(requirements: ['id' => Requirement::UUID], security: 'is_granted("ROLE_TRANSACTION_READ")'),
         new GetCollection(security: 'is_granted("ROLE_TRANSACTION_READ")'),
         // Better to use a DTO than the entity just because of fields type validation in payload
         // Validated by the handler, under the wallet locks and after the idempotent replay lookup
@@ -87,7 +88,8 @@ class Transaction
 
     public function getAmount(): ?string
     {
-        return $this->amount;
+        // Unset until denormalized: a payload missing the field must reach validation, not crash
+        return $this->amount ?? null;
     }
 
     public function setAmount(string $amount): self
@@ -99,7 +101,7 @@ class Transaction
 
     public function getWalletFrom(): ?Wallet
     {
-        return $this->walletFrom;
+        return $this->walletFrom ?? null;
     }
 
     public function setWalletFrom(Wallet $walletFrom): self
@@ -111,7 +113,7 @@ class Transaction
 
     public function getWalletTo(): ?Wallet
     {
-        return $this->walletTo;
+        return $this->walletTo ?? null;
     }
 
     public function setWalletTo(Wallet $walletTo): self
@@ -147,7 +149,7 @@ class Transaction
 
     public function getType(): ?TransactionTypeEnum
     {
-        return $this->type;
+        return $this->type ?? null;
     }
 
     public function setType(TransactionTypeEnum $type): self

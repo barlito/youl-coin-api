@@ -31,6 +31,11 @@ class TransactionVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
+        // Incomplete payload: nothing can move, let the handler answer 422 instead of a 403
+        if (!$subject->getWalletFrom() instanceof Wallet || !$subject->getWalletTo() instanceof Wallet) {
+            return true;
+        }
+
         $requiredRole = $this->requiredRole($subject);
 
         if (!$requiredRole instanceof ApiUserRoleEnum || !\in_array($requiredRole->value, $token->getRoleNames(), true)) {

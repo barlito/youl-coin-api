@@ -13,7 +13,7 @@ class AmountValidator extends ConstraintValidator
     /**
      * @throws UnexpectedTypeException
      */
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof Amount) {
             throw new UnexpectedTypeException($constraint, Amount::class);
@@ -23,15 +23,11 @@ class AmountValidator extends ConstraintValidator
             return;
         }
 
-        if (!is_numeric($value) || !$this->isPositive($value)) {
+        // Minor units only: canonical digits, no sign, decimals, exponent, spaces or leading zeros
+        if ((!\is_int($value) && !\is_string($value)) || 1 !== preg_match('/^[1-9]\d*$/', (string) $value)) {
             $this->context->buildViolation($constraint::AMOUNT_NOT_POSITIVE_INTEGER_MESSAGE)
                 ->addViolation()
             ;
         }
-    }
-
-    private function isPositive(string $value): bool
-    {
-        return bccomp($value, '0') > 0;
     }
 }

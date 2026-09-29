@@ -50,6 +50,10 @@ Feature:
             | amount        | walletFromIri              | walletToIri                | type          | code | message                                                                           |
             |               | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | amount: This value should not be blank.                                           |
             | -10           | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | amount: The amount value is not a positive integer                                |
+            | 1.5           | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | amount: The amount value is not a positive integer                                |
+            | 010           | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | amount: The amount value is not a positive integer                                |
+            | 1e3           | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | amount: The amount value is not a positive integer                                |
+            | 0             | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | amount: The amount value is not a positive integer                                |
             | 9999900000000 | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | classic       | 422  | Not enough coins in from wallet.                                                  |
             | 10            | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DHMWPV4BHJQ82TSJEBJC | classic       | 422  | WalletFrom and WalletTo are the same.                                             |
             | 10            | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | wrong         | 400  | The data must belong to a backed enumeration of type App\Enum\TransactionTypeEnum |
@@ -110,3 +114,23 @@ Feature:
           "externalIdentifier": "test_from_api"
         }
         """
+
+    Scenario Outline:
+    A payload missing a field is a 422, not a 500
+
+        Given I set header "Authorization" with value "Bearer api_key_test"
+        And I send the player token of "188967649332428800"
+
+        When I send a POST request to "api/transactions" with body:
+        """
+        <payload>
+        """
+
+        Then the response status code should be 422
+        And the JSON should contain a ConstraintViolationList with "<message>"
+
+        Examples:
+            | payload                                                                                                                   | message                                   |
+            | {"amount": "10", "walletTo": "/api/wallets/01FPD1DNKVFS5GGBPVXBT3YQ01", "type": "classic"}                                | walletFrom: This value should not be blank. |
+            | {"amount": "10", "walletFrom": "/api/wallets/01FPD1DHMWPV4BHJQ82TSJEBJC", "type": "classic"}                              | walletTo: This value should not be blank.   |
+            | {"walletFrom": "/api/wallets/01FPD1DHMWPV4BHJQ82TSJEBJC", "walletTo": "/api/wallets/01FPD1DNKVFS5GGBPVXBT3YQ01", "type": "classic"} | amount: This value should not be blank.     |
