@@ -12,6 +12,9 @@ use Symfony\Component\Uid\Ulid;
 
 class EconomyStatsProviderTest extends KernelTestCase
 {
+    // Columns hold UTC while the Postgres session may run in another time zone
+    private const string UTC_NOW = "now() AT TIME ZONE 'UTC'";
+
     private const string BANK_WALLET_ID = '01HAJGPGCP28GFA6QD08NMH764';
 
     private Connection $connection;
@@ -43,8 +46,8 @@ class EconomyStatsProviderTest extends KernelTestCase
 
     public function testFlowsAndActivePlayersCoverTheLastThirtyDays(): void
     {
-        $this->connection->executeStatement("UPDATE transaction SET created_at = now() - interval '40 days' WHERE external_identifier IS DISTINCT FROM 'fixture'");
-        $this->insertTransaction(TransactionTypeEnum::MINT, '500', null, self::BANK_WALLET_ID, 'now()');
+        $this->connection->executeStatement("UPDATE transaction SET created_at = (now() AT TIME ZONE 'UTC') - interval '40 days' WHERE external_identifier IS DISTINCT FROM 'fixture'");
+        $this->insertTransaction(TransactionTypeEnum::MINT, '500', null, self::BANK_WALLET_ID, self::UTC_NOW);
 
         $dashboard = $this->provider()->provide();
 
@@ -68,7 +71,7 @@ class EconomyStatsProviderTest extends KernelTestCase
     public function testLedgerInvariantHoldsThenBreaksAfterADirectUpdate(): void
     {
         $total = (string) $this->connection->fetchOne('SELECT SUM(amount::numeric) FROM wallet');
-        $this->insertTransaction(TransactionTypeEnum::MINT, $total, null, self::BANK_WALLET_ID, 'now()');
+        $this->insertTransaction(TransactionTypeEnum::MINT, $total, null, self::BANK_WALLET_ID, self::UTC_NOW);
 
         $this->assertTrue($this->provider()->provide()->ledger->isBalanced());
 

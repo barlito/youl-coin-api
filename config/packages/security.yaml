@@ -23,6 +23,7 @@ security:
                 token_handler: App\Security\ApiTokenHandler
         main:
             provider: app_user_provider
+            user_checker: App\Security\WhitelistUserChecker
             custom_authenticators:
                 - App\Security\DiscordAuthenticator
             remember_me:
