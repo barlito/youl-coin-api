@@ -14,14 +14,14 @@ use App\Repository\TransactionRepository;
 use App\Repository\WalletRepository;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\TransactionHandler;
-use App\Service\Messenger\Publisher\TransactionNotificationPublisher;
-use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
 use App\Service\WelcomeBonus\WelcomeBonusService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\AbstractLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Messenger\MessageBus;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class WelcomeBonusServiceTest extends KernelTestCase
@@ -84,16 +84,16 @@ class WelcomeBonusServiceTest extends KernelTestCase
         $this->assertSame([['error', 'Welcome bonus disabled: the economy settings row is missing.']], $this->logs);
     }
 
-    public function testAFailingNotificationAfterTheCommitIsNotReportedAsANonPayment(): void
+    public function testAFailingOutboxWriteRollsTheGrantBackAndIsLoggedAsAnError(): void
     {
         $user = $this->farph();
-        $notifier = $this->createStub(TransactionNotifierInterface::class);
-        $notifier->method('notifyNewTransaction')->willThrowException(new \RuntimeException('Discord is down'));
+        $bus = $this->createStub(MessageBusInterface::class);
+        $bus->method('dispatch')->willThrowException(new \RuntimeException('Outbox unavailable'));
 
-        $this->service(new \DateTimeImmutable(), $notifier)->grantIfEligible($user);
+        $this->service(new \DateTimeImmutable(), $bus)->grantIfEligible($user);
 
-        $this->assertSame(1, $this->bonusCount($user));
-        $this->assertSame([['warning', 'Welcome bonus granted but its notification failed.']], $this->logs);
+        $this->assertSame(0, $this->bonusCount($user));
+        $this->assertSame([['error', 'Welcome bonus not granted, login continues.']], $this->logs);
     }
 
     public function testARejectedGrantIsLoggedAsAnError(): void
@@ -107,12 +107,11 @@ class WelcomeBonusServiceTest extends KernelTestCase
         $this->assertSame([['error', 'Welcome bonus not granted, login continues.']], $this->logs);
     }
 
-    private function service(\DateTimeImmutable $now, ?TransactionNotifierInterface $notifier = null): WelcomeBonusService
+    private function service(\DateTimeImmutable $now, ?MessageBusInterface $bus = null): WelcomeBonusService
     {
         $container = static::getContainer();
         $handler = new TransactionHandler(
-            $notifier ?? $this->createStub(TransactionNotifierInterface::class),
-            $this->createStub(TransactionNotificationPublisher::class),
+            $bus ?? new MessageBus(),
             $container->get(TransactionBuilder::class),
             $container->get(MoneyUtil::class),
             $container->get(TransactionRepository::class),
@@ -125,7 +124,6 @@ class WelcomeBonusServiceTest extends KernelTestCase
             $container->get(WalletRepository::class),
             $container->get(TransactionRepository::class),
             $handler,
-            $this->entityManager,
             new MockClock($now),
             $this->logger,
         );

@@ -14,7 +14,6 @@ use App\Repository\EconomySettingsRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\WalletRepository;
 use App\Service\Handler\TransactionHandler;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -29,7 +28,6 @@ class WelcomeBonusService
         private readonly WalletRepository $walletRepository,
         private readonly TransactionRepository $transactionRepository,
         private readonly TransactionHandler $transactionHandler,
-        private readonly EntityManagerInterface $entityManager,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
     ) {
@@ -42,8 +40,6 @@ class WelcomeBonusService
             return;
         }
 
-        $transaction = null;
-
         try {
             $transaction = $this->buildTransaction($wallet);
             if ($transaction instanceof Transaction) {
@@ -53,14 +49,7 @@ class WelcomeBonusService
             // The partial unique index is the only conflict a welcome bonus can hit: a concurrent login granted it first
             $this->logger->warning('Welcome bonus already granted by a concurrent login.', ['discordId' => $user->getDiscordId(), 'exception' => $exception]);
         } catch (\Throwable $exception) {
-            $context = ['discordId' => $user->getDiscordId(), 'exception' => $exception];
-
-            // A managed transaction means the commit succeeded and only the notification failed
-            if ($transaction instanceof Transaction && $this->entityManager->contains($transaction)) {
-                $this->logger->warning('Welcome bonus granted but its notification failed.', $context);
-            } else {
-                $this->logger->error('Welcome bonus not granted, login continues.', $context);
-            }
+            $this->logger->error('Welcome bonus not granted, login continues.', ['discordId' => $user->getDiscordId(), 'exception' => $exception]);
         }
     }
 

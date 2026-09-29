@@ -7,12 +7,11 @@ namespace App\Service\Handler;
 use App\Entity\ApiUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
+use App\Message\TransactionCommitted;
 use App\Message\TransactionMessage;
 use App\Repository\TransactionRepository;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\Abstraction\AbstractHandler;
-use App\Service\Messenger\Publisher\TransactionNotificationPublisher;
-use App\Service\Notifier\Transaction\Abstract\Interface\TransactionNotifierInterface;
 use App\Service\Util\MoneyUtil;
 use Brick\Math\Exception\MathException;
 use Brick\Math\Exception\NumberFormatException;
@@ -23,6 +22,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -33,8 +33,7 @@ class TransactionHandler extends AbstractHandler
     public const string EXTERNAL_IDENTIFIER_CONFLICT = 'This externalIdentifier was already used for a different transaction.';
 
     public function __construct(
-        private readonly TransactionNotifierInterface $discordNotifier,
-        private readonly TransactionNotificationPublisher $transactionPublisher,
+        private readonly MessageBusInterface $bus,
         private readonly TransactionBuilder $transactionBuilder,
         private readonly MoneyUtil $moneyUtil,
         private readonly TransactionRepository $transactionRepository,
@@ -81,6 +80,7 @@ class TransactionHandler extends AbstractHandler
                 $this->validate($transaction);
                 $this->moveCoins($transaction);
                 $this->entityManager->persist($transaction);
+                $this->bus->dispatch(new TransactionCommitted((string) $transaction->getId()));
 
                 return null;
             });
@@ -89,13 +89,7 @@ class TransactionHandler extends AbstractHandler
             throw new ConflictHttpException(self::EXTERNAL_IDENTIFIER_CONFLICT, $exception);
         }
 
-        if ($replayed instanceof Transaction) {
-            return $replayed;
-        }
-
-        $this->notify($transaction);
-
-        return $transaction;
+        return $replayed ?? $transaction;
     }
 
     // Mint has no walletFrom, Burn no walletTo: only the wallets present move
@@ -157,16 +151,6 @@ class TransactionHandler extends AbstractHandler
             && $existing->getType() === $transaction->getType()
             && $existing->getWalletFrom()?->getId() === $transaction->getWalletFrom()?->getId()
             && $existing->getWalletTo()?->getId() === $transaction->getWalletTo()?->getId();
-    }
-
-    private function notify(Transaction $transaction): void
-    {
-        $this->discordNotifier->notifyNewTransaction($transaction);
-
-        // The Discord bot consuming this transport assumes two wallets: Mint/Burn stay Discord-webhook-only
-        if (!$transaction->getType()?->isSupplyChange()) {
-            $this->transactionPublisher->publishTransactionNotification($transaction);
-        }
     }
 
     /**
