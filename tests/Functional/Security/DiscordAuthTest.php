@@ -74,6 +74,8 @@ class DiscordAuthTest extends WebTestCase
                 ->setRoles([RoleEnum::ROLE_USER->value]),
         );
         $this->entityManager->flush();
+        // Hydrate the user from the database during the login, as in production
+        $this->entityManager->clear();
 
         $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Dynamo']));
 
