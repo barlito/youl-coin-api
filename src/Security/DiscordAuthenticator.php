@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\DiscordUser;
+use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
+use App\Enum\WalletTypeEnum;
 use App\Service\Util\TargetPathRouter;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -83,13 +85,17 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     throw new AuthenticationException('Your account is not allowed to access this app.');
                 }
 
-                $existingUser = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId());
+                $user = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId())
+                    ?? $this->createDiscordUser($discordUser);
 
-                if ($existingUser instanceof DiscordUser) {
-                    return $existingUser;
+                // Also covers accounts created before wallets were provisioned at login
+                if (!$user->getWallet() instanceof Wallet) {
+                    $this->createWallet($user);
                 }
 
-                return $this->createDiscordUser($discordUser);
+                $this->entityManager->flush();
+
+                return $user;
             }),
             [new RememberMeBadge()],
         );
@@ -126,8 +132,19 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
             ->setRoles([RoleEnum::ROLE_USER->value])
         ;
         $this->entityManager->persist($user);
-        $this->entityManager->flush();
 
         return $user;
+    }
+
+    private function createWallet(DiscordUser $user): void
+    {
+        $wallet = new Wallet()
+            ->setAmount('0')
+            ->setType(WalletTypeEnum::USER)
+            ->setName('Wallet ' . $user->getUsername())
+        ;
+        $user->setWallet($wallet);
+
+        $this->entityManager->persist($wallet);
     }
 }

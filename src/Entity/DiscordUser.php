@@ -19,7 +19,7 @@ class DiscordUser implements UserInterface, \Stringable
     private string $discordId;
 
     #[ORM\OneToOne(targetEntity: Wallet::class, mappedBy: 'discordUser')]
-    private Wallet $wallet;
+    private ?Wallet $wallet = null;
 
     #[Groups('transaction:notification')]
     #[ORM\Column(type: 'string')]
@@ -45,7 +45,7 @@ class DiscordUser implements UserInterface, \Stringable
         return $this;
     }
 
-    public function getWallet(): Wallet
+    public function getWallet(): ?Wallet
     {
         return $this->wallet;
     }
