@@ -21,7 +21,6 @@ use App\Service\WelcomeBonus\WelcomeBonusService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\AbstractLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class WelcomeBonusServiceTest extends KernelTestCase
@@ -52,23 +51,14 @@ class WelcomeBonusServiceTest extends KernelTestCase
         };
     }
 
-    public function testAWalletJustInsideTheThirtyDayWindowGetsTheBonus(): void
+    public function testAWalletGetsTheBonusOnlyOnce(): void
     {
         $user = $this->farph();
 
-        $this->service(new \DateTimeImmutable('+29 days'))->grantIfEligible($user);
+        $this->service()->grantIfEligible($user);
+        $this->service()->grantIfEligible($user);
 
         $this->assertSame(1, $this->bonusCount($user));
-        $this->assertSame([], $this->logs);
-    }
-
-    public function testAWalletOlderThanThirtyDaysGetsNothing(): void
-    {
-        $user = $this->farph();
-
-        $this->service(new \DateTimeImmutable('+31 days'))->grantIfEligible($user);
-
-        $this->assertSame(0, $this->bonusCount($user));
         $this->assertSame([], $this->logs);
     }
 
@@ -78,7 +68,7 @@ class WelcomeBonusServiceTest extends KernelTestCase
         $this->entityManager->flush();
         $user = $this->farph();
 
-        $this->service(new \DateTimeImmutable())->grantIfEligible($user);
+        $this->service()->grantIfEligible($user);
 
         $this->assertSame(0, $this->bonusCount($user));
         $this->assertSame([['error', 'Welcome bonus disabled: the economy settings row is missing.']], $this->logs);
@@ -90,7 +80,7 @@ class WelcomeBonusServiceTest extends KernelTestCase
         $notifier = $this->createStub(TransactionNotifierInterface::class);
         $notifier->method('notifyNewTransaction')->willThrowException(new \RuntimeException('Discord is down'));
 
-        $this->service(new \DateTimeImmutable(), $notifier)->grantIfEligible($user);
+        $this->service($notifier)->grantIfEligible($user);
 
         $this->assertSame(1, $this->bonusCount($user));
         $this->assertSame([['warning', 'Welcome bonus granted but its notification failed.']], $this->logs);
@@ -101,13 +91,13 @@ class WelcomeBonusServiceTest extends KernelTestCase
         $this->entityManager->getConnection()->executeStatement("UPDATE wallet SET amount = '0' WHERE type = 'bank'");
         $user = $this->farph();
 
-        $this->service(new \DateTimeImmutable())->grantIfEligible($user);
+        $this->service()->grantIfEligible($user);
 
         $this->assertSame(0, $this->bonusCount($user));
         $this->assertSame([['error', 'Welcome bonus not granted, login continues.']], $this->logs);
     }
 
-    private function service(\DateTimeImmutable $now, ?TransactionNotifierInterface $notifier = null): WelcomeBonusService
+    private function service(?TransactionNotifierInterface $notifier = null): WelcomeBonusService
     {
         $container = static::getContainer();
         $handler = new TransactionHandler(
@@ -126,7 +116,6 @@ class WelcomeBonusServiceTest extends KernelTestCase
             $container->get(TransactionRepository::class),
             $handler,
             $this->entityManager,
-            new MockClock($now),
             $this->logger,
         );
     }

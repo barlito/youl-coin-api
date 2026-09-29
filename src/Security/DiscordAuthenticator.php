@@ -8,6 +8,7 @@ use App\Entity\DiscordUser;
 use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
 use App\Enum\WalletTypeEnum;
+use App\Security\Exception\DiscordUserNotAllowedException;
 use App\Service\Util\TargetPathRouter;
 use App\Service\WelcomeBonus\WelcomeBonusService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -86,7 +87,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                 $discordUser = $client->fetchUserFromToken($accessToken);
 
                 if (!$this->discordUserWhitelist->isAllowed((string) $discordUser->getId())) {
-                    throw new AuthenticationException('Your account is not allowed to access this app.');
+                    throw new DiscordUserNotAllowedException();
                 }
 
                 $user = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId())
