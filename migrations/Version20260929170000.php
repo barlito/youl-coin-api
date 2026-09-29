@@ -18,7 +18,7 @@ final class Version20260929170000 extends AbstractMigration
     {
         $this->addSql("DELETE FROM messenger_messages WHERE queue_name = 'outbox'");
         $this->addSql('DELETE FROM transaction');
-        $this->addSql("UPDATE wallet SET amount = '0', updated_at = NOW()");
+        $this->addSql("UPDATE wallet SET amount = '0', updated_at = NOW() AT TIME ZONE 'UTC'");
     }
 
     public function down(Schema $schema): void
