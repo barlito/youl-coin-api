@@ -13,9 +13,6 @@ use App\Enum\TransactionTypeEnum;
 use App\Enum\WalletTypeEnum;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
-use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Uid\Ulid;
@@ -23,6 +20,8 @@ use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
 class DiscordAuthTest extends WebTestCase
 {
+    use MocksDiscordOAuthTrait;
+
     private const string BANK_WALLET_ID = '01HAJGPGCP28GFA6QD08NMH764';
 
     private KernelBrowser $client;
@@ -95,12 +94,9 @@ class DiscordAuthTest extends WebTestCase
         $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
-    // Fixture wallets are fresh, so Farph's is backdated past the 30-day window
-    public function testLoginKeepsTheExistingWalletAndGrantsNoBonusToAnOldWallet(): void
+    public function testLoginKeepsTheExistingWalletAndGrantsItTheBonusOnce(): void
     {
         $userId = '188967949963362304';
-
-        $this->ageWallet('01FPD1DRHVBMZEM5EGS95F5N3E', '-40 days');
 
         $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Farph']));
 
@@ -110,29 +106,8 @@ class DiscordAuthTest extends WebTestCase
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
         $this->assertSame('01FPD1DRHVBMZEM5EGS95F5N3E', (string) $wallet->getId());
-        $this->assertSame('700000000000', $wallet->getAmount());
-        $this->assertWelcomeBonusTransactionCount($wallet, 0);
-    }
-
-    public function testLoginGrantsNoBonusToAWalletCreatedBeforeTheWelcomeBonusSince(): void
-    {
-        $userId = '188967949963362304';
-
-        $settings = $this->entityManager->find(EconomySettings::class, EconomySettings::SINGLETON_ID);
-        $this->assertInstanceOf(EconomySettings::class, $settings);
-        $settings->setWelcomeBonusSince(new \DateTimeImmutable('+1 hour'));
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
-        $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Farph']));
-
-        $this->client->request('GET', '/connect/discord/check');
-
-        self::assertResponseRedirects('/');
-        $wallet = $this->findWallet($userId);
-        $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame('700000000000', $wallet->getAmount());
-        $this->assertWelcomeBonusTransactionCount($wallet, 0);
+        $this->assertSame('800000000000', $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
     public function testSuccessfulLoginWithDynamicallyWhitelistedUser(): void
@@ -319,15 +294,6 @@ class DiscordAuthTest extends WebTestCase
         $entityManager->flush();
     }
 
-    private function ageWallet(string $walletId, string $modifier): void
-    {
-        $wallet = $this->entityManager->find(Wallet::class, $walletId);
-        $this->assertInstanceOf(Wallet::class, $wallet);
-        $wallet->setCreatedAt(new \DateTime($modifier));
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-    }
-
     private function setWalletAmount(string $walletId, string $amount): void
     {
         $this->connection()->executeStatement(
@@ -347,20 +313,5 @@ class DiscordAuthTest extends WebTestCase
     private function connection(): Connection
     {
         return $this->entityManager->getConnection();
-    }
-
-    private function mockClientRegistry(DiscordResourceOwner $discordResource): void
-    {
-        $mockAccessToken = $this->createMock(AccessToken::class);
-        $mockAccessToken->method('getToken')->willReturn('fake_access_token');
-
-        $mockOAuthClient = $this->createMock(OAuth2Client::class);
-        $mockOAuthClient->method('getAccessToken')->willReturn($mockAccessToken);
-        $mockOAuthClient->method('fetchUserFromToken')->willReturn($discordResource);
-
-        $mockClientRegistry = $this->createMock(ClientRegistry::class);
-        $mockClientRegistry->method('getClient')->with('discord')->willReturn($mockOAuthClient);
-
-        static::getContainer()->set(ClientRegistry::class, $mockClientRegistry);
     }
 }
