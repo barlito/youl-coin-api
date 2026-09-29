@@ -22,4 +22,12 @@ class AllowedDiscordUserRepository extends ServiceEntityRepository
     {
         return null !== $this->find($discordId);
     }
+
+    /**
+     * @return list<string>
+     */
+    public function findAllDiscordIds(): array
+    {
+        return array_values(array_map(strval(...), $this->createQueryBuilder('a')->select('a.discordId')->getQuery()->getSingleColumnResult()));
+    }
 }

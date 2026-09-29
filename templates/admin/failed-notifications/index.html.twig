@@ -1,0 +1,47 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title 'Notifications en échec' %}
+{% block main %}
+    <p>
+        En attente dans l'outbox : <strong>{{ pendingCount ?? 'n/a' }}</strong>
+        &middot;
+        En échec définitif : <strong>{{ failedCount ?? 'n/a' }}</strong>
+    </p>
+
+    {% if failures is empty %}
+        <p>Aucune notification en échec.</p>
+    {% else %}
+        <table class="table datagrid">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Échec le</th>
+                    <th>Type</th>
+                    <th>Transaction</th>
+                    <th>Dernière erreur</th>
+                    <th>Tentatives</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for failure in failures %}
+                    <tr>
+                        <td>{{ failure.id }}</td>
+                        <td>{{ failure.failedAt ? failure.failedAt|date('d/m/Y H:i:s', 'Europe/Paris') : '—' }}</td>
+                        <td>{{ failure.type }}</td>
+                        <td>{% if failure.transactionUrl %}<a href="{{ failure.transactionUrl }}">{{ failure.transactionId }}</a>{% else %}—{% endif %}</td>
+                        <td>{{ failure.error|slice(0, 300) }}</td>
+                        <td>{{ failure.retries }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if failedCount is not null and failedCount > limit %}
+            <p>Les {{ limit }} messages les plus anciens sur {{ failedCount }} sont affichés.</p>
+        {% endif %}
+    {% endif %}
+
+    <p>
+        Lecture seule. Pour rejouer ou supprimer :
+        <code>bin/console messenger:failed:retry</code> et <code>bin/console messenger:failed:remove</code>.
+    </p>
+{% endblock %}

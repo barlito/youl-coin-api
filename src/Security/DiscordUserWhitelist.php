@@ -35,10 +35,15 @@ readonly class DiscordUserWhitelist
 
     public function isAllowed(string $discordId): bool
     {
-        if (\in_array($discordId, $this->bootstrapDiscordIds, true)) {
+        if ($this->isBootstrap($discordId)) {
             return true;
         }
 
         return $this->allowedDiscordUserRepository->existsByDiscordId($discordId);
+    }
+
+    public function isBootstrap(string $discordId): bool
+    {
+        return \in_array($discordId, $this->bootstrapDiscordIds, true);
     }
 }
