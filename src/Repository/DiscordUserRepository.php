@@ -23,6 +23,28 @@ class DiscordUserRepository extends ServiceEntityRepository
         parent::__construct($registry, DiscordUser::class);
     }
 
+    /**
+     * @param string[] $discordIds
+     *
+     * @return array<string, string> username by discord id
+     */
+    public function findUsernamesByDiscordIds(array $discordIds): array
+    {
+        if ([] === $discordIds) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('u')
+            ->select('u.discordId', 'u.username')
+            ->andWhere('u.discordId IN (:ids)')
+            ->setParameter('ids', $discordIds)
+            ->getQuery()
+            ->getArrayResult()
+        ;
+
+        return array_column($rows, 'username', 'discordId');
+    }
+
     // /**
     //  * @return DiscordUser[] Returns an array of DiscordUser objects
     //  */

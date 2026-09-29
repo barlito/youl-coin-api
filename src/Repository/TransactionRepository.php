@@ -7,8 +7,10 @@ namespace App\Repository;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Ulid;
 
 /**
  * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
@@ -42,6 +44,33 @@ class TransactionRepository extends ServiceEntityRepository
         $paginator = new DoctrinePaginator($queryBuilder, fetchJoinCollection: false);
 
         return new WalletHistoryPage(iterator_to_array($paginator, false), $paginator->count());
+    }
+
+    /**
+     * Total received and sent by the wallet since a moment, in minor units
+     *
+     * @return array{received: numeric-string, sent: numeric-string}
+     */
+    public function sumFlowSince(Wallet $wallet, \DateTimeImmutable $since): array
+    {
+        $flow = $this->getEntityManager()->getConnection()->fetchAssociative(
+            <<<'SQL'
+                SELECT
+                    COALESCE(SUM(amount::numeric) FILTER (WHERE wallet_to_id = :wallet), 0) AS received,
+                    COALESCE(SUM(amount::numeric) FILTER (WHERE wallet_from_id = :wallet), 0) AS sent
+                FROM transaction
+                WHERE created_at >= :since AND (wallet_from_id = :wallet OR wallet_to_id = :wallet)
+                SQL,
+            [
+                'wallet' => Ulid::fromString((string) $wallet->getId())->toRfc4122(),
+                // created_at is stored in UTC
+                'since' => $since->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s'),
+            ],
+            ['wallet' => ParameterType::STRING, 'since' => ParameterType::STRING],
+        );
+
+        /** @var array{received: numeric-string, sent: numeric-string} $flow */
+        return $flow;
     }
 
     // /**

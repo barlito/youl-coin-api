@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon hub - Youl Coin{% endblock %}
+
+{% block body %}
+    <header class="site-header">
+        <a href="{{ path('homepage') }}" class="brand" aria-label="Youl Coin, accueil">
+            <img src="{{ asset('images/apps/ytcg-64.png') }}" alt="" width="40" height="40" class="brand-logo">
+            <span class="brand-text">
+                <span class="brand-name">YOUL</span>
+                <span class="brand-sub">COIN · HUB</span>
+            </span>
+        </a>
+        <nav class="header-actions" aria-label="Compte">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin') }}" class="chip-mono chip-link">Admin</a>
+            {% endif %}
+            <a href="{{ path('admin_logout') }}" class="chip-mono chip-link">Se déconnecter</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="glow-ambient" aria-hidden="true"></div>
+            <p class="eyebrow">Ton portefeuille</p>
+            <h1 id="hero-title">Bonjour {{ user.username }}</h1>
+
+            {% if wallet is null %}
+                <p class="notice notched-corner" role="status">Tu n'as pas encore de portefeuille. Il sera créé à ta prochaine connexion.</p>
+            {% else %}
+                <p class="balance">
+                    <span class="balance-amount">{{ wallet.amount|coins }}</span>
+                </p>
+                <dl class="flows" aria-label="Sur les {{ flowDays }} derniers jours">
+                    <div class="flow notched-corner">
+                        <dt class="chip-mono">Reçus · {{ flowDays }} j</dt>
+                        <dd class="amount-in">+{{ flow.received|coins }}</dd>
+                    </div>
+                    <div class="flow notched-corner">
+                        <dt class="chip-mono">Envoyés · {{ flowDays }} j</dt>
+                        <dd class="amount-out">−{{ flow.sent|coins }}</dd>
+                    </div>
+                </dl>
+            {% endif %}
+        </section>
+
+        <section aria-labelledby="apps-title">
+            <p class="eyebrow">01 / Apps</p>
+            <h2 id="apps-title">Tes applications</h2>
+            <ul class="apps">
+                {% for app in hubApps %}
+                    <li class="app-tile notched-corner">
+                        <img src="{{ asset(app.logo) }}" alt="Logo {{ app.name }}" width="96" height="96" class="app-logo">
+                        <div class="app-body">
+                            <h3>{{ app.name }}</h3>
+                            <p>{{ app.tagline }}</p>
+                            <a href="{{ app.url }}" class="btn-arcade">{{ app.cta }} →</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        {% if wallet is not null %}
+            <section aria-labelledby="history-title">
+                <p class="eyebrow">02 / Activité</p>
+                <h2 id="history-title">Historique</h2>
+
+                {% if entries is empty %}
+                    <p class="notice notched-corner">Aucune transaction pour le moment.</p>
+                {% else %}
+                    <div class="table-wrap notched-corner">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Contrepartie</th>
+                                    <th scope="col" class="numeric">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in entries %}
+                                    {% set incoming = entry.direction.value == 'in' %}
+                                    <tr>
+                                        <td class="mono history-date"><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
+                                        <td class="history-type"><span class="chip-mono type-chip">{{ entry.type.getLabel() }}</span></td>
+                                        <td class="history-counterpart">
+                                            {% if entry.counterpartType?.value == 'bank' %}
+                                                Banque
+                                            {% elseif entry.counterpartDiscordId is not null %}
+                                                {{ usernames[entry.counterpartDiscordId]|default('Joueur inconnu') }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td class="numeric mono history-amount {{ incoming ? 'amount-in' : 'amount-out' }}">{{ incoming ? '+' : '−' }}{{ entry.amount|coins }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if pageCount > 1 %}
+                        <nav class="pagination" aria-label="Pagination de l'historique">
+                            {% if page > 1 %}
+                                <a href="{{ path('homepage', {page: page - 1}) }}" rel="prev" class="btn-ghost">Précédent</a>
+                            {% endif %}
+                            <span class="chip-mono">Page {{ page }} sur {{ pageCount }}</span>
+                            {% if page < pageCount %}
+                                <a href="{{ path('homepage', {page: page + 1}) }}" rel="next" class="btn-ghost">Suivant</a>
+                            {% endif %}
+                        </nav>
+                    {% endif %}
+                {% endif %}
+            </section>
+        {% endif %}
+    </main>
+{% endblock %}

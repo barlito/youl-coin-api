@@ -45,6 +45,7 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToUrl('Hub joueur', 'fa fa-house-user', $this->generateUrl('homepage'));
 
         yield MenuItem::section('Access');
         yield MenuItem::linkToCrud('API Users', 'fa-solid fa-globe', ApiUser::class);
@@ -56,12 +57,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linktoRoute('Bank Wallet', 'fa fa-chart-bar', 'admin_bank_wallet');
         yield MenuItem::linkToCrud('Economy Settings', 'fas fa-sliders-h', EconomySettings::class);
 
-        //        second wallet custom page for bank wallet transactions
-        //        yield MenuItem::linkToCrud('Wallets', 'fas fa-calendar-days', Wallet::class);
-
         yield MenuItem::section('Extra');
-        // Todo set link here
-        yield MenuItem::linkToUrl('YTCG - Admin', 'fa-brands fa-wizards-of-the-coast', 'https://google.com');
-        yield MenuItem::linkToUrl('YC Seasons - Admin', 'fas fa-calendar-days', $this->adminUrls['seasons'] ?? 'https://google.com');
+        yield MenuItem::linkToUrl('YTCG - Admin', 'fa-brands fa-wizards-of-the-coast', $this->adminUrls['ytcg']);
     }
 }
