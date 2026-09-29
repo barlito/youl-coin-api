@@ -38,3 +38,19 @@ App\Entity\ApiUser:
     roles:
       - ROLE_USER
       - ROLE_WALLET_READ
+
+  # youl-tcg: shows the connected player's own history, forwards their X-Player-Token
+  api_user_wallet_history:
+    name: 'wallet_history'
+    apiKey: "api_key_wallet_history"
+    roles:
+      - ROLE_USER
+      - ROLE_WALLET_HISTORY_READ
+
+  # Discord bot: reads any player's history without a player token
+  api_user_wallet_history_any:
+    name: 'wallet_history_any'
+    apiKey: "api_key_wallet_history_any"
+    roles:
+      - ROLE_USER
+      - ROLE_WALLET_HISTORY_READ_ANY

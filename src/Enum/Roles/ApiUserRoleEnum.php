@@ -15,4 +15,8 @@ enum ApiUserRoleEnum: string
     // Read back the transactions this API client created
     case ROLE_TRANSACTION_READ = 'ROLE_TRANSACTION_READ';
     case ROLE_WALLET_READ = 'ROLE_WALLET_READ';
+    // Read a player's wallet history, only when it is that player's own X-Player-Token
+    case ROLE_WALLET_HISTORY_READ = 'ROLE_WALLET_HISTORY_READ';
+    // Trusted client: read any player's wallet history without a player token
+    case ROLE_WALLET_HISTORY_READ_ANY = 'ROLE_WALLET_HISTORY_READ_ANY';
 }

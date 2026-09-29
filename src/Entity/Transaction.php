@@ -26,6 +26,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[CustomAssert\Entity\Transaction\TransactionConstraint(groups: ['Strict'])]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['externalIdentifier' => 'exact'])]
+// Wallet history sorts by createdAt DESC; wallet_from_id/wallet_to_id are already indexed
+#[ORM\Index(name: 'idx_transaction_created_at', columns: ['created_at'])]
 #[ORM\UniqueConstraint(name: 'transaction_issuer_external_identifier_unique', columns: ['issuer_id', 'external_identifier'])]
 #[ORM\UniqueConstraint(name: 'transaction_unique_welcome_bonus_per_wallet', fields: ['walletTo'], options: ['where' => "((type)::text = '" . TransactionTypeEnum::WELCOME_BONUS->value . "'::text)"])]
 #[ApiResource(

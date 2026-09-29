@@ -1,0 +1,45 @@
+# api/fixtures/WalletHistoryTransaction.yaml
+# Self-contained player + a fresh discordUser for the bulk player: existing fixtures (barlito/juju/farph) already
+# carry transactions, and veli's wallet is deleted by other tests/scenarios (DiscordAuthTest, BankWalletCreate.feature)
+App\Entity\DiscordUser:
+  discord_user_wallet_history_bulk:
+    discordId: "500000000000000001"
+    username: "WalletHistoryBulk"
+
+App\Entity\Wallet:
+  wallet_wallet_history_bulk:
+    discordUser: '@discord_user_wallet_history_bulk'
+    amount: 0
+    type: !php/const App\Enum\WalletTypeEnum::USER
+    name: "Wallet History Bulk"
+
+App\Entity\Transaction:
+  wallet_history_oldest:
+    walletFrom: '@wallet_benj'
+    walletTo: '@wallet_weeby'
+    amount: 111000000
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
+    createdAt: <(new \DateTime('-3 hours'))>
+
+  wallet_history_middle:
+    walletFrom: '@wallet_weeby'
+    walletTo: '@wallet_benj'
+    amount: 222000000
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
+    createdAt: <(new \DateTime('-2 hours'))>
+
+  wallet_history_newest:
+    walletFrom: '@wallet_benj'
+    walletTo: '@wallet_weeby'
+    amount: 333000000
+    externalIdentifier: 'wallet_history_should_not_leak'
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
+    createdAt: <(new \DateTime('-1 hours'))>
+
+  # Bulk history for the dedicated bulk player alone, to exercise pagination (30 items per page)
+  wallet_history_bulk_{1..33}:
+    walletFrom: '@wallet_wallet_history_bulk'
+    walletTo: '@wallet_weeby'
+    amount: 1000000
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
+    createdAt: <dateTimeBetween('-90 days', '-31 days')>
