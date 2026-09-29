@@ -58,6 +58,16 @@ class MoneyUtil
      * @throws NumberFormatException
      * @throws RoundingNecessaryException
      */
+    public function minorToCoins(string $minor): string
+    {
+        return (string) $this->getMoney($minor)->getAmount();
+    }
+
+    /**
+     * @throws UnknownCurrencyException
+     * @throws NumberFormatException
+     * @throws RoundingNecessaryException
+     */
     public function getFormattedMoney(string $amount): string
     {
         $formattedAmount = $this->getMoney($amount)->formatWith($this->getFormatter());

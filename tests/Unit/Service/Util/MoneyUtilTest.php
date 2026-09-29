@@ -29,6 +29,12 @@ class MoneyUtilTest extends TestCase
         $this->assertSame($expected, new MoneyUtil()->coinsToMinor($coins));
     }
 
+    #[DataProvider('validAmounts')]
+    public function testMinorUnitsAreConvertedBackToCoins(string $coins, string $minor): void
+    {
+        $this->assertSame((string) (float) $coins, (string) (float) new MoneyUtil()->minorToCoins($minor));
+    }
+
     /**
      * @return iterable<string, array{string}>
      */

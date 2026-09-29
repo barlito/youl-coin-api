@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\EconomySettingsRepository;
+use App\Service\Util\MoneyUtil;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,7 +15,10 @@ class EconomySettings
 {
     public const int SINGLETON_ID = 1;
 
-    private const int MINOR_UNITS_PER_COIN = 100_000_000;
+    // Minor units (100 coins)
+    public const string DEFAULT_WELCOME_BONUS_AMOUNT = '100000000000';
+
+    public const int MAX_WELCOME_BONUS_COINS = 100_000;
 
     #[ORM\Id]
     #[ORM\Column(type: 'smallint')]
@@ -22,7 +26,16 @@ class EconomySettings
 
     // Minor units (1 coin = 10^8), 0 = disabled. Admin edits/reads this through welcomeBonusAmountCoins
     #[ORM\Column(type: 'string')]
-    private string $welcomeBonusAmount = '100000000000';
+    private string $welcomeBonusAmount = self::DEFAULT_WELCOME_BONUS_AMOUNT;
+
+    // UTC, set by the migration at deployment: only wallets created since then are eligible
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $welcomeBonusSince;
+
+    public function __construct()
+    {
+        $this->welcomeBonusSince = new \DateTimeImmutable();
+    }
 
     public function getId(): int
     {
@@ -41,15 +54,27 @@ class EconomySettings
         return $this;
     }
 
-    #[Assert\PositiveOrZero]
+    public function getWelcomeBonusSince(): \DateTimeImmutable
+    {
+        return $this->welcomeBonusSince;
+    }
+
+    public function setWelcomeBonusSince(\DateTimeImmutable $welcomeBonusSince): self
+    {
+        $this->welcomeBonusSince = $welcomeBonusSince;
+
+        return $this;
+    }
+
+    #[Assert\Range(min: 0, max: self::MAX_WELCOME_BONUS_COINS)]
     public function getWelcomeBonusAmountCoins(): int
     {
-        return (int) bcdiv($this->welcomeBonusAmount, (string) self::MINOR_UNITS_PER_COIN);
+        return (int) new MoneyUtil()->minorToCoins($this->welcomeBonusAmount);
     }
 
     public function setWelcomeBonusAmountCoins(int $welcomeBonusAmountCoins): self
     {
-        $this->welcomeBonusAmount = bcmul((string) $welcomeBonusAmountCoins, (string) self::MINOR_UNITS_PER_COIN);
+        $this->welcomeBonusAmount = new MoneyUtil()->coinsToMinor((string) $welcomeBonusAmountCoins);
 
         return $this;
     }

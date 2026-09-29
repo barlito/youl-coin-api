@@ -25,8 +25,6 @@ class DiscordAuthTest extends WebTestCase
 {
     private const string BANK_WALLET_ID = '01HAJGPGCP28GFA6QD08NMH764';
 
-    private const string DEFAULT_WELCOME_BONUS_AMOUNT = '100000000000';
-
     private KernelBrowser $client;
     private EntityManagerInterface $entityManager;
 
@@ -65,7 +63,7 @@ class DiscordAuthTest extends WebTestCase
 
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame(self::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
         $this->assertSame(WalletTypeEnum::USER, $wallet->getType());
 
         $this->assertSame('900000000000', $this->fetchAmount(self::BANK_WALLET_ID));
@@ -93,12 +91,11 @@ class DiscordAuthTest extends WebTestCase
         self::assertResponseRedirects('/');
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame(self::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
         $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
-    // Fixture wallets are freshly created by the fixture reload, so on their own they would be bonus-eligible;
-    // this backdates Farph's wallet past the 30-day window to also cover "old wallet gets nothing".
+    // Fixture wallets are fresh, so Farph's is backdated past the 30-day window
     public function testLoginKeepsTheExistingWalletAndGrantsNoBonusToAnOldWallet(): void
     {
         $userId = '188967949963362304';
@@ -113,6 +110,27 @@ class DiscordAuthTest extends WebTestCase
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
         $this->assertSame('01FPD1DRHVBMZEM5EGS95F5N3E', (string) $wallet->getId());
+        $this->assertSame('700000000000', $wallet->getAmount());
+        $this->assertWelcomeBonusTransactionCount($wallet, 0);
+    }
+
+    public function testLoginGrantsNoBonusToAWalletCreatedBeforeTheWelcomeBonusSince(): void
+    {
+        $userId = '188967949963362304';
+
+        $settings = $this->entityManager->find(EconomySettings::class, EconomySettings::SINGLETON_ID);
+        $this->assertInstanceOf(EconomySettings::class, $settings);
+        $settings->setWelcomeBonusSince(new \DateTimeImmutable('+1 hour'));
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Farph']));
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
         $this->assertSame('700000000000', $wallet->getAmount());
         $this->assertWelcomeBonusTransactionCount($wallet, 0);
     }
@@ -192,9 +210,8 @@ class DiscordAuthTest extends WebTestCase
 
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame(self::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
 
-        // A real re-login boots a fresh kernel: start a new client and mock its own ClientRegistry
         $this->restartClient();
         $this->mockClientRegistry($discordResource);
         $this->client->request('GET', '/connect/discord/check');
@@ -202,7 +219,7 @@ class DiscordAuthTest extends WebTestCase
 
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame(self::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
         $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
@@ -237,7 +254,7 @@ class DiscordAuthTest extends WebTestCase
 
         $wallet = $this->findWallet($userId);
         $this->assertInstanceOf(Wallet::class, $wallet);
-        $this->assertSame(self::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
+        $this->assertSame(EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT, $wallet->getAmount());
         $this->assertWelcomeBonusTransactionCount($wallet, 1);
     }
 
@@ -263,8 +280,7 @@ class DiscordAuthTest extends WebTestCase
         $this->assertWelcomeBonusTransactionCount($wallet, 0);
     }
 
-    // A real second login boots a fresh kernel: simulate that so the mocked ClientRegistry isn't
-    // rejected as "already initialized" by the previous request's container.
+    // A real login boots a fresh kernel: the mocked ClientRegistry would be rejected as already initialized otherwise
     private function restartClient(): void
     {
         static::ensureKernelShutdown();

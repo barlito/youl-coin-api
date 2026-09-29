@@ -93,13 +93,10 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     ?? $this->createDiscordUser($discordUser);
 
                 // Also covers accounts created before wallets were provisioned at login
-                if (!$user->getWallet() instanceof Wallet) {
-                    $this->createWallet($user);
+                $hasPersistedWallet = $user->getWallet() instanceof Wallet || $this->createWallet($user);
+                if ($hasPersistedWallet && $this->entityManager->isOpen()) {
+                    $this->welcomeBonusService->grantIfEligible($user);
                 }
-
-                // Safe here even after a caught failure above closed the EntityManager: nothing later in the
-                // request (JWT creation, cookie copy) touches it, and WelcomeBonusService never throws out.
-                $this->welcomeBonusService->grantIfEligible($user);
 
                 return $user;
             }),
@@ -143,7 +140,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         return $user;
     }
 
-    private function createWallet(DiscordUser $user): void
+    private function createWallet(DiscordUser $user): bool
     {
         $wallet = new Wallet()
             ->setAmount('0')
@@ -156,11 +153,15 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         try {
             $this->entityManager->persist($wallet);
             $this->entityManager->flush();
+
+            return true;
         } catch (\Throwable $exception) {
             $this->logger->error('Wallet creation at login failed.', [
                 'discordId' => $user->getDiscordId(),
                 'exception' => $exception,
             ]);
+
+            return false;
         }
     }
 }

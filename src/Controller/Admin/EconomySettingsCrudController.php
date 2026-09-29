@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 
 // Singleton settings row: no create/delete, only viewing and editing the one row
@@ -41,5 +42,6 @@ class EconomySettingsCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IntegerField::new('welcomeBonusAmountCoins', 'Welcome bonus (in coins, 0 disables it)');
+        yield DateTimeField::new('welcomeBonusSince', 'Welcome bonus granted to wallets created since (UTC)')->setFormTypeOption('disabled', true);
     }
 }

@@ -1,4 +1,5 @@
 # api/fixtures/EconomySettings.yaml
 App\Entity\EconomySettings:
   economy_settings_singleton:
-    welcomeBonusAmount: 100000000000
+    welcomeBonusAmount: '<(App\Entity\EconomySettings::DEFAULT_WELCOME_BONUS_AMOUNT)>'
+    welcomeBonusSince: '<(new \DateTimeImmutable("2020-01-01"))>'
