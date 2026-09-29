@@ -20,6 +20,7 @@ use App\State\WalletTransactionProvider;
         uriTemplate: '/user/{discordId}/transactions',
         uriVariables: ['discordId'],
         security: 'is_granted("' . WalletHistoryVoter::READ . '", discordId)',
+        securityMessage: 'This API key cannot read this wallet history: it needs the history role with the X-Player-Token of that player, or the trusted history role.',
         provider: WalletTransactionProvider::class,
     ),
 ], paginationClientItemsPerPage: false, paginationItemsPerPage: 30)]
@@ -39,7 +40,7 @@ final readonly class WalletTransactionView
     // MINT/BURN never reach here in practice (they never reference a player wallet), tolerated defensively
     public static function fromTransaction(Transaction $transaction, Wallet $viewerWallet): self
     {
-        $isOutgoing = $transaction->getWalletFrom() === $viewerWallet;
+        $isOutgoing = $transaction->getWalletFrom()?->getId() === $viewerWallet->getId();
         $counterpart = $isOutgoing ? $transaction->getWalletTo() : $transaction->getWalletFrom();
 
         return new self(

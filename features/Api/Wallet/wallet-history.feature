@@ -98,6 +98,7 @@ Feature:
         {"hydra:totalItems": 33}
         """
         And the hydra member collection should contain 30 items
+        And the hydra member "amount" values should be "33000000,32000000,31000000,30000000,29000000,28000000,27000000,26000000,25000000,24000000,23000000,22000000,21000000,20000000,19000000,18000000,17000000,16000000,15000000,14000000,13000000,12000000,11000000,10000000,9000000,8000000,7000000,6000000,5000000,4000000"
 
         When I send a GET request to "/api/user/500000000000000001/transactions?page=2"
 
@@ -107,3 +108,4 @@ Feature:
         {"hydra:totalItems": 33}
         """
         And the hydra member collection should contain 3 items
+        And the hydra member "amount" values should be "3000000,2000000,1000000"

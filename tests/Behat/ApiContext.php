@@ -156,6 +156,17 @@ final class ApiContext extends ApiTestCase implements Context
     }
 
     /**
+     * @Then the hydra member :field values should be :values
+     *
+     * @throws \JsonException
+     */
+    public function hydraMemberValuesShouldBe(string $field, string $values): void
+    {
+        $data = json_decode($this->response->getContent(false), true, 512, JSON_THROW_ON_ERROR);
+        Assert::assertSame(explode(',', $values), array_column($data['hydra:member'], $field));
+    }
+
+    /**
      * @Then the JSON should contain a ConstraintViolationList with :message
      */
     public function theJSONShouldContainAConstraintViolationListWith($message)

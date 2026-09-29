@@ -1,6 +1,5 @@
 # api/fixtures/WalletHistoryTransaction.yaml
-# Self-contained player + a fresh discordUser for the bulk player: existing fixtures (barlito/juju/farph) already
-# carry transactions, and veli's wallet is deleted by other tests/scenarios (DiscordAuthTest, BankWalletCreate.feature)
+# Dedicated bulk player: veli's wallet is deleted by other scenarios, the other fixture players already have transactions
 App\Entity\DiscordUser:
   discord_user_wallet_history_bulk:
     discordId: "500000000000000001"
@@ -9,7 +8,7 @@ App\Entity\DiscordUser:
 App\Entity\Wallet:
   wallet_wallet_history_bulk:
     discordUser: '@discord_user_wallet_history_bulk'
-    amount: 0
+    amount: 561000000
     type: !php/const App\Enum\WalletTypeEnum::USER
     name: "Wallet History Bulk"
 
@@ -19,14 +18,14 @@ App\Entity\Transaction:
     walletTo: '@wallet_weeby'
     amount: 111000000
     type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
-    createdAt: <(new \DateTime('-3 hours'))>
+    createdAt: <(new \DateTime('2026-01-01 10:00:00'))>
 
   wallet_history_middle:
     walletFrom: '@wallet_weeby'
     walletTo: '@wallet_benj'
     amount: 222000000
     type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
-    createdAt: <(new \DateTime('-2 hours'))>
+    createdAt: <(new \DateTime('2026-01-01 11:00:00'))>
 
   wallet_history_newest:
     walletFrom: '@wallet_benj'
@@ -34,12 +33,12 @@ App\Entity\Transaction:
     amount: 333000000
     externalIdentifier: 'wallet_history_should_not_leak'
     type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
-    createdAt: <(new \DateTime('-1 hours'))>
+    createdAt: <(new \DateTime('2026-01-01 12:00:00'))>
 
-  # Bulk history for the dedicated bulk player alone, to exercise pagination (30 items per page)
+  # 33 incoming transfers summing to the bulk wallet balance: transfer n is n coins, made n hours after the first
   wallet_history_bulk_{1..33}:
-    walletFrom: '@wallet_wallet_history_bulk'
-    walletTo: '@wallet_weeby'
-    amount: 1000000
+    walletFrom: '@wallet_weeby'
+    walletTo: '@wallet_wallet_history_bulk'
+    amount: <(1000000 * $current)>
     type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
-    createdAt: <dateTimeBetween('-90 days', '-31 days')>
+    createdAt: <(new \DateTime('2026-02-01 00:00:00 +' . $current . ' hours'))>

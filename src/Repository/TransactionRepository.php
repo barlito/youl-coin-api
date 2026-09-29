@@ -25,19 +25,13 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
-    /**
-     * Transactions where the wallet is source or destination, most recent first.
-     *
-     * @return array{0: Transaction[], 1: int}
-     */
-    public function findWalletHistory(Wallet $wallet, int $offset, int $limit): array
+    // Transactions where the wallet is source or destination, most recent first
+    public function findWalletHistory(Wallet $wallet, int $offset, int $limit): WalletHistoryPage
     {
-        // Binding the Wallet object skips the custom "ulid" type conversion (ORM's parameter type inference
-        // only handles scalars): the base32 id would reach Postgres unconverted into the uuid column.
+        // The ulid type must be given explicitly: parameter type inference does not reach the custom type
         $queryBuilder = $this->createQueryBuilder('t')
-            ->andWhere('t.walletFrom = :walletFrom OR t.walletTo = :walletTo')
-            ->setParameter('walletFrom', $wallet->getId(), 'ulid')
-            ->setParameter('walletTo', $wallet->getId(), 'ulid')
+            ->andWhere('t.walletFrom = :wallet OR t.walletTo = :wallet')
+            ->setParameter('wallet', $wallet->getId(), 'ulid')
             // createdAt has second precision: id as tiebreak keeps pagination stable across pages
             ->orderBy('t.createdAt', 'DESC')
             ->addOrderBy('t.id', 'DESC')
@@ -47,7 +41,7 @@ class TransactionRepository extends ServiceEntityRepository
 
         $paginator = new DoctrinePaginator($queryBuilder, fetchJoinCollection: false);
 
-        return [iterator_to_array($paginator, false), $paginator->count()];
+        return new WalletHistoryPage(iterator_to_array($paginator, false), $paginator->count());
     }
 
     // /**

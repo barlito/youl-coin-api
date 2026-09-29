@@ -85,24 +85,9 @@ class WalletTransactionViewTest extends TestCase
         $this->assertNull($view->counterpartDiscordId);
     }
 
-    public function testNeverExposesExternalIdentifierOrIssuer(): void
-    {
-        $viewer = $this->makeWallet(WalletTypeEnum::USER, '111');
-        $counterpart = $this->makeWallet(WalletTypeEnum::USER, '222');
-
-        $transaction = $this->makeTransaction(TransactionTypeEnum::CLASSIC, $viewer, $counterpart)
-            ->setExternalIdentifier('should-never-leak')
-        ;
-
-        $view = WalletTransactionView::fromTransaction($transaction, $viewer);
-
-        $this->assertFalse(property_exists($view, 'externalIdentifier'));
-        $this->assertFalse(property_exists($view, 'issuer'));
-    }
-
     private function makeWallet(WalletTypeEnum $type, ?string $discordId): Wallet
     {
-        $wallet = new Wallet()->setType($type);
+        $wallet = new Wallet()->setType($type)->setId('wallet-' . ($discordId ?? 'bank'));
 
         if (null !== $discordId) {
             $wallet->setDiscordUser(new DiscordUser()->setDiscordId($discordId));

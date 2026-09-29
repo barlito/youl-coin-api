@@ -6,13 +6,13 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\WalletTransactionView;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Repository\DiscordUserRepository;
 use App\Repository\TransactionRepository;
-use App\State\Pagination\WalletTransactionPaginator;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -27,7 +27,7 @@ final readonly class WalletTransactionProvider implements ProviderInterface
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): WalletTransactionPaginator
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): TraversablePaginator
     {
         $wallet = $this->discordUserRepository->find((string) ($uriVariables['discordId'] ?? ''))?->getWallet();
 
@@ -37,13 +37,13 @@ final readonly class WalletTransactionProvider implements ProviderInterface
 
         [$page, $offset, $limit] = $this->pagination->getPagination($operation, $context);
 
-        [$transactions, $totalItems] = $this->transactionRepository->findWalletHistory($wallet, $offset, $limit);
+        $history = $this->transactionRepository->findWalletHistory($wallet, $offset, $limit);
 
         $views = array_map(
             static fn (Transaction $transaction): WalletTransactionView => WalletTransactionView::fromTransaction($transaction, $wallet),
-            $transactions,
+            $history->transactions,
         );
 
-        return new WalletTransactionPaginator($views, $page, $limit, $totalItems);
+        return new TraversablePaginator(new \ArrayIterator($views), $page, $limit, $history->totalItems);
     }
 }
