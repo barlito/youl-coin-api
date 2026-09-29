@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\AllowedDiscordUser;
 use App\Entity\ApiUser;
+use App\Entity\DiscordUser;
 use App\Entity\EconomySettings;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
@@ -50,11 +51,13 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Access');
         yield MenuItem::linkToCrud('API Users', 'fa-solid fa-globe', ApiUser::class);
         yield MenuItem::linkToCrud('Discord Whitelist', 'fa-brands fa-discord', AllowedDiscordUser::class);
+        yield MenuItem::linkToCrud('Joueurs', 'fas fa-users', DiscordUser::class);
 
         yield MenuItem::section('Wallet Settings');
         yield MenuItem::linkToCrud('Wallets', 'fas fa-wallet', Wallet::class);
         yield MenuItem::linkToCrud('Transactions', 'fas fa-right-left', Transaction::class);
         yield MenuItem::linktoRoute('Bank Wallet', 'fa fa-chart-bar', 'admin_bank_wallet');
+        yield MenuItem::linktoRoute('Notifications en échec', 'fas fa-bell-slash', 'admin_failed_notifications');
         yield MenuItem::linkToCrud('Economy Settings', 'fas fa-sliders-h', EconomySettings::class);
 
         yield MenuItem::section('Extra');

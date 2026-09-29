@@ -31,6 +31,12 @@ class DiscordUserWhitelistTest extends KernelTestCase
         $this->assertTrue($this->discordUserWhitelist->isAllowed('188967649332428800'));
     }
 
+    public function testOnlyTheBootstrapParameterCountsAsBootstrap(): void
+    {
+        $this->assertTrue($this->discordUserWhitelist->isBootstrap('188967649332428800'));
+        $this->assertFalse($this->discordUserWhitelist->isBootstrap('297453953120075778'));
+    }
+
     public function testUserFromTheDatabaseIsAllowed(): void
     {
         $this->assertTrue($this->discordUserWhitelist->isAllowed('297453953120075778'));
