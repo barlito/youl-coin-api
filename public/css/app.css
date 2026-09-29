@@ -1,0 +1,159 @@
+:root {
+    color-scheme: dark;
+    --bg: #0f0a1f;
+    --surface: #1a1330;
+    --border: #2e2450;
+    --text: #ede9fe;
+    --muted: #b4a9d6;
+    --accent: #a78bfa;
+    --accent-strong: #7c3aed;
+    --in: #4ade80;
+    --out: #f87171;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--accent);
+}
+
+a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.site-title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+}
+
+.container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: var(--muted);
+}
+
+.balance,
+.flows,
+.notice {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+}
+
+.balance {
+    border-color: var(--accent-strong);
+}
+
+.balance h2,
+.flows h2 {
+    margin-top: 0;
+}
+
+.balance-amount {
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.flows dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    margin: 0;
+}
+
+.flows dt {
+    color: var(--muted);
+}
+
+.flows dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.amount-in {
+    color: var(--in);
+}
+
+.amount-out {
+    color: var(--out);
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th,
+td {
+    padding: 0.6rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.numeric {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}

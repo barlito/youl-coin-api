@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon solde - Youl Coin{% endblock %}
+
+{% block body %}
+    <header class="site-header">
+        <p class="site-title">Youl Coin</p>
+        <nav class="site-nav" aria-label="Navigation principale">
+            <a href="{{ ytcg_url }}">Aller sur Youl TCG</a>
+            <a href="{{ path('admin_logout') }}">Se déconnecter</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Bonjour {{ user.username }}</h1>
+
+        {% if wallet is null %}
+            <p class="notice" role="status">Tu n'as pas encore de portefeuille. Il sera créé à ta prochaine connexion.</p>
+        {% else %}
+            <section class="balance" aria-labelledby="balance-title">
+                <h2 id="balance-title">Solde</h2>
+                <p class="balance-amount">{{ wallet.amount|coins }}</p>
+            </section>
+
+            <section class="flows" aria-labelledby="flows-title">
+                <h2 id="flows-title">Sur les {{ flowDays }} derniers jours</h2>
+                <dl>
+                    <div>
+                        <dt>Reçus</dt>
+                        <dd class="amount-in">{{ flow.received|coins }}</dd>
+                    </div>
+                    <div>
+                        <dt>Envoyés</dt>
+                        <dd class="amount-out">{{ flow.sent|coins }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section aria-labelledby="history-title">
+                <h2 id="history-title">Historique</h2>
+
+                {% if entries is empty %}
+                    <p class="notice">Aucune transaction pour le moment.</p>
+                {% else %}
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Contrepartie</th>
+                                    <th scope="col" class="numeric">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in entries %}
+                                    {% set incoming = entry.direction.value == 'in' %}
+                                    <tr>
+                                        <td><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
+                                        <td>{{ entry.type.getLabel() }}</td>
+                                        <td>
+                                            {% if entry.counterpartType?.value == 'bank' %}
+                                                Banque
+                                            {% elseif entry.counterpartDiscordId is not null %}
+                                                {{ usernames[entry.counterpartDiscordId]|default('Joueur inconnu') }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td class="numeric {{ incoming ? 'amount-in' : 'amount-out' }}">{{ incoming ? '+' : '−' }}{{ entry.amount|coins }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if pageCount > 1 %}
+                        <nav class="pagination" aria-label="Pagination de l'historique">
+                            {% if page > 1 %}
+                                <a href="{{ path('homepage', {page: page - 1}) }}" rel="prev">Précédent</a>
+                            {% endif %}
+                            <span>Page {{ page }} sur {{ pageCount }}</span>
+                            {% if page < pageCount %}
+                                <a href="{{ path('homepage', {page: page + 1}) }}" rel="next">Suivant</a>
+                            {% endif %}
+                        </nav>
+                    {% endif %}
+                {% endif %}
+            </section>
+        {% endif %}
+    </main>
+{% endblock %}
