@@ -25,7 +25,6 @@
             {% else %}
                 <p class="balance">
                     <span class="balance-amount">{{ wallet.amount|coins }}</span>
-                    <span class="chip-mono unit">YLC</span>
                 </p>
                 <dl class="flows" aria-label="Sur les {{ flowDays }} derniers jours">
                     <div class="flow notched-corner">
@@ -79,9 +78,9 @@
                                 {% for entry in entries %}
                                     {% set incoming = entry.direction.value == 'in' %}
                                     <tr>
-                                        <td class="mono"><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
-                                        <td><span class="chip-mono type-chip">{{ entry.type.getLabel() }}</span></td>
-                                        <td>
+                                        <td class="mono history-date"><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
+                                        <td class="history-type"><span class="chip-mono type-chip">{{ entry.type.getLabel() }}</span></td>
+                                        <td class="history-counterpart">
                                             {% if entry.counterpartType?.value == 'bank' %}
                                                 Banque
                                             {% elseif entry.counterpartDiscordId is not null %}
@@ -90,7 +89,7 @@
                                                 -
                                             {% endif %}
                                         </td>
-                                        <td class="numeric mono {{ incoming ? 'amount-in' : 'amount-out' }}">{{ incoming ? '+' : '−' }}{{ entry.amount|coins }}</td>
+                                        <td class="numeric mono history-amount {{ incoming ? 'amount-in' : 'amount-out' }}">{{ incoming ? '+' : '−' }}{{ entry.amount|coins }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
