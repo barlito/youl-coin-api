@@ -23,6 +23,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /** @extends AbstractCrudController<DiscordUser> */
 class DiscordUserCrudController extends AbstractCrudController
@@ -57,7 +59,7 @@ class DiscordUserCrudController extends AbstractCrudController
         ;
     }
 
-    // Players are created by the login flow and roles come from the DB or the JWT: read-only here
+    // Players are created by the login flow: only their roles can be edited here
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
@@ -73,7 +75,7 @@ class DiscordUserCrudController extends AbstractCrudController
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_DETAIL, $transactions)
-            ->disable(Action::NEW, Action::EDIT, Action::DELETE, Action::BATCH_DELETE)
+            ->disable(Action::NEW, Action::DELETE, Action::BATCH_DELETE)
         ;
     }
 
@@ -89,21 +91,38 @@ class DiscordUserCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield TextField::new('username', 'Pseudo');
-        yield TextField::new('discordId', 'Identifiant Discord');
-        yield ChoiceField::new('roles', 'Rôles')
-            ->setChoices(array_combine(array_column(RoleEnum::cases(), 'value'), array_column(RoleEnum::cases(), 'value')))
-            ->allowMultipleChoices()
-            ->renderAsBadges([RoleEnum::ROLE_ADMIN->value => 'danger'])
-        ;
+        yield TextField::new('username', 'Pseudo')->hideOnForm();
+        yield TextField::new('discordId', 'Identifiant Discord')->hideOnForm();
+        yield $this->rolesField($pageName);
         yield AssociationField::new('wallet', 'Solde')
             ->formatValue(fn (?Wallet $wallet): string => $wallet instanceof Wallet ? $this->moneyUtil->getFormattedMoney($wallet->getAmount()) : self::EMPTY_VALUE)
+            ->hideOnForm()
         ;
         yield TextField::new('discordId', 'Whitelist')
             ->setSortable(false)
             ->formatValue(fn (string $discordId): string => $this->whitelistStatus($discordId))
+            ->hideOnForm()
         ;
         yield AssociationField::new('wallet', 'Wallet')->onlyOnDetail();
+    }
+
+    private function rolesField(string $pageName): ChoiceField
+    {
+        $roles = Crud::PAGE_EDIT === $pageName ? RoleEnum::assignable() : RoleEnum::cases();
+        $edited = $this->getContext()?->getEntity()->getInstance();
+
+        return ChoiceField::new('roles', 'Rôles')
+            ->setChoices(array_combine(array_map(static fn (RoleEnum $role): string => $role->getLabel(), $roles), array_column($roles, 'value')))
+            ->allowMultipleChoices()
+            ->renderAsBadges([RoleEnum::ROLE_ADMIN->value => 'danger'])
+            ->setRequired(false)
+            ->setFormTypeOption('constraints', [new Callback(function (array $submitted, ExecutionContextInterface $context) use ($edited): void {
+                $current = $this->getUser();
+                if ($current instanceof DiscordUser && $edited instanceof DiscordUser && $edited->getDiscordId() === $current->getDiscordId() && !\in_array(RoleEnum::ROLE_ADMIN->value, $submitted, true)) {
+                    $context->buildViolation('Tu ne peux pas te retirer ton propre rôle « Admin Youl Coin » : tu perdrais l\'accès à l\'admin.')->addViolation();
+                }
+            })])
+        ;
     }
 
     private function whitelistStatus(string $discordId): string
