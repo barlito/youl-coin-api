@@ -9,6 +9,7 @@ use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
 use App\Enum\WalletTypeEnum;
 use App\Service\Util\TargetPathRouter;
+use App\Service\WelcomeBonus\WelcomeBonusService;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
@@ -45,6 +46,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly RouterInterface $router,
         private readonly AuthenticationSuccessHandler $jwtAuthSuccessHandler,
         private readonly LoggerInterface $logger,
+        private readonly WelcomeBonusService $welcomeBonusService,
     ) {
     }
 
@@ -94,6 +96,10 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                 if (!$user->getWallet() instanceof Wallet) {
                     $this->createWallet($user);
                 }
+
+                // Safe here even after a caught failure above closed the EntityManager: nothing later in the
+                // request (JWT creation, cookie copy) touches it, and WelcomeBonusService never throws out.
+                $this->welcomeBonusService->grantIfEligible($user);
 
                 return $user;
             }),

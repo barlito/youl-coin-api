@@ -27,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['externalIdentifier' => 'exact'])]
 #[ORM\UniqueConstraint(name: 'transaction_issuer_external_identifier_unique', columns: ['issuer_id', 'external_identifier'])]
+#[ORM\UniqueConstraint(name: 'transaction_unique_welcome_bonus_per_wallet', fields: ['walletTo'], options: ['where' => "((type)::text = '" . TransactionTypeEnum::WELCOME_BONUS->value . "'::text)"])]
 #[ApiResource(
     operations: [
         // Reads are scoped to the transactions of the calling API client (IssuerScopedTransactionExtension)

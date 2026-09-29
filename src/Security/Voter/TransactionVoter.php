@@ -31,8 +31,8 @@ class TransactionVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
-        // Mint/Burn are admin-only (bank wallet page): never reachable through the API, whatever the role
-        if ($subject->getType()?->isSupplyChange()) {
+        // Mint/Burn (admin bank wallet page) and WelcomeBonus (login) are never reachable through the API, whatever the role
+        if ($subject->getType()?->isSystemOnly()) {
             return false;
         }
 

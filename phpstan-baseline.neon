@@ -337,12 +337,6 @@ parameters:
 			path: src/State/TransactionStateProcessor.php
 
 		-
-			message: '#^Cannot call method getType\(\) on App\\Entity\\Wallet\|null\.$#'
-			identifier: method.nonObject
-			count: 4
-			path: src/Validator/Entity/Transaction/TransactionConstraintValidator.php
-
-		-
 			message: '#^Method App\\Validator\\Entity\\Transaction\\TransactionConstraintValidator\:\:validate\(\) has parameter \$value with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1

@@ -40,11 +40,11 @@ class TransactionMessageHandler extends AbstractHandler
         }
     }
 
-    // Mint/Burn only happen from the admin bank wallet page, never through the bot queue
+    // Mint/Burn (admin bank wallet page) and WelcomeBonus (login) never happen through the bot queue
     private function assertNotReservedToAdmin(TransactionMessage $transactionMessage): void
     {
-        if ($transactionMessage->getType()?->isSupplyChange()) {
-            throw new \RuntimeException('Mint and Burn transactions can only be created from the admin panel.');
+        if ($transactionMessage->getType()?->isSystemOnly()) {
+            throw new \RuntimeException('Mint, Burn and WelcomeBonus transactions cannot be created through the message queue.');
         }
     }
 

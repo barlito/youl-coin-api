@@ -56,6 +56,7 @@ class TransactionConstraintValidator extends ConstraintValidator
         $this->validateAirDropType($value, $constraint);
         $this->validateRegulationType($value, $constraint);
         $this->validateSeasonRewardType($value, $constraint);
+        $this->validateWelcomeBonusType($value, $constraint);
     }
 
     // Mint credits the bank out of nowhere (no balance check), Burn debits it
@@ -125,11 +126,14 @@ class TransactionConstraintValidator extends ConstraintValidator
         return is_numeric($balance) && is_numeric($amount) && bccomp($balance, $amount) >= 0;
     }
 
+    // Called only once both wallets are confirmed present (validate()), but re-fetched here for PHPStan's benefit
     private function validateAirDropType(Transaction $transaction, TransactionConstraint $constraint): void
     {
+        $walletFrom = $transaction->getWalletFrom();
         if (
-            TransactionTypeEnum::AIR_DROP === $transaction->getType()
-            && WalletTypeEnum::BANK !== $transaction->getWalletFrom()->getType()
+            $walletFrom instanceof Wallet
+            && TransactionTypeEnum::AIR_DROP === $transaction->getType()
+            && WalletTypeEnum::BANK !== $walletFrom->getType()
         ) {
             $this->context->buildViolation($constraint::AIR_DROP_WRONG_WALLET_FROM)
                 ->addViolation()
@@ -139,10 +143,14 @@ class TransactionConstraintValidator extends ConstraintValidator
 
     private function validateRegulationType(Transaction $transaction, TransactionConstraint $constraint): void
     {
+        $walletFrom = $transaction->getWalletFrom();
+        $walletTo = $transaction->getWalletTo();
         if (
-            TransactionTypeEnum::REGULATION === $transaction->getType()
-            && (WalletTypeEnum::BANK !== $transaction->getWalletFrom()->getType()
-                && WalletTypeEnum::BANK !== $transaction->getWalletTo()->getType())
+            $walletFrom instanceof Wallet
+            && $walletTo instanceof Wallet
+            && TransactionTypeEnum::REGULATION === $transaction->getType()
+            && (WalletTypeEnum::BANK !== $walletFrom->getType()
+                && WalletTypeEnum::BANK !== $walletTo->getType())
         ) {
             $this->context->buildViolation($constraint::REGULATION_NO_BANK_WALLET)
                 ->addViolation()
@@ -152,11 +160,30 @@ class TransactionConstraintValidator extends ConstraintValidator
 
     private function validateSeasonRewardType(Transaction $transaction, TransactionConstraint $constraint): void
     {
+        $walletFrom = $transaction->getWalletFrom();
         if (
-            TransactionTypeEnum::SEASON_REWARD === $transaction->getType()
-            && WalletTypeEnum::BANK !== $transaction->getWalletFrom()->getType()
+            $walletFrom instanceof Wallet
+            && TransactionTypeEnum::SEASON_REWARD === $transaction->getType()
+            && WalletTypeEnum::BANK !== $walletFrom->getType()
         ) {
             $this->context->buildViolation($constraint::SEASON_REWARD_WRONG_WALLET_FROM)
+                ->addViolation()
+            ;
+        }
+    }
+
+    private function validateWelcomeBonusType(Transaction $transaction, TransactionConstraint $constraint): void
+    {
+        $walletFrom = $transaction->getWalletFrom();
+        $walletTo = $transaction->getWalletTo();
+        if (
+            $walletFrom instanceof Wallet
+            && $walletTo instanceof Wallet
+            && TransactionTypeEnum::WELCOME_BONUS === $transaction->getType()
+            && (WalletTypeEnum::BANK !== $walletFrom->getType()
+                || WalletTypeEnum::USER !== $walletTo->getType())
+        ) {
+            $this->context->buildViolation($constraint::WELCOME_BONUS_WRONG_WALLETS)
                 ->addViolation()
             ;
         }

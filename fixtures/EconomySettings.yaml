@@ -1,0 +1,4 @@
+# api/fixtures/EconomySettings.yaml
+App\Entity\EconomySettings:
+  economy_settings_singleton:
+    welcomeBonusAmount: 100000000000

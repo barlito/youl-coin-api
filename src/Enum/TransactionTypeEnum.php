@@ -14,9 +14,16 @@ enum TransactionTypeEnum: string
     case MINT = 'mint';
     // Admin-only: destroys coins held by the bank wallet
     case BURN = 'burn';
+    // System-only: bank to a fresh player wallet, granted at login (DiscordAuthenticator)
+    case WELCOME_BONUS = 'welcome_bonus';
 
     public function isSupplyChange(): bool
     {
         return \in_array($this, [self::MINT, self::BURN], true);
+    }
+
+    public function isSystemOnly(): bool
+    {
+        return \in_array($this, [self::MINT, self::BURN, self::WELCOME_BONUS], true);
     }
 }

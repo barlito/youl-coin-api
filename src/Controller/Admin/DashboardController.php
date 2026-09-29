@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\AllowedDiscordUser;
 use App\Entity\ApiUser;
+use App\Entity\EconomySettings;
 use App\Entity\Wallet;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -53,6 +54,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Wallet Settings');
         yield MenuItem::linkToCrud('Wallets', 'fas fa-wallet', Wallet::class);
         yield MenuItem::linktoRoute('Bank Wallet', 'fa fa-chart-bar', 'admin_bank_wallet');
+        yield MenuItem::linkToCrud('Economy Settings', 'fas fa-sliders-h', EconomySettings::class);
 
         //        second wallet custom page for bank wallet transactions
         //        yield MenuItem::linkToCrud('Wallets', 'fas fa-calendar-days', Wallet::class);
