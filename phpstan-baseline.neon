@@ -331,18 +331,6 @@ parameters:
 			path: src/Service/Handler/TransactionHandler.php
 
 		-
-			message: '#^Parameter \#1 \$amount of method App\\Service\\Util\\MoneyUtil\:\:getMoney\(\) expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Service/Handler/TransactionHandler.php
-
-		-
-			message: '#^Parameter \#1 \$wallet of method App\\Service\\Handler\\TransactionHandler\:\:refreshWallet\(\) expects App\\Entity\\Wallet, App\\Entity\\Wallet\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Service/Handler/TransactionHandler.php
-
-		-
 			message: '#^PHPDoc tag @SuppressWarnings has invalid value \(\(PHPMD\.UnusedFormalParameter\)\)\: Unexpected token "\.UnusedFormalParameter\)", expected ''\)'' at offset 101 on line 6$#'
 			identifier: phpDoc.parseError
 			count: 1
@@ -409,12 +397,6 @@ parameters:
 			path: src/Validator/Entity/Transaction/AmountValidator.php
 
 		-
-			message: '#^Cannot call method getAmount\(\) on App\\Entity\\Wallet\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Validator/Entity/Transaction/TransactionConstraintValidator.php
-
-		-
 			message: '#^Cannot call method getType\(\) on App\\Entity\\Wallet\|null\.$#'
 			identifier: method.nonObject
 			count: 4
@@ -423,18 +405,6 @@ parameters:
 		-
 			message: '#^Method App\\Validator\\Entity\\Transaction\\TransactionConstraintValidator\:\:validate\(\) has parameter \$value with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: src/Validator/Entity/Transaction/TransactionConstraintValidator.php
-
-		-
-			message: '#^Parameter \#1 \$num1 of function bcsub expects numeric\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Validator/Entity/Transaction/TransactionConstraintValidator.php
-
-		-
-			message: '#^Parameter \#2 \$num2 of function bcsub expects numeric\-string, string given\.$#'
-			identifier: argument.type
 			count: 1
 			path: src/Validator/Entity/Transaction/TransactionConstraintValidator.php
 

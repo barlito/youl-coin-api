@@ -6,7 +6,6 @@ namespace App\Service\Handler;
 
 use App\Entity\Transaction;
 use App\Entity\Wallet;
-use App\Enum\LockEnum;
 use App\Message\TransactionMessage;
 use App\Service\Builder\TransactionBuilder;
 use App\Service\Handler\Abstraction\AbstractHandler;
@@ -18,9 +17,8 @@ use Brick\Math\Exception\NumberFormatException;
 use Brick\Math\Exception\RoundingNecessaryException;
 use Brick\Money\Exception\MoneyMismatchException;
 use Brick\Money\Exception\UnknownCurrencyException;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -29,7 +27,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class TransactionHandler extends AbstractHandler
 {
     public function __construct(
-        private readonly LockFactory $factory,
         private readonly TransactionNotifierInterface $discordNotifier,
         private readonly TransactionNotificationPublisher $transactionPublisher,
         private readonly TransactionBuilder $transactionBuilder,
@@ -63,15 +60,18 @@ class TransactionHandler extends AbstractHandler
      */
     public function handleTransaction(Transaction $transaction): Transaction
     {
-        $lock = $this->getLock();
-        $lock->acquire(true);
-
-        try {
+        $this->entityManager->wrapInTransaction(function () use ($transaction): void {
+            $this->lockWallets($transaction);
+            // Validated after the lock: the balance check must read the locked rows, not the deserialized ones.
             $this->validate($transaction);
 
-            $walletFrom = $this->refreshWallet($transaction->getWalletFrom());
-            $walletTo = $this->refreshWallet($transaction->getWalletTo());
-            $amount = $this->moneyUtil->getMoney($transaction->getAmount());
+            $amount = $this->moneyUtil->getMoney((string) $transaction->getAmount());
+            $walletFrom = $transaction->getWalletFrom();
+            $walletTo = $transaction->getWalletTo();
+
+            if (!$walletFrom instanceof Wallet || !$walletTo instanceof Wallet) {
+                throw new \LogicException('A validated transaction always has both wallets.');
+            }
 
             $walletFrom->setAmount(
                 (string)
@@ -85,14 +85,12 @@ class TransactionHandler extends AbstractHandler
                     ->plus($amount)->getMinorAmount()->toInt(),
             );
 
-            $this->persistOneEntity($transaction);
+            $this->entityManager->persist($transaction);
+        });
 
-            $this->notify($transaction);
+        $this->notify($transaction);
 
-            return $transaction;
-        } finally {
-            $lock->release();
-        }
+        return $transaction;
     }
 
     private function notify(Transaction $transaction): void
@@ -101,15 +99,22 @@ class TransactionHandler extends AbstractHandler
         $this->transactionPublisher->publishTransactionNotification($transaction);
     }
 
-    private function refreshWallet(Wallet $wallet): Wallet
+    /**
+     * SELECT ... FOR UPDATE on both wallets, in id order so two opposite transfers cannot deadlock.
+     */
+    private function lockWallets(Transaction $transaction): void
     {
-        $this->entityManager->refresh($wallet);
+        $wallets = [];
+        foreach ([$transaction->getWalletFrom(), $transaction->getWalletTo()] as $wallet) {
+            if ($wallet instanceof Wallet && null !== $wallet->getId()) {
+                $wallets[$wallet->getId()] = $wallet;
+            }
+        }
 
-        return $wallet;
-    }
+        ksort($wallets, SORT_STRING);
 
-    private function getLock(): LockInterface
-    {
-        return $this->factory->createLock(LockEnum::TRANSACTION_LOCK->value);
+        foreach ($wallets as $wallet) {
+            $this->entityManager->refresh($wallet, LockMode::PESSIMISTIC_WRITE);
+        }
     }
 }
