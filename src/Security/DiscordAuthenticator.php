@@ -84,7 +84,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                 $discordUser = $client->fetchUserFromToken($accessToken);
 
                 if (!$this->discordUserWhitelist->isAllowed((string) $discordUser->getId())) {
-                    throw new AuthenticationException('Your account is not allowed to access this app.');
+                    throw new AuthenticationException(WhitelistUserChecker::ACCESS_DENIED_MESSAGE);
                 }
 
                 $user = $this->entityManager->getRepository(DiscordUser::class)->find($discordUser->getId())

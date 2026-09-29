@@ -1,0 +1,4 @@
+parameters:
+    # Hosts allowed as an absolute post-login redirect target (`_target_path`), comma separated,
+    # `*.domain` matches one subdomain level. See App\Security\RedirectTargetPolicy.
+    app.allowed_redirect_hosts: '%env(csv:ALLOWED_REDIRECT_HOSTS)%'

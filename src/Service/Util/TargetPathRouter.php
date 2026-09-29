@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Util;
 
+use App\Security\RedirectTargetPolicy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
@@ -14,6 +15,7 @@ class TargetPathRouter
 
     public function __construct(
         private readonly RouterInterface $router,
+        private readonly RedirectTargetPolicy $redirectTargetPolicy,
     ) {
     }
 
@@ -24,7 +26,12 @@ class TargetPathRouter
         if ($targetPath) {
             $this->removeTargetPath($request->getSession(), $firewallName);
 
-            return $targetPath;
+            // Defense in depth: the session may hold a target saved before this check existed
+            $sanitizedTargetPath = $this->redirectTargetPolicy->sanitize($targetPath);
+
+            if (null !== $sanitizedTargetPath) {
+                return $sanitizedTargetPath;
+            }
         }
 
         return $this->router->generate('homepage');

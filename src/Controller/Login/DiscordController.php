@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Login;
 
+use App\Security\RedirectTargetPolicy;
 use App\Service\Util\TargetPathRouter;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
@@ -25,12 +26,14 @@ class DiscordController extends AbstractController
         Request $request,
         AuthenticationSuccessHandler $jwtAuthSuccessHandler,
         TargetPathRouter $targetPathRouter,
+        RedirectTargetPolicy $redirectTargetPolicy,
     ): RedirectResponse {
         $firewallName = $security->getFirewallConfig($request)?->getName();
         $targetUrl = $request->get('_target_path');
+        $sanitizedTargetUrl = $redirectTargetPolicy->sanitize(\is_string($targetUrl) ? $targetUrl : null);
 
-        if (\is_string($targetUrl) && (str_starts_with($targetUrl, '/') || str_starts_with($targetUrl, 'http'))) {
-            $this->saveTargetPath($request->getSession(), $firewallName ?? 'main', $targetUrl);
+        if (null !== $sanitizedTargetUrl) {
+            $this->saveTargetPath($request->getSession(), $firewallName ?? 'main', $sanitizedTargetUrl);
         }
 
         if ($this->getUser() instanceof UserInterface) {
