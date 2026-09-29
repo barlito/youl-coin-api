@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Security;
 
 use App\Entity\DiscordUser;
+use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
+use App\Enum\WalletTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
@@ -54,6 +56,48 @@ class DiscordAuthTest extends WebTestCase
         $user = $discordUserRepository->findOneBy(['discordId' => $discordResource->getId()]);
         $this->assertNotNull($user);
         $this->assertInstanceOf(DiscordUser::class, $user);
+
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame('0', $wallet->getAmount());
+        $this->assertSame(WalletTypeEnum::USER, $wallet->getType());
+    }
+
+    public function testLoginCreatesTheMissingWalletOfAnExistingUser(): void
+    {
+        // Whitelisted dynamically, account created before wallets were provisioned at login
+        $userId = '297453953120075778';
+        $this->entityManager->persist(
+            new DiscordUser()
+                ->setDiscordId($userId)
+                ->setUsername('Dynamo')
+                ->setRoles([RoleEnum::ROLE_USER->value]),
+        );
+        $this->entityManager->flush();
+
+        $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Dynamo']));
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame('0', $wallet->getAmount());
+    }
+
+    public function testLoginKeepsTheExistingWallet(): void
+    {
+        $userId = '188967949963362304';
+
+        $this->mockClientRegistry(new DiscordResourceOwner(['id' => $userId, 'username' => 'Farph']));
+
+        $this->client->request('GET', '/connect/discord/check');
+
+        self::assertResponseRedirects('/');
+        $wallet = $this->findWallet($userId);
+        $this->assertInstanceOf(Wallet::class, $wallet);
+        $this->assertSame('01FPD1DRHVBMZEM5EGS95F5N3E', (string) $wallet->getId());
+        $this->assertSame('700000000000', $wallet->getAmount());
     }
 
     public function testSuccessfulLoginWithDynamicallyWhitelistedUser(): void
@@ -115,6 +159,14 @@ class DiscordAuthTest extends WebTestCase
 
         $user = $discordUserRepository->findOneBy(['discordId' => $nonWhitelistedUserId]);
         $this->assertNull($user);
+        $this->assertNull($this->findWallet($nonWhitelistedUserId));
+    }
+
+    private function findWallet(string $discordId): ?Wallet
+    {
+        $this->entityManager->clear();
+
+        return $this->entityManager->getRepository(Wallet::class)->findOneBy(['discordUser' => $discordId]);
     }
 
     private function removeUser(string $userId): void

@@ -127,12 +127,6 @@ parameters:
 			path: src/Entity/DiscordUser.php
 
 		-
-			message: '#^Property App\\Entity\\DiscordUser\:\:\$wallet type mapping mismatch\: database can contain App\\Entity\\Wallet\|null but property expects App\\Entity\\Wallet\.$#'
-			identifier: doctrine.associationType
-			count: 1
-			path: src/Entity/DiscordUser.php
-
-		-
 			message: '#^Class App\\Form\\Type\\TransactionType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
 			identifier: missingType.generics
 			count: 1
