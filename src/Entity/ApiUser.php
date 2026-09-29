@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: ApiUserRepository::class)]
-class ApiUser implements UserInterface
+class ApiUser implements UserInterface, \Stringable
 {
     use IdUuidTrait;
 
@@ -26,6 +26,11 @@ class ApiUser implements UserInterface
 
     #[ORM\Column]
     private array $roles = [];
+
+    public function __toString(): string
+    {
+        return (string) $this->name;
+    }
 
     public function getName(): ?string
     {

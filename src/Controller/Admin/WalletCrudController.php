@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
@@ -24,8 +25,10 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class WalletCrudController extends AbstractCrudController
 {
-    public function __construct(private readonly MoneyUtil $moneyUtil)
-    {
+    public function __construct(
+        private readonly MoneyUtil $moneyUtil,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -47,9 +50,19 @@ class WalletCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
+        $transactions = Action::new('transactions', 'Transactions')
+            ->linkToUrl(fn (Wallet $wallet): string => $this->adminUrlGenerator
+                ->setController(TransactionCrudController::class)
+                ->setAction(Action::INDEX)
+                ->set('filters', [TransactionCrudController::WALLET_FILTER => ['comparison' => '=', 'value' => $wallet->getId()]])
+                ->generateUrl())
+        ;
+
         // Deleting a wallet would destroy coins without a Burn (or fail on the transactions FK)
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $transactions)
+            ->add(Crud::PAGE_DETAIL, $transactions)
             ->disable(Action::DELETE, Action::BATCH_DELETE)
         ;
     }
