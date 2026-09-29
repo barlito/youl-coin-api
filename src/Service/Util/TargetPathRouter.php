@@ -26,7 +26,7 @@ class TargetPathRouter
         if ($targetPath) {
             $this->removeTargetPath($request->getSession(), $firewallName);
 
-            // Defense in depth: the session may hold a target saved before this check existed
+            // Symfony's ExceptionListener also saves target paths, unchecked
             $sanitizedTargetPath = $this->redirectTargetPolicy->sanitize($targetPath);
 
             if (null !== $sanitizedTargetPath) {

@@ -2,27 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Controller\Login;
+namespace App\Tests\Functional\Security;
 
 use App\Entity\AllowedDiscordUser;
 use App\Entity\DiscordUser;
+use App\Enum\Roles\RoleEnum;
 use App\Repository\DiscordUserRepository;
-use App\Security\WhitelistUserChecker;
 use Doctrine\ORM\EntityManagerInterface;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
-use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
 class RefreshTokenSecurityTest extends WebTestCase
 {
+    use MocksDiscordOAuthTrait;
+
+    private const string JWT_COOKIE_DOMAIN = '.youlz.fr';
+
     private KernelBrowser $client;
-    private ContainerInterface $container;
     private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
@@ -32,7 +31,6 @@ class RefreshTokenSecurityTest extends WebTestCase
         system('bin/console hautelook:fixtures:load -n --env="test"');
 
         $this->client = static::createClient();
-        $this->container = static::getContainer();
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
     }
 
@@ -96,9 +94,28 @@ class RefreshTokenSecurityTest extends WebTestCase
         $this->client->request('GET', '/refresh_token');
 
         self::assertResponseStatusCodeSame(403);
-        $this->assertStringContainsString(WhitelistUserChecker::ACCESS_DENIED_MESSAGE, (string) $this->client->getResponse()->getContent());
-        $this->assertNull($this->client->getCookieJar()->get('jwt'));
-        $this->assertNull($this->client->getCookieJar()->get('REMEMBERME'));
+        $this->assertStringContainsString('not allowed', (string) $this->client->getResponse()->getContent());
+        $this->assertJwtCookieCleared();
+        $this->assertTrue($this->extractCookie($this->client, 'REMEMBERME')?->isCleared());
+    }
+
+    public function testRefreshTokenDeniesAndDeauthenticatesAnActiveSessionOfAUserRemovedFromTheWhitelist(): void
+    {
+        $discordId = '297453953120075778';
+        $user = $this->entityManager->getRepository(DiscordUser::class)->find($discordId)
+            ?? $this->createUser($discordId);
+        $this->client->loginUser($user);
+
+        $this->revokeFromWhitelist($discordId);
+
+        $this->client->request('GET', '/refresh_token');
+
+        self::assertResponseStatusCodeSame(403);
+        $this->assertJwtCookieCleared();
+        $this->assertNull($this->extractCookie($this->client, 'jwt')?->getValue());
+
+        $this->client->request('GET', '/refresh_token');
+        self::assertResponseRedirects('/connect/discord');
     }
 
     public function testRefreshTokenStillWorksViaRememberMeForAWhitelistedUser(): void
@@ -119,6 +136,32 @@ class RefreshTokenSecurityTest extends WebTestCase
 
         self::assertResponseRedirects('/');
         $this->assertNotNull($this->client->getCookieJar()->get('jwt'));
+    }
+
+    private function assertJwtCookieCleared(): void
+    {
+        $cookie = $this->extractCookie($this->client, 'jwt');
+
+        $this->assertInstanceOf(Cookie::class, $cookie);
+        $this->assertTrue($cookie->isCleared());
+        $this->assertSame(self::JWT_COOKIE_DOMAIN, $cookie->getDomain());
+        $this->assertSame('/', $cookie->getPath());
+        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertSame(Cookie::SAMESITE_LAX, $cookie->getSameSite());
+    }
+
+    private function createUser(string $discordId): DiscordUser
+    {
+        $user = new DiscordUser()
+            ->setDiscordId($discordId)
+            ->setUsername('Dynamo')
+            ->setRoles([RoleEnum::ROLE_USER->value])
+        ;
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
     }
 
     private function extractCookie(KernelBrowser $client, string $name): ?Cookie
@@ -171,20 +214,5 @@ class RefreshTokenSecurityTest extends WebTestCase
         }
 
         return $user;
-    }
-
-    private function mockClientRegistry(DiscordResourceOwner $discordResource): void
-    {
-        $mockAccessToken = $this->createMock(AccessToken::class);
-        $mockAccessToken->method('getToken')->willReturn('fake_access_token');
-
-        $mockOAuthClient = $this->createMock(OAuth2Client::class);
-        $mockOAuthClient->method('getAccessToken')->willReturn($mockAccessToken);
-        $mockOAuthClient->method('fetchUserFromToken')->willReturn($discordResource);
-
-        $mockClientRegistry = $this->createMock(ClientRegistry::class);
-        $mockClientRegistry->method('getClient')->with('discord')->willReturn($mockOAuthClient);
-
-        $this->container->set(ClientRegistry::class, $mockClientRegistry);
     }
 }

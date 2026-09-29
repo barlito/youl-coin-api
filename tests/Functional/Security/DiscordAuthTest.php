@@ -9,9 +9,6 @@ use App\Entity\Wallet;
 use App\Enum\Roles\RoleEnum;
 use App\Enum\WalletTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
-use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,6 +16,8 @@ use Wohali\OAuth2\Client\Provider\DiscordResourceOwner;
 
 class DiscordAuthTest extends WebTestCase
 {
+    use MocksDiscordOAuthTrait;
+
     private KernelBrowser $client;
     private ContainerInterface $container;
     private EntityManagerInterface $entityManager;
@@ -181,20 +180,5 @@ class DiscordAuthTest extends WebTestCase
         $entityManager->remove($userToRemove->getWallet());
         $entityManager->remove($userToRemove);
         $entityManager->flush();
-    }
-
-    private function mockClientRegistry(DiscordResourceOwner $discordResource): void
-    {
-        $mockAccessToken = $this->createMock(AccessToken::class);
-        $mockAccessToken->method('getToken')->willReturn('fake_access_token');
-
-        $mockOAuthClient = $this->createMock(OAuth2Client::class);
-        $mockOAuthClient->method('getAccessToken')->willReturn($mockAccessToken);
-        $mockOAuthClient->method('fetchUserFromToken')->willReturn($discordResource);
-
-        $mockClientRegistry = $this->createMock(ClientRegistry::class);
-        $mockClientRegistry->method('getClient')->with('discord')->willReturn($mockOAuthClient);
-
-        $this->container->set(ClientRegistry::class, $mockClientRegistry);
     }
 }

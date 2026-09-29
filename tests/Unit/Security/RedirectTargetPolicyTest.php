@@ -12,10 +12,10 @@ class RedirectTargetPolicyTest extends TestCase
 {
     private const array ALLOWED_HOSTS = ['youlz.fr', '*.youlz.fr', 'barlito.fr', '*.barlito.fr', '*.local.barlito.fr'];
 
-    #[DataProvider('provideProdTargets')]
-    public function testSanitizeInProd(?string $target, ?string $expected): void
+    #[DataProvider('provideTargets')]
+    public function testSanitize(?string $target, ?string $expected): void
     {
-        $policy = new RedirectTargetPolicy(self::ALLOWED_HOSTS, 'prod');
+        $policy = new RedirectTargetPolicy(self::ALLOWED_HOSTS);
 
         $this->assertSame($expected, $policy->sanitize($target));
     }
@@ -23,7 +23,7 @@ class RedirectTargetPolicyTest extends TestCase
     /**
      * @return iterable<string, array{0: ?string, 1: ?string}>
      */
-    public static function provideProdTargets(): iterable
+    public static function provideTargets(): iterable
     {
         yield 'root path' => ['/', '/'];
         yield 'admin path' => ['/admin', '/admin'];
@@ -37,7 +37,11 @@ class RedirectTargetPolicyTest extends TestCase
         yield 'userinfo is refused' => ['https://user@evil.com', null];
         yield 'userinfo on an otherwise allowed host is refused' => ['https://user@ytcg.youlz.fr', null];
         yield 'unknown scheme is refused' => ['javascript:alert(1)', null];
-        yield 'http is refused outside dev' => ['http://ytcg.youlz.fr', null];
+        yield 'http is refused' => ['http://ytcg.youlz.fr', null];
+        yield 'fragment trick towards an unknown host is refused' => ['https://evil.com#@ytcg.youlz.fr', null];
+        yield 'encoded slash before userinfo is refused' => ['https://ytcg.youlz.fr%2F@evil.com', null];
+        yield 'trailing dot host is refused' => ['https://ytcg.youlz.fr.', null];
+        yield 'explicit port is refused' => ['https://ytcg.youlz.fr:8443/x', null];
         yield 'two-level subdomain allowed by its own wildcard' => ['https://ytcg.local.barlito.fr', 'https://ytcg.local.barlito.fr'];
         yield 'null target' => [null, null];
         yield 'empty target' => ['', null];
@@ -45,25 +49,19 @@ class RedirectTargetPolicyTest extends TestCase
         yield 'whitespace is refused' => ['/foo bar', null];
     }
 
-    public function testHttpIsAllowedInDev(): void
+    public function testHostsAreNormalized(): void
     {
-        $policy = new RedirectTargetPolicy(self::ALLOWED_HOSTS, 'dev');
+        $policy = new RedirectTargetPolicy([' YOULZ.fr ', '', '*.Youlz.fr']);
 
-        $this->assertSame('http://ytcg.youlz.fr', $policy->sanitize('http://ytcg.youlz.fr'));
+        $this->assertSame('https://youlz.fr', $policy->sanitize('https://youlz.fr'));
+        $this->assertSame('https://ytcg.youlz.fr', $policy->sanitize('https://ytcg.youlz.fr'));
     }
 
     public function testSingleLevelWildcardDoesNotCoverATwoLevelSubdomain(): void
     {
         $hostsWithoutTheTwoLevelWildcard = ['youlz.fr', '*.youlz.fr', 'barlito.fr', '*.barlito.fr'];
-        $policy = new RedirectTargetPolicy($hostsWithoutTheTwoLevelWildcard, 'dev');
+        $policy = new RedirectTargetPolicy($hostsWithoutTheTwoLevelWildcard);
 
         $this->assertNull($policy->sanitize('https://ytcg.local.barlito.fr'));
-    }
-
-    public function testHttpIsStillRefusedInDevForAnUnknownHost(): void
-    {
-        $policy = new RedirectTargetPolicy(self::ALLOWED_HOSTS, 'dev');
-
-        $this->assertNull($policy->sanitize('http://evil.com'));
     }
 }
