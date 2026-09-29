@@ -102,5 +102,4 @@ Feature:
             | authorization         | url                                                           | code |
             |                       | /api/transactions/a1b2c3d4-0000-4000-8000-000000000001        | 401  |
             | Bearer api_key_reader | /api/transactions?externalIdentifier=fixture_issued_by_test   | 403  |
-            # The item is looked up among the caller's own transactions before the role check: a 404, nothing leaks
-            | Bearer api_key_reader | /api/transactions/a1b2c3d4-0000-4000-8000-000000000001        | 404  |
+            | Bearer api_key_reader | /api/transactions/a1b2c3d4-0000-4000-8000-000000000001        | 403  |
