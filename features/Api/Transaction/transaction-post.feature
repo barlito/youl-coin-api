@@ -27,6 +27,7 @@ Feature:
     I want to test POST endpoint with payload errors
 
         Given I set header "Authorization" with value "Bearer api_key_test"
+        And I send the player token of "188967649332428800"
 
         When I send a POST request to "api/transactions" with body:
         """
@@ -62,6 +63,7 @@ Feature:
 
         Given I reload the fixtures
         And I set header "Authorization" with value "Bearer api_key_test"
+        And I send the player token of "188967649332428800"
 
         Given a "Wallet" entity found by "discordUser=188967649332428800" should match:
             | id     | 01FPD1DHMWPV4BHJQ82TSJEBJC |

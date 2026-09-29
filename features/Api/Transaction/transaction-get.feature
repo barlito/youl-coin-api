@@ -47,6 +47,7 @@ Feature:
     A transaction created through the API can be read back right away
 
         Given I set header "Authorization" with value "Bearer api_key_bank_only"
+        And I send the player token of "188967649332428800"
 
         When I send a POST request to "api/transactions" with body:
         """

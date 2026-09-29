@@ -8,6 +8,7 @@ use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Enum\Roles\ApiUserRoleEnum;
 use App\Enum\WalletTypeEnum;
+use App\Security\PlayerTokenResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -24,11 +25,34 @@ class TransactionVoter extends Voter
         return self::CREATE === $attribute && $subject instanceof Transaction;
     }
 
+    public function __construct(private readonly PlayerTokenResolver $playerTokenResolver)
+    {
+    }
+
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $requiredRole = $this->requiredRole($subject);
 
-        return $requiredRole instanceof ApiUserRoleEnum && \in_array($requiredRole->value, $token->getRoleNames(), true);
+        if (!$requiredRole instanceof ApiUserRoleEnum || !\in_array($requiredRole->value, $token->getRoleNames(), true)) {
+            return false;
+        }
+
+        return $this->isSentByTheWalletOwner($subject);
+    }
+
+    /**
+     * Coins only leave a player's wallet on that player's behalf: the API client must forward their JWT.
+     */
+    private function isSentByTheWalletOwner(Transaction $transaction): bool
+    {
+        $walletFrom = $transaction->getWalletFrom();
+        if (!$walletFrom instanceof Wallet || WalletTypeEnum::USER !== $walletFrom->getType()) {
+            return true;
+        }
+
+        $ownerDiscordId = $walletFrom->getDiscordUser()?->getDiscordId();
+
+        return null !== $ownerDiscordId && $ownerDiscordId === $this->playerTokenResolver->resolveDiscordId();
     }
 
     private function requiredRole(Transaction $transaction): ?ApiUserRoleEnum
