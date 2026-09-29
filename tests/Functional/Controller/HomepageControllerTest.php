@@ -149,6 +149,17 @@ class HomepageControllerTest extends WebTestCase
         self::assertSelectorExists('.app-tile a[href="https://ytcg.youlz.fr"]');
     }
 
+    public function testOnlyAnAdminSeesTheAdminLink(): void
+    {
+        $this->client->loginUser($this->entityManager->find(DiscordUser::class, '188967649332428800') ?? throw new \LogicException('Missing fixture admin.'));
+        $this->client->request('GET', '/');
+        self::assertSelectorExists('.header-actions a[href="/admin"]');
+
+        $this->loginAsBulkPlayer();
+        $this->client->request('GET', '/');
+        self::assertSelectorNotExists('.header-actions a[href="/admin"]');
+    }
+
     private function queryCount(): int
     {
         /** @var DoctrineDataCollector $collector */

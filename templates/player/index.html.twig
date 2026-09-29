@@ -11,7 +11,12 @@
                 <span class="brand-sub">COIN · HUB</span>
             </span>
         </a>
-        <a href="{{ path('admin_logout') }}" class="chip-mono chip-link">Se déconnecter</a>
+        <nav class="header-actions" aria-label="Compte">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin') }}" class="chip-mono chip-link">Admin</a>
+            {% endif %}
+            <a href="{{ path('admin_logout') }}" class="chip-mono chip-link">Se déconnecter</a>
+        </nav>
     </header>
 
     <main class="container">

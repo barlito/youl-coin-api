@@ -168,6 +168,13 @@ h3 {
     border-color: var(--magenta);
 }
 
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
 /* Layout */
 .container {
     max-width: 60rem;

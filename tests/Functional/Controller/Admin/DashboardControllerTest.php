@@ -33,6 +33,8 @@ class DashboardControllerTest extends WebTestCase
         }
         self::assertSelectorExists('.alert-danger');
         self::assertSelectorTextContains('.alert-danger', 'Registre incohérent');
+        self::assertSelectorTextContains('a[href="/"]', 'Hub joueur');
+        self::assertSelectorExists('a[href="https://ytcg.youlz.fr/admin"]');
     }
 
     public function testANonAdminIsDenied(): void
