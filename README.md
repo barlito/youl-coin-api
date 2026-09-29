@@ -40,10 +40,14 @@ Both paths end in the same `TransactionHandler`: it takes a global lock (`symfon
 | Surface | Auth |
 |---------|------|
 | `/api/*` | Stateless Bearer token (`ApiUser` API keys) |
-| `/admin` | Discord OAuth2 login (`knpuniversity/oauth2-client-bundle`), `ROLE_ADMIN` required |
+| `/admin` | Discord OAuth2 login (`knpuniversity/oauth2-client-bundle`), `ROLE_ADMIN` required (Youl Coin admin only) |
 | Other Youls apps | Lexik JWT issued as a cookie on `.barlito.fr` (carries the `discordId` claim) — shared login across the ecosystem |
 
 The back office is an EasyAdmin dashboard: wallet CRUD, bank wallet management and API user administration.
+
+### Player roles
+
+The JWT carries every role of the player. `ROLE_ADMIN` only opens this admin; each app reads its own prefixed roles (`ROLE_YTCG_ADMIN` for youl-tcg). Admins grant them from the « Joueurs » screen, where roles are the only editable field; an admin cannot remove their own `ROLE_ADMIN`. A change reaches the apps at the next JWT renewal (15 minutes at most).
 
 ## Stack
 

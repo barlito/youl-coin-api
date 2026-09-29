@@ -9,11 +9,13 @@ use App\Controller\Admin\DiscordUserCrudController;
 use App\Entity\AllowedDiscordUser;
 use App\Entity\DiscordUser;
 use App\Entity\Wallet;
+use App\Enum\Roles\RoleEnum;
 use App\Enum\WalletTypeEnum;
 use App\Repository\DiscordUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -50,7 +52,8 @@ class DiscordUserCrudControllerTest extends WebTestCase
         $this->assertSame(array_values($sorted), $usernames);
 
         $barlito = $crawler->filter(\sprintf('tr[data-id="%s"]', self::BARLITO))->text();
-        $this->assertStringContainsString('ROLE_ADMIN', $barlito);
+        $this->assertStringContainsString('Admin Youl TCG', $barlito);
+        $this->assertStringContainsString('Admin Youl Coin', $barlito);
         $this->assertStringContainsString('9,000.00', $barlito);
         $this->assertStringContainsString('Oui (config)', $barlito);
         $this->assertStringContainsString('Oui (admin)', $crawler->filter('tr[data-id="500000000000000001"]')->text());
@@ -106,18 +109,72 @@ class DiscordUserCrudControllerTest extends WebTestCase
         $this->assertCount(0, $crawler->filter('a.action-transactions'));
     }
 
-    public function testTheCrudIsReadOnly(): void
+    public function testOnlyTheRolesCanBeEdited(): void
+    {
+        $crawler = $this->client->request('GET', $this->crudUrl(Action::EDIT, self::JUJU));
+
+        self::assertResponseIsSuccessful();
+        $this->assertSame(['DiscordUser[roles][]'], array_values(array_unique($crawler->filter('form[name="DiscordUser"] [name^="DiscordUser["]:not([name="DiscordUser[_token]"])')->each(static fn (Crawler $field): string => (string) $field->attr('name')))));
+        $this->assertSame(['ROLE_ADMIN', 'ROLE_YTCG_ADMIN'], $crawler->filter('select[name="DiscordUser[roles][]"] option')->each(static fn (Crawler $option): string => (string) $option->attr('value')));
+    }
+
+    public function testNewAndDeleteStayDisabled(): void
     {
         $crawler = $this->client->request('GET', $this->crudUrl(Action::INDEX));
         self::assertSelectorNotExists('.action-new');
-        self::assertSelectorNotExists('.action-edit');
         self::assertSelectorNotExists('.action-delete');
         $this->assertCount(0, $crawler->filter('input[type="checkbox"].form-batch-checkbox'));
 
-        foreach ([Action::NEW, Action::EDIT, Action::DELETE] as $action) {
+        foreach ([Action::NEW, Action::DELETE] as $action) {
             $this->client->request('GET', $this->crudUrl($action, self::JUJU));
             self::assertResponseStatusCodeSame(403);
         }
+    }
+
+    public function testTheAdminGrantsAndRevokesAnotherPlayersTcgAdminRole(): void
+    {
+        $this->submitRoles(self::JUJU, [RoleEnum::ROLE_YTCG_ADMIN->value]);
+        self::assertResponseRedirects();
+
+        $roles = $this->getUser(self::JUJU)->getRoles();
+        $this->assertContains(RoleEnum::ROLE_YTCG_ADMIN->value, $roles);
+        $this->assertNotContains(RoleEnum::ROLE_ADMIN->value, $roles);
+        $this->assertContains(RoleEnum::ROLE_YTCG_ADMIN->value, $this->jwtRoles(self::JUJU));
+
+        $this->submitRoles(self::JUJU, []);
+        self::assertResponseRedirects();
+
+        $this->assertNotContains(RoleEnum::ROLE_YTCG_ADMIN->value, $this->getUser(self::JUJU)->getRoles());
+        $this->assertNotContains(RoleEnum::ROLE_YTCG_ADMIN->value, $this->jwtRoles(self::JUJU));
+    }
+
+    public function testTheAdminCannotRemoveTheirOwnAdminRole(): void
+    {
+        $this->submitRoles(self::BARLITO, [RoleEnum::ROLE_YTCG_ADMIN->value]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'Tu ne peux pas te retirer ton propre rôle');
+        static::getContainer()->get(EntityManagerInterface::class)->clear();
+        $this->assertContains(RoleEnum::ROLE_ADMIN->value, $this->getUser(self::BARLITO)->getRoles());
+    }
+
+    public function testTheAdminCanChangeTheirOtherRoles(): void
+    {
+        $this->submitRoles(self::BARLITO, [RoleEnum::ROLE_ADMIN->value]);
+
+        self::assertResponseRedirects();
+        $roles = $this->getUser(self::BARLITO)->getRoles();
+        $this->assertContains(RoleEnum::ROLE_ADMIN->value, $roles);
+        $this->assertNotContains(RoleEnum::ROLE_YTCG_ADMIN->value, $roles);
+    }
+
+    public function testAnotherPlayerCanLoseTheAdminRole(): void
+    {
+        $this->submitRoles(self::JUJU, [RoleEnum::ROLE_ADMIN->value]);
+        $this->submitRoles(self::JUJU, []);
+
+        self::assertResponseRedirects();
+        $this->assertNotContains(RoleEnum::ROLE_ADMIN->value, $this->getUser(self::JUJU)->getRoles());
     }
 
     public function testANonAdminIsDenied(): void
@@ -125,7 +182,9 @@ class DiscordUserCrudControllerTest extends WebTestCase
         $this->client->loginUser($this->getUser(self::JUJU));
 
         $this->client->request('GET', $this->crudUrl(Action::INDEX));
+        self::assertResponseStatusCodeSame(403);
 
+        $this->client->request('GET', $this->crudUrl(Action::EDIT, self::JUJU));
         self::assertResponseStatusCodeSame(403);
     }
 
@@ -147,6 +206,26 @@ class DiscordUserCrudControllerTest extends WebTestCase
         $this->client->request('GET', $this->crudUrl(Action::INDEX));
 
         $this->assertSame($before, $this->queryCount());
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    private function submitRoles(string $discordId, array $roles): void
+    {
+        $crawler = $this->client->request('GET', $this->crudUrl(Action::EDIT, $discordId));
+        $this->client->submit($crawler->selectButton('Save changes')->form(['DiscordUser[roles]' => $roles]));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function jwtRoles(string $discordId): array
+    {
+        $jwtManager = static::getContainer()->get(JWTTokenManagerInterface::class);
+        $payload = $jwtManager->parse($jwtManager->create($this->getUser($discordId)));
+
+        return $payload['roles'];
     }
 
     private function queryCount(): int
