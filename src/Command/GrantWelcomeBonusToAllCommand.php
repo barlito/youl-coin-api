@@ -25,7 +25,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'app:welcome-bonus:grant-all', description: 'Creates the missing wallets and grants the welcome bonus to every whitelisted player who never got it')]
+#[AsCommand(name: 'app:welcome-bonus:grant-all', description: 'Manual catch-up (players are otherwise provisioned at each login): creates the missing wallets and grants the welcome bonus to every whitelisted player who never got it')]
 class GrantWelcomeBonusToAllCommand extends Command
 {
     public function __construct(

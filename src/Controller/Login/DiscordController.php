@@ -9,6 +9,7 @@ use App\Security\DiscordUserWhitelist;
 use App\Security\NotAllowedResponseFactory;
 use App\Security\RedirectTargetPolicy;
 use App\Service\Util\TargetPathRouter;
+use App\Service\Wallet\PlayerWalletProvisioner;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,6 +34,7 @@ class DiscordController extends AbstractController
         RedirectTargetPolicy $redirectTargetPolicy,
         DiscordUserWhitelist $discordUserWhitelist,
         NotAllowedResponseFactory $notAllowedResponseFactory,
+        PlayerWalletProvisioner $playerWalletProvisioner,
     ): Response {
         $user = $this->getUser();
 
@@ -41,6 +43,10 @@ class DiscordController extends AbstractController
             $security->logout(false);
 
             return $notAllowedResponseFactory->create();
+        }
+
+        if ($user instanceof DiscordUser) {
+            $playerWalletProvisioner->provision($user);
         }
 
         $firewallName = $security->getFirewallConfig($request)?->getName();

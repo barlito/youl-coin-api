@@ -17,7 +17,7 @@ use App\Service\Handler\TransactionHandler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
-// Grants the bank-funded welcome bonus at login (DiscordAuthenticator); this login also signs players into youl-tcg, so nothing here may ever throw out
+// Grants the bank-funded welcome bonus at login (PlayerWalletProvisioner); this login also signs players into youl-tcg, so nothing here may ever throw out
 class WelcomeBonusService
 {
     public function __construct(
@@ -37,6 +37,10 @@ class WelcomeBonusService
         }
 
         try {
+            if ($this->hasReceived($wallet)) {
+                return;
+            }
+
             $settings = $this->economySettingsRepository->find(EconomySettings::SINGLETON_ID);
             if (!$settings instanceof EconomySettings) {
                 $this->logger->error('Welcome bonus disabled: the economy settings row is missing.');
@@ -45,7 +49,7 @@ class WelcomeBonusService
             }
 
             $amount = $settings->getWelcomeBonusAmount();
-            if (is_numeric($amount) && bccomp($amount, '0') > 0 && !$this->hasReceived($wallet)) {
+            if (is_numeric($amount) && bccomp($amount, '0') > 0) {
                 $this->grant($wallet, $amount);
             }
         } catch (ConflictHttpException $exception) {
