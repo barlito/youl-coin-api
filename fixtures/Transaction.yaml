@@ -6,3 +6,21 @@ App\Entity\Transaction:
     walletTo: '@wallet_juju'
     externalIdentifier: 'fixture'
     type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
+
+  transaction_issued_by_test:
+    id: 'a1b2c3d4-0000-4000-8000-000000000001'
+    amount: 2500000000
+    walletFrom: '@wallet_farph'
+    walletTo: '@wallet_barlito'
+    externalIdentifier: 'fixture_issued_by_test'
+    issuer: '@api_user_test'
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC
+
+  transaction_issued_by_other:
+    id: 'a1b2c3d4-0000-4000-8000-000000000002'
+    amount: 1000
+    walletFrom: '@wallet_barlito'
+    walletTo: '@wallet_farph'
+    externalIdentifier: 'fixture_issued_by_other'
+    issuer: '@api_user_other'
+    type: !php/const App\Enum\TransactionTypeEnum::CLASSIC

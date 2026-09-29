@@ -12,5 +12,7 @@ enum ApiUserRoleEnum: string
     // Debit a player into the bank (purchases)
     case ROLE_TRANSACTION_USER_TO_BANK = 'ROLE_TRANSACTION_USER_TO_BANK';
     case ROLE_TRANSACTION_USER_TO_USER = 'ROLE_TRANSACTION_USER_TO_USER';
+    // Read back the transactions this API client created
+    case ROLE_TRANSACTION_READ = 'ROLE_TRANSACTION_READ';
     case ROLE_WALLET_READ = 'ROLE_WALLET_READ';
 }

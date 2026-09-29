@@ -8,6 +8,7 @@ App\Entity\ApiUser:
       - ROLE_TRANSACTION_BANK_TO_USER
       - ROLE_TRANSACTION_USER_TO_BANK
       - ROLE_TRANSACTION_USER_TO_USER
+      - ROLE_TRANSACTION_READ
       - ROLE_WALLET_READ
 
   api_user_other:
@@ -18,6 +19,7 @@ App\Entity\ApiUser:
       - ROLE_TRANSACTION_BANK_TO_USER
       - ROLE_TRANSACTION_USER_TO_BANK
       - ROLE_TRANSACTION_USER_TO_USER
+      - ROLE_TRANSACTION_READ
       - ROLE_WALLET_READ
 
   # A game backend: may credit and debit players against the bank, never move coins between players
@@ -28,6 +30,7 @@ App\Entity\ApiUser:
       - ROLE_USER
       - ROLE_TRANSACTION_BANK_TO_USER
       - ROLE_TRANSACTION_USER_TO_BANK
+      - ROLE_TRANSACTION_READ
 
   api_user_reader:
     name: 'reader'

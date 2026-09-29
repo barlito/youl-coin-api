@@ -83,6 +83,16 @@ final class ApiContext extends ApiTestCase implements Context
     }
 
     /**
+     * @Then the JSON should contain:
+     *
+     * @throws \JsonException
+     */
+    public function theJsonShouldContain(PyStringNode $expected): void
+    {
+        self::assertJsonContains(json_decode($expected->getRaw(), true, 512, JSON_THROW_ON_ERROR));
+    }
+
+    /**
      * @Then the JSON should contain a ConstraintViolationList with :message
      */
     public function theJSONShouldContainAConstraintViolationListWith($message)

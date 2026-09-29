@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
@@ -20,9 +24,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Assert\GroupSequence(['Transaction', 'Strict'])]
 #[CustomAssert\Entity\Transaction\TransactionConstraint(groups: ['Strict'])]
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ApiFilter(SearchFilter::class, properties: ['externalIdentifier' => 'exact'])]
 #[ORM\UniqueConstraint(name: 'transaction_issuer_external_identifier_unique', columns: ['issuer_id', 'external_identifier'])]
 #[ApiResource(
     operations: [
+        // Reads are scoped to the transactions of the calling API client (IssuerScopedTransactionExtension)
+        new Get(security: 'is_granted("ROLE_TRANSACTION_READ")'),
+        new GetCollection(security: 'is_granted("ROLE_TRANSACTION_READ")'),
         // Better to use a DTO than the entity just because of fields type validation in payload
         // Validated by the handler, under the wallet locks and after the idempotent replay lookup
         new Post(
