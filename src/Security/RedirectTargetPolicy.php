@@ -6,13 +6,7 @@ namespace App\Security;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-/**
- * Decides whether a post-login redirect target (`_target_path`) is safe to follow.
- *
- * Accepts either a single-leading-slash relative path, or an absolute https URL (http only
- * in dev) whose host is covered by `app.allowed_redirect_hosts`. Anything else is refused,
- * closing the open-redirect otherwise reachable through `_target_path`.
- */
+// Only a single-slash path or an https URL on an allowed host may be followed after login
 readonly class RedirectTargetPolicy
 {
     private const array ALWAYS_ALLOWED_SCHEMES = ['https'];

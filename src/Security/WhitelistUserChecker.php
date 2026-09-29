@@ -9,12 +9,7 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusExce
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * Re-checks the Discord whitelist on every authentication on the "main" firewall, not only
- * at login: this also runs when a remember-me cookie silently re-authenticates a request, so
- * an account removed from the whitelist loses access even while its remember-me cookie (1 week)
- * is still valid.
- */
+// Also runs on remember-me re-authentication, not only at the Discord login
 readonly class WhitelistUserChecker implements UserCheckerInterface
 {
     public const string ACCESS_DENIED_MESSAGE = 'Your account is not allowed to access this app.';

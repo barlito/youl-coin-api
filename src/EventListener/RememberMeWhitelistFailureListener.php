@@ -11,13 +11,7 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusExce
 use Symfony\Component\Security\Http\Authenticator\RememberMeAuthenticator;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 
-/**
- * A remember-me cookie (1 week) can silently re-authenticate a request for an account that was
- * since removed from the whitelist (WhitelistUserChecker throws in that case). Without this
- * listener the request would just fall back to anonymous; here it fails closed instead: 403,
- * session invalidated, remember-me and jwt cookies cleared. Covers every route on the "main"
- * firewall, not only /refresh_token, since it runs before the controller (kernel.request).
- */
+// Fails closed (403, session and cookies cleared) when a remember-me cookie outlives the whitelist entry
 #[AsEventListener(event: LoginFailureEvent::class)]
 readonly class RememberMeWhitelistFailureListener
 {
