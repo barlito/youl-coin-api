@@ -79,6 +79,9 @@ Feature:
         When I send a GET request to "/api/transactions/a1b2c3d4-0000-4000-8000-000000000002"
         Then the response status code should be 404
 
+        When I send a GET request to "/api/transactions/not-a-uuid"
+        Then the response status code should be 404
+
         When I send a GET request to "/api/transactions?externalIdentifier=fixture_issued_by_other"
         Then the response status code should be 200
         And the JSON should contain:

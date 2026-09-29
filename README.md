@@ -22,7 +22,7 @@ Trusted app ──▶ POST /api/transactions (API token) ───────�
 Two ways in, one code path:
 
 1. **AMQP** — the Discord bot (private repo `youl-coin-discord-bot`) publishes a transaction message to the `transaction_exchange` RabbitMQ exchange. Dedicated worker containers (Symfony Messenger consumers under supervisor, 2 replicas) pick it up through a custom serializer and validate it (amount format, both wallets must exist, valid transaction type).
-2. **HTTP** — trusted services `POST /api/transactions` (API Platform), authenticated with a Bearer API token and guarded by `ROLE_TRANSACTION_CREATE`.
+2. **HTTP** — trusted services `POST /api/transactions` (API Platform), authenticated with a Bearer API token and guarded by one role per direction (`ROLE_TRANSACTION_BANK_TO_USER`, `ROLE_TRANSACTION_USER_TO_BANK`, `ROLE_TRANSACTION_USER_TO_USER`). Reads need `ROLE_TRANSACTION_READ` / `ROLE_WALLET_READ`.
 
 Both paths end in the same `TransactionHandler`: it takes a global lock (`symfony/lock`) to serialize concurrent transactions, re-validates, moves the amount between wallets with `brick/money` (amounts stored as minor units — no floats), and persists atomically. It then publishes the transaction to `transaction_notification_exchange` for the bot to consume, and posts a rich embed to a Discord channel via webhook (`symfony/discord-notifier`). Failed messages trigger a Discord error notification plus a critical log.
 

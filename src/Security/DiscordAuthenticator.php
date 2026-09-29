@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,6 +44,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         private readonly TargetPathRouter $targetPathRouter,
         private readonly RouterInterface $router,
         private readonly AuthenticationSuccessHandler $jwtAuthSuccessHandler,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -93,8 +95,6 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
                     $this->createWallet($user);
                 }
 
-                $this->entityManager->flush();
-
                 return $user;
             }),
             [new RememberMeBadge()],
@@ -132,6 +132,7 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
             ->setRoles([RoleEnum::ROLE_USER->value])
         ;
         $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
         return $user;
     }
@@ -145,6 +146,15 @@ class DiscordAuthenticator extends OAuth2Authenticator implements Authentication
         ;
         $user->setWallet($wallet);
 
-        $this->entityManager->persist($wallet);
+        // This login also signs players into youl-tcg: a failed wallet must never block it, the next login retries
+        try {
+            $this->entityManager->persist($wallet);
+            $this->entityManager->flush();
+        } catch (\Throwable $exception) {
+            $this->logger->error('Wallet creation at login failed.', [
+                'discordId' => $user->getDiscordId(),
+                'exception' => $exception,
+            ]);
+        }
     }
 }

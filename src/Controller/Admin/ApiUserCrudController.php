@@ -32,7 +32,11 @@ class ApiUserCrudController extends AbstractCrudController
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+        // Transactions keep a reference to their API client: revoke a client by removing its roles instead
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->disable(Action::DELETE, Action::BATCH_DELETE)
+        ;
     }
 
     /**
