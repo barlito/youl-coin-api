@@ -26,4 +26,17 @@ enum TransactionTypeEnum: string
     {
         return \in_array($this, [self::MINT, self::BURN, self::WELCOME_BONUS], true);
     }
+
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::CLASSIC => 'Transfert classique',
+            self::AIR_DROP => 'Air drop',
+            self::REGULATION => 'Régulation',
+            self::SEASON_REWARD => 'Récompense de saison',
+            self::MINT => 'Mint',
+            self::BURN => 'Burn',
+            self::WELCOME_BONUS => 'Bonus de bienvenue',
+        };
+    }
 }

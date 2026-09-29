@@ -1,0 +1,97 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title 'Économie YLC' %}
+
+{% block main %}
+    {% set ledger = dashboard.ledger %}
+    {% if ledger.balanced %}
+        <div class="alert alert-success" role="alert"><strong>Registre cohérent</strong> : la somme des wallets correspond à Mint − Burn ({{ ledger.expectedWalletTotal|coins }}).</div>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            <strong>Registre incohérent</strong> : les wallets contiennent {{ ledger.walletTotal|coins }} pour {{ ledger.expectedWalletTotal|coins }} attendus (Mint − Burn), soit un écart de {{ ledger.difference|coins }}.
+        </div>
+    {% endif %}
+
+    <style>
+        .economy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .economy-tile { border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
+        .economy-tile-label { color: var(--text-muted); font-size: .85rem; }
+        .economy-tile-value { font-size: 1.4rem; font-weight: 600; }
+        .economy-tile-note { color: var(--text-muted); font-size: .85rem; }
+        .economy-bar { background: var(--border-color); border-radius: 4px; height: 12px; min-width: 120px; }
+        .economy-bar > span { background: var(--color-primary); border-radius: 4px; display: block; height: 100%; }
+        .economy-table td, .economy-table th { padding: 6px 12px; }
+    </style>
+
+    <h3>Masse monétaire</h3>
+    <div class="economy-grid">
+        <div class="economy-tile">
+            <div class="economy-tile-label">Masse totale</div>
+            <div class="economy-tile-value">{{ dashboard.totalSupply|coins }}</div>
+        </div>
+        <div class="economy-tile">
+            <div class="economy-tile-label">Banque</div>
+            <div class="economy-tile-value">{{ dashboard.bankBalance|coins }}</div>
+        </div>
+        <div class="economy-tile">
+            <div class="economy-tile-label">En circulation (joueurs)</div>
+            <div class="economy-tile-value">{{ dashboard.circulation|coins }}</div>
+            <div class="economy-tile-note">{{ dashboard.playerWalletCount }} wallets joueurs</div>
+        </div>
+        <div class="economy-tile">
+            <div class="economy-tile-label">Joueurs actifs ({{ dashboard.periodDays }} jours)</div>
+            <div class="economy-tile-value">{{ dashboard.activePlayers }}</div>
+            <div class="economy-tile-note">sur {{ dashboard.playerWalletCount }} wallets joueurs</div>
+        </div>
+    </div>
+
+    <h3>Concentration</h3>
+    <div class="economy-grid">
+        <div class="economy-tile">
+            <div class="economy-tile-label">Part des 2 plus gros soldes</div>
+            <div class="economy-tile-value">{{ dashboard.topTwoSharePercent is null ? '–' : dashboard.topTwoSharePercent ~ ' %' }}</div>
+            <div class="economy-tile-note">de la circulation</div>
+        </div>
+        <div class="economy-tile">
+            <div class="economy-tile-label">Joueurs à 0</div>
+            <div class="economy-tile-value">{{ dashboard.zeroBalancePlayers }}</div>
+        </div>
+    </div>
+    <table class="table economy-table">
+        <thead><tr><th>Top 5 des soldes joueurs</th><th class="text-end">Solde</th></tr></thead>
+        <tbody>
+            {% for balance in dashboard.topBalances %}
+                <tr><td>{{ balance.name }}</td><td class="text-end">{{ balance.amount|coins }}</td></tr>
+            {% else %}
+                <tr><td colspan="2">Aucun wallet joueur.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Flux des {{ dashboard.periodDays }} derniers jours par type</h3>
+    <table class="table economy-table">
+        <thead><tr><th>Type</th><th class="text-end">Transactions</th><th class="text-end">Montant total</th></tr></thead>
+        <tbody>
+            {% for flow in dashboard.flowByType %}
+                <tr><td>{{ flow.type.label }}</td><td class="text-end">{{ flow.count }}</td><td class="text-end">{{ flow.amount|coins }}</td></tr>
+            {% else %}
+                <tr><td colspan="3">Aucune transaction sur la période.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Volume par jour</h3>
+    <table class="table economy-table">
+        <thead><tr><th>Jour</th><th class="text-end">Transactions</th><th class="text-end">Volume</th><th></th></tr></thead>
+        <tbody>
+            {% for day in dashboard.flowByDay|reverse %}
+                <tr>
+                    <td>{{ day.day|date('d/m/Y') }}</td>
+                    <td class="text-end">{{ day.count }}</td>
+                    <td class="text-end">{{ day.amount|coins }}</td>
+                    <td class="w-50"><div class="economy-bar"><span style="width: {{ day.percent }}%"></span></div></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

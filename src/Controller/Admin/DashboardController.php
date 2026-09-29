@@ -8,18 +8,18 @@ use App\Entity\AllowedDiscordUser;
 use App\Entity\ApiUser;
 use App\Entity\EconomySettings;
 use App\Entity\Wallet;
+use App\Service\Admin\EconomyStatsProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends AbstractDashboardController
 {
     public function __construct(
-        private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly array $adminUrls,
+        private readonly EconomyStatsProvider $economyStatsProvider,
     ) {
     }
 
@@ -27,9 +27,7 @@ class DashboardController extends AbstractDashboardController
     #[\Override]
     public function index(): Response
     {
-        return $this->redirect($this->adminUrlGenerator->setController(WalletCrudController::class)->generateUrl());
-
-        // return some charts of week transactions something like that
+        return $this->render('admin/dashboard/index.html.twig', ['dashboard' => $this->economyStatsProvider->provide()]);
     }
 
     #[\Override]

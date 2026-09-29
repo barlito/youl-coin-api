@@ -35,6 +35,14 @@ readonly class LedgerCheckResult
         return bcsub($this->mintTotal, $this->burnTotal);
     }
 
+    /**
+     * @return numeric-string
+     */
+    public function getDifference(): string
+    {
+        return ltrim(bcsub($this->walletTotal, $this->getExpectedWalletTotal()), '-');
+    }
+
     public function isBalanced(): bool
     {
         return 0 === bccomp($this->walletTotal, $this->getExpectedWalletTotal());
