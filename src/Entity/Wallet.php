@@ -35,6 +35,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     fromClass: DiscordUser::class,
                 ),
             ],
+            // 'default' carries the id group from IdUlidTrait; no discordUser/roles/username leak here
+            normalizationContext: ['groups' => ['wallet:read', 'default']],
             security: 'is_granted("ROLE_WALLET_READ")',
         )],
 )]
@@ -47,21 +49,22 @@ class Wallet implements \Stringable
     use IdUlidTrait;
     use TimestampableEntity;
 
-    #[Groups('transaction:notification')]
+    #[Groups(['transaction:notification', 'wallet:read'])]
     #[ORM\Column(type: 'string', length: 255)]
     private string $amount;
 
+    // Never exposed in the 'wallet:read' group: use getDiscordId() instead, which only leaks the owner's discord id
     #[Groups('transaction:notification')]
     #[ORM\OneToOne(targetEntity: DiscordUser::class, inversedBy: 'wallet')]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id')]
     private ?DiscordUser $discordUser = null;
 
     #[Assert\Type(WalletTypeEnum::class)]
-    #[Groups('transaction:notification')]
+    #[Groups(['transaction:notification', 'wallet:read'])]
     #[ORM\Column(type: 'string', enumType: WalletTypeEnum::class)]
     private WalletTypeEnum $type;
 
-    #[Groups('transaction:notification')]
+    #[Groups(['transaction:notification', 'wallet:read'])]
     #[ORM\Column(type: 'string')]
     private string $name;
 
@@ -92,6 +95,27 @@ class Wallet implements \Stringable
         $this->discordUser = $discordUser;
 
         return $this;
+    }
+
+    // Flat, minimal owner reference for 'wallet:read'; null for the bank wallet
+    #[Groups('wallet:read')]
+    public function getDiscordId(): ?string
+    {
+        return $this->discordUser?->getDiscordId();
+    }
+
+    // Overrides TimestampableEntity's getter only to attach the 'wallet:read' group
+    #[Groups('wallet:read')]
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    // Overrides TimestampableEntity's getter only to attach the 'wallet:read' group
+    #[Groups('wallet:read')]
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
     }
 
     public function getType(): WalletTypeEnum

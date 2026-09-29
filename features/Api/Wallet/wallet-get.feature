@@ -40,8 +40,25 @@ Feature:
 
         Given I set header "Authorization" with value "Bearer api_key_reader"
 
-        When I send a GET request to "/api/user/232457563910832129/wallet"
+        When I send a GET request to "/api/user/188967649332428800/wallet"
 
         Then the response status code should be 200
+
+        And the JSON should contain:
+        """
+        {
+            "@type": "Wallet",
+            "discordId": "188967649332428800",
+            "amount": "900000000000",
+            "type": "user",
+            "name": "Wallet Barlito"
+        }
+        """
+
+        And the JSON should not have the key "discordUser"
+        And the JSON should not have the key "username"
+        And the JSON should not have the key "userIdentifier"
+        And the JSON should not have the key "roles"
+        And the JSON should not have the key "wallet"
 
         And JSON schema should validate Wallet class
