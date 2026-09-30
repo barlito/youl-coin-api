@@ -366,6 +366,16 @@ td.history-date {
     color: var(--text-muted);
 }
 
+.history-note {
+    display: block;
+    max-width: 22rem;
+    margin-top: 0.25rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
 .numeric {
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -422,6 +432,11 @@ td.numeric {
     .history-type {
         grid-area: type;
         justify-self: end;
+        text-align: right;
+    }
+
+    .history-note {
+        max-width: 14rem;
     }
 }
 

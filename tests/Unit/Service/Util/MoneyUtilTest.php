@@ -52,4 +52,23 @@ class MoneyUtilTest extends TestCase
 
         new MoneyUtil()->coinsToMinor($coins);
     }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function formattedAmounts(): iterable
+    {
+        yield 'zero' => ['0', "¥¢\u{00A0}0.00"];
+        yield 'whole coins' => ['2500000000', "¥¢\u{00A0}25.00"];
+        yield 'cents' => ['150000000', "¥¢\u{00A0}1.50"];
+        yield 'below one cent' => ['1000', "¥¢\u{00A0}0.00001"];
+        yield 'smallest unit' => ['1', "¥¢\u{00A0}0.00000001"];
+        yield 'eight decimals' => ['123456789', "¥¢\u{00A0}1.23456789"];
+    }
+
+    #[DataProvider('formattedAmounts')]
+    public function testASmallNonZeroAmountIsNeverDisplayedAsZero(string $minor, string $expected): void
+    {
+        $this->assertSame($expected, new MoneyUtil()->getFormattedMoney($minor));
+    }
 }

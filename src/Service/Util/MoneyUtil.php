@@ -29,7 +29,9 @@ class MoneyUtil
     {
         $formatter = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
         $formatter->setSymbol(\NumberFormatter::CURRENCY_SYMBOL, self::CURRENCY_SYMBOL);
+        // Two decimals minimum, up to the 8 of the currency: a non-zero amount is never displayed as 0.00
         $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 8);
 
         return $formatter;
     }

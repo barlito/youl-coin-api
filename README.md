@@ -30,16 +30,22 @@ Both paths end in the same `TransactionHandler`: it takes a global lock (`symfon
 
 | Type | Direction | Label |
 |---|---|---|
-| `classic` | any | Transfert classique |
+| `classic` | any | Virement |
 | `air_drop`, `season_reward` | bank → player | Air drop, Récompense de saison |
 | `regulation` | involves the bank | Régulation |
-| `purchase` | player → bank | Achat |
+| `purchase` | player → bank | Achat en boutique |
 | `reward` | bank → player | Récompense |
-| `market_payment` | player → bank (buyer pays the escrow) | Marché — paiement |
-| `market_payout` | bank → player (seller paid) | Marché — vente |
-| `market_refund` | bank → player (buyer refunded) | Marché — remboursement |
+| `market_payment` | player → bank (buyer pays the escrow) | Achat au marché |
+| `market_payout` | bank → player (seller paid) | Vente au marché |
+| `market_refund` | bank → player (buyer refunded) | Remboursement marché |
 
 `mint`, `burn` and `welcome_bonus` are system-only and never accepted through the API. A wrong direction answers 422 with a message naming the type. Apps read the bank wallet id with `GET /api/bank/wallet` (`ROLE_WALLET_READ`, same output as `GET /api/user/{id}/wallet`).
+
+### Description and app name
+
+`POST /api/transactions` accepts an optional `description`: plain text, 140 characters max (longer answers 422), trimmed, blank stored as `null`. It is never interpreted (always escaped when rendered), so send a short player-facing sentence such as `"Booster Pokémon"`. It is **not** part of the idempotent replay comparison (cosmetic): replaying an `externalIdentifier` with another description returns the original transaction, description included.
+
+It is returned by `GET /api/transactions[/{id}]`, by the player history `GET /api/user/{discordId}/transactions` (next to `app`, the public name of the issuing API client) and in the webhook payload. The player hub shows `<app> · <description>` under the type badge. The app name is the « Nom affiché aux joueurs » of the API client in the admin (falls back to its technical name).
 
 ### Webhooks
 
@@ -53,7 +59,7 @@ Content-Type: application/json
 X-Youl-Timestamp: 1790000000
 X-Youl-Signature: sha256=<hex>
 
-{"event":"transaction.committed","transactionId":"<uuid>","type":"classic","amount":"2500000000","createdAt":"2026-09-30T14:04:40+00:00","wallets":[{"discordId":"188967949963362304","balance":"700000000000"}]}
+{"event":"transaction.committed","transactionId":"<uuid>","type":"classic","amount":"2500000000","description":null,"createdAt":"2026-09-30T14:04:40+00:00","wallets":[{"discordId":"188967949963362304","balance":"700000000000"}]}
 ```
 
 `<hex> = hash_hmac('sha256', "<timestamp>.<raw body>", secret)`; receivers should compare in constant time and reject old timestamps. A 2xx answer means delivered; anything else (or a timeout) is retried by the `outbox` transport, then lands in the `failed` transport (admin « Notifications en échec »). Each subscriber gets its own message, so one failing app never replays the others or the Discord notification.

@@ -48,7 +48,7 @@ class TransactionCrudControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', $this->crudUrl(Action::INDEX));
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Transfert classique');
+        self::assertSelectorTextContains('body', 'Virement');
         self::assertSelectorTextContains('body', 'test');
         $this->assertStringContainsString('01/01/2099 13:00:00', $crawler->filter('tbody tr')->first()->text());
         self::assertSelectorTextContains('body', 'Air drop');

@@ -32,6 +32,7 @@ class TransactionRepository extends ServiceEntityRepository
     {
         // The ulid type must be given explicitly: parameter type inference does not reach the custom type
         $queryBuilder = $this->createQueryBuilder('t')
+            ->leftJoin('t.issuer', 'issuer')->addSelect('issuer')
             ->andWhere('t.walletFrom = :wallet OR t.walletTo = :wallet')
             ->setParameter('wallet', $wallet->getId(), 'ulid')
             // createdAt has second precision: id as tiebreak keeps pagination stable across pages

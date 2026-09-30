@@ -109,6 +109,7 @@ class TransactionCrudController extends AbstractCrudController
         yield AssociationField::new('issuer', 'Client API')->formatValue($this->orEmpty(...));
         yield AssociationField::new('initiatedBy', 'Admin')->formatValue($this->orEmpty(...));
 
+        yield TextField::new('description', 'Description')->onlyOnDetail();
         yield TextareaField::new('reason', 'Motif')->onlyOnDetail();
         yield TextField::new('externalIdentifier', 'Identifiant externe')->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Mis à jour le')->onlyOnDetail();

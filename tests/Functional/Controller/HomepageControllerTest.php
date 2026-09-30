@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller;
 
+use App\Entity\ApiUser;
 use App\Entity\DiscordUser;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
@@ -62,6 +63,34 @@ class HomepageControllerTest extends WebTestCase
         $secondRow = $crawler->filter('tbody tr')->eq(1)->text();
         $this->assertStringContainsString('Warny', $secondRow);
         $this->assertStringContainsString('02/02/2026 10:00', $secondRow);
+    }
+
+    public function testTheAppAndTheEscapedDescriptionAreShownUnderTheTypeBadge(): void
+    {
+        $transaction = $this->addTransaction(self::BANK_WALLET_ID, $this->bulkWallet()->getId(), TransactionTypeEnum::REWARD, '1000', '-1 minute');
+        $transaction->setIssuer($this->entityManager->getRepository(ApiUser::class)->findOneBy(['name' => 'test']));
+        $transaction->setDescription('Univers <script>alert(1)</script> complété');
+        $this->entityManager->flush();
+        $this->loginAsBulkPlayer();
+
+        $crawler = $this->client->request('GET', '/');
+
+        $firstRow = $crawler->filter('tbody tr')->first();
+        $this->assertStringContainsString('Récompense', $firstRow->filter('.history-type')->text());
+        $this->assertSame('Youl TCG · Univers <script>alert(1)</script> complété', $firstRow->filter('.history-note')->text());
+        $this->assertSame(0, $crawler->filter('tbody script')->count());
+        $this->assertStringContainsString('&lt;script&gt;', (string) $this->client->getResponse()->getContent());
+        $this->assertStringContainsString('0.00001', $firstRow->filter('.history-amount')->text());
+        $this->assertStringContainsString('Banque', $firstRow->filter('.history-counterpart')->text());
+    }
+
+    public function testNoNoteIsRenderedWithoutAppNorDescription(): void
+    {
+        $this->loginAsBulkPlayer();
+
+        $crawler = $this->client->request('GET', '/');
+
+        $this->assertSame(0, $crawler->filter('.history-note')->count());
     }
 
     public function testTheHistoryIsPaginatedByTwenty(): void

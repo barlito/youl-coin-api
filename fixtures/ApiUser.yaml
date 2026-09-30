@@ -2,6 +2,7 @@
 App\Entity\ApiUser:
   api_user_test:
     name: 'test'
+    displayName: 'Youl TCG'
     plainApiKey: "api_key_test"
     roles:
       - ROLE_USER

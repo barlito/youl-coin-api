@@ -60,6 +60,7 @@ class ApiUserCrudController extends AbstractCrudController
     {
         yield TextField::new('id')->hideOnForm();
         yield TextField::new('name');
+        yield TextField::new('displayName', 'Nom affiché aux joueurs')->setHelp('Ex. « Youl TCG ». Sinon le nom technique est affiché.');
         yield TextField::new('apiKeyPrefix', 'Préfixe de la clé')->hideOnForm();
 
         yield ChoiceField::new('roles')

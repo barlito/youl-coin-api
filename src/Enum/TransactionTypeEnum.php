@@ -37,17 +37,17 @@ enum TransactionTypeEnum: string
     public function getLabel(): string
     {
         return match ($this) {
-            self::CLASSIC => 'Transfert classique',
+            self::CLASSIC => 'Virement',
             self::AIR_DROP => 'Air drop',
             self::REGULATION => 'Régulation',
             self::MINT => 'Mint',
             self::BURN => 'Burn',
             self::WELCOME_BONUS => 'Bonus de bienvenue',
-            self::PURCHASE => 'Achat',
+            self::PURCHASE => 'Achat en boutique',
             self::REWARD => 'Récompense',
-            self::MARKET_PAYMENT => 'Marché — paiement',
-            self::MARKET_PAYOUT => 'Marché — vente',
-            self::MARKET_REFUND => 'Marché — remboursement',
+            self::MARKET_PAYMENT => 'Achat au marché',
+            self::MARKET_PAYOUT => 'Vente au marché',
+            self::MARKET_REFUND => 'Remboursement marché',
         };
     }
 }
