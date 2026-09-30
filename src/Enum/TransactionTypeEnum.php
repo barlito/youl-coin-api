@@ -9,7 +9,6 @@ enum TransactionTypeEnum: string
     case CLASSIC = 'classic';
     case AIR_DROP = 'air_drop';
     case REGULATION = 'regulation';
-    case SEASON_REWARD = 'season_reward';
     // Admin-only: creates coins out of nowhere into the bank wallet
     case MINT = 'mint';
     // Admin-only: destroys coins held by the bank wallet
@@ -33,7 +32,6 @@ enum TransactionTypeEnum: string
             self::CLASSIC => 'Transfert classique',
             self::AIR_DROP => 'Air drop',
             self::REGULATION => 'Régulation',
-            self::SEASON_REWARD => 'Récompense de saison',
             self::MINT => 'Mint',
             self::BURN => 'Burn',
             self::WELCOME_BONUS => 'Bonus de bienvenue',

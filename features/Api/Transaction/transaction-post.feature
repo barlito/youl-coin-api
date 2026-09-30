@@ -59,7 +59,6 @@ Feature:
             | 10            | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | wrong         | 400  | The data must belong to a backed enumeration of type App\Enum\TransactionTypeEnum |
             | 10            | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01HAJGPGCP28GFA6QD08NMH764 | air_drop      | 422  | AirDrop Transaction must have the Bank Wallet as Wallet From.                     |
             | 10            | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01FPD1DNKVFS5GGBPVXBT3YQ01 | regulation    | 422  | Regulation Transaction must have the Bank Wallet as Wallet From or Wallet To.     |
-            | 10            | 01FPD1DHMWPV4BHJQ82TSJEBJC | 01HAJGPGCP28GFA6QD08NMH764 | season_reward | 422  | Season Reward Transaction must have the Bank Wallet as Wallet From.               |
 
 
     Scenario:

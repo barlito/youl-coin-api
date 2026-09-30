@@ -57,7 +57,6 @@ class TransactionConstraintValidator extends ConstraintValidator
 
         $this->validateAirDropType($value, $constraint, $walletFrom);
         $this->validateRegulationType($value, $constraint, $walletFrom, $walletTo);
-        $this->validateSeasonRewardType($value, $constraint, $walletFrom);
         $this->validateWelcomeBonusType($value, $constraint, $walletFrom, $walletTo);
     }
 
@@ -148,18 +147,6 @@ class TransactionConstraintValidator extends ConstraintValidator
                 && WalletTypeEnum::BANK !== $walletTo->getType())
         ) {
             $this->context->buildViolation($constraint::REGULATION_NO_BANK_WALLET)
-                ->addViolation()
-            ;
-        }
-    }
-
-    private function validateSeasonRewardType(Transaction $transaction, TransactionConstraint $constraint, Wallet $walletFrom): void
-    {
-        if (
-            TransactionTypeEnum::SEASON_REWARD === $transaction->getType()
-            && WalletTypeEnum::BANK !== $walletFrom->getType()
-        ) {
-            $this->context->buildViolation($constraint::SEASON_REWARD_WRONG_WALLET_FROM)
                 ->addViolation()
             ;
         }

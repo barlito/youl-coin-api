@@ -45,7 +45,7 @@ Feature:
             | 10            | 188967649332428800 | 195659530363731968 | burn          | Mint, Burn and WelcomeBonus transactions cannot be created through the message queue. |
             | 10            | bank               | 195659530363731968 | welcome_bonus | Mint, Burn and WelcomeBonus transactions cannot be created through the message queue. |
             | 10            | 188967649332428800 | 195659530363731968 | regulation    | Regulation Transaction must have the Bank Wallet as Wallet From or Wallet To.         |
-            | 10            | 188967649332428800 | bank               | season_reward | Season Reward Transaction must have the Bank Wallet as Wallet From.                   |
+            | 10            | bank               | 195659530363731968 | season_reward | The type value you selected is not a valid Transaction Type or is null.               |
 
     Scenario: I send a correct Message
     TransactionMessage should be processed
@@ -228,51 +228,5 @@ Feature:
           "walletTo.name": "Bank Wallet",
           "type": "!php/enum App\\Enum\\TransactionTypeEnum::REGULATION",
           "externalIdentifier": "regulationReverse"
-        }
-        """
-
-    Scenario: I send a correct Message with SEASON_REWARD
-    TransactionMessage should be processed
-    A Transaction entity should be created in database
-    Wallet should have been updated
-
-        Given I reload the fixtures
-
-        Given a "Wallet" entity found by "type=bank" should match:
-            | amount | 1000000000000 |
-        Given a "Wallet" entity found by "discordUser=195659530363731968" should match:
-            | amount | 800000000000 |
-
-        When I send and consume a TransactionMessage to the queue with body:
-        """
-        {
-          "amount": 1000000000,
-          "discordUserIdFrom": "bank",
-          "discordUserIdTo": "195659530363731968",
-          "type": "season_reward",
-          "externalIdentifier": "season_reward"
-        }
-        """
-
-        Then a "Wallet" entity found by "type=bank" should match:
-            | amount | 999000000000 |
-        And a "Wallet" entity found by "discordUser=195659530363731968" should match:
-            | amount | 801000000000 |
-        And a "Transaction" entity found by "walletFrom=01HAJGPGCP28GFA6QD08NMH764&walletTo=01FPD1DNKVFS5GGBPVXBT3YQ01&externalIdentifier=season_reward" should match:
-            | amount             | 1000000000                                            |
-            | type               | !php/enum App\Enum\TransactionTypeEnum::SEASON_REWARD |
-            | externalIdentifier | season_reward                                         |
-
-        And the Discord notifier should have notified "1" notifications
-
-        And "1" message has been sent on "transaction_notification" transport
-        And the "1" message sent on "transaction_notification" transport should match:
-        """
-        {
-          "amount": 1000000000,
-          "walletFrom.name": "Bank Wallet",
-          "walletTo.discordUser.discordId": "195659530363731968",
-          "type": "!php/enum App\\Enum\\TransactionTypeEnum::SEASON_REWARD",
-          "externalIdentifier": "season_reward"
         }
         """
