@@ -49,6 +49,7 @@ services:
             replicas: 2
         networks:
             - yc_api_internal
+            - traefik_traefik_proxy
 
     db:
         image: postgres:18
