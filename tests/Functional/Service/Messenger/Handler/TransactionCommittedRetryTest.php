@@ -21,6 +21,7 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMessageLimitListener;
 use Symfony\Component\Messenger\Handler\HandlersLocator;
 use Symfony\Component\Messenger\MessageBus;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Symfony\Component\Messenger\Retry\MultiplierRetryStrategy;
@@ -78,6 +79,8 @@ class TransactionCommittedRetryTest extends KernelTestCase
             $container->get(TransactionRepository::class),
             $notifier,
             $this->createStub(TransactionNotificationPublisher::class),
+            $this->createStub(MessageBusInterface::class),
+            [],
         );
         $senders = new ServiceLocator(['outbox' => fn () => $this->transport]);
         $bus = new MessageBus([

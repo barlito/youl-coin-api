@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\IdUuidTrait;
 use App\Enum\TransactionTypeEnum;
+use App\Enum\WalletTypeEnum;
 use App\Repository\TransactionRepository;
 use App\State\TransactionStateProcessor;
 use App\Validator as CustomAssert;
@@ -135,6 +136,17 @@ class Transaction
         $this->walletTo = $walletTo;
 
         return $this;
+    }
+
+    /**
+     * @return list<Wallet>
+     */
+    public function getPlayerWallets(): array
+    {
+        return array_values(array_filter(
+            [$this->walletFrom, $this->walletTo],
+            static fn (?Wallet $wallet): bool => WalletTypeEnum::USER === $wallet?->getType(),
+        ));
     }
 
     public function getExternalIdentifier(): ?string

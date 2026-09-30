@@ -4,6 +4,7 @@ services:
         environment:
             APP_ENV: prod
             APP_SECRET: "${APP_SECRET:?APP_SECRET is required}"
+            YTCG_WEBHOOK_SECRET: "${YTCG_WEBHOOK_SECRET:?YTCG_WEBHOOK_SECRET is required}"
             DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=18&charset=utf8"
             MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@youl_coin_rabbitmq:5672/%2f/messages"
             DISCORD_DSN: "${DISCORD_DSN}"
@@ -44,6 +45,7 @@ services:
         environment:
             APP_ENV: prod
             APP_SECRET: "${APP_SECRET:?APP_SECRET is required}"
+            YTCG_WEBHOOK_SECRET: "${YTCG_WEBHOOK_SECRET:?YTCG_WEBHOOK_SECRET is required}"
             DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@youl_coin_db:5432/youl_coin?serverVersion=18&charset=utf8"
             MESSENGER_TRANSPORT_DSN: "amqp://${AMQP_USER}:${AMQP_PASS}@youl_coin_rabbitmq:5672/%2f/messages"
             DISCORD_DSN: "${DISCORD_DSN}"
