@@ -31,7 +31,7 @@ Both paths end in the same `TransactionHandler`: it takes a global lock (`symfon
 | Entity | Role |
 |--------|------|
 | `Wallet` | Holds an amount (minor units, string). Type `user` (one per Discord user) or `bank` (unique, enforced by a partial unique index). |
-| `Transaction` | Immutable movement between two wallets. Types: `classic`, `air_drop`, `regulation`, `season_reward`. |
+| `Transaction` | Immutable movement between two wallets. Types: `classic`, `air_drop`, `regulation`, `mint`, `burn`, `welcome_bonus`. |
 | `DiscordUser` | Community member, linked 1-1 to a wallet, authenticates via Discord OAuth2. |
 | `ApiUser` | Machine account with an API key, for server-to-server calls. |
 

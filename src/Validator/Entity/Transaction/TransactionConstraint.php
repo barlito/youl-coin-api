@@ -17,8 +17,6 @@ class TransactionConstraint extends Constraint
 
     public const REGULATION_NO_BANK_WALLET = 'Regulation Transaction must have the Bank Wallet as Wallet From or Wallet To.';
 
-    public const SEASON_REWARD_WRONG_WALLET_FROM = 'Season Reward Transaction must have the Bank Wallet as Wallet From.';
-
     public const WALLET_REQUIRED = 'This value should not be blank.';
 
     public const MINT_WALLET_FROM_FORBIDDEN = 'Mint Transaction must not have a Wallet From.';
