@@ -84,7 +84,11 @@
                                     {% set incoming = entry.direction.value == 'in' %}
                                     <tr>
                                         <td class="mono history-date"><time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i', 'Europe/Paris') }}</time></td>
-                                        <td class="history-type"><span class="chip-mono type-chip">{{ entry.type.getLabel() }}</span></td>
+                                        <td class="history-type"><span class="chip-mono type-chip">{{ entry.type.getLabel() }}</span>
+                                            {% if entry.app is not null or entry.description is not null %}
+                                                <span class="history-note">{{ [entry.app, entry.description]|filter(v => v is not null)|join(' · ') }}</span>
+                                            {% endif %}
+                                        </td>
                                         <td class="history-counterpart">
                                             {% if entry.counterpartType?.value == 'bank' %}
                                                 Banque

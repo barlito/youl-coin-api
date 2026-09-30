@@ -44,6 +44,7 @@ class DeliverWebhookHandlerTest extends KernelTestCase
                 'transactionId' => self::PLAYER_TRANSACTION_ID,
                 'type' => 'classic',
                 'amount' => '2500000000',
+                'description' => null,
                 'createdAt' => \DateTimeImmutable::createFromInterface($transaction->getCreatedAt())->setTimezone(new \DateTimeZone('UTC'))->format(\DATE_ATOM),
                 'wallets' => [
                     ['discordId' => '188967949963362304', 'balance' => '700000000000'],

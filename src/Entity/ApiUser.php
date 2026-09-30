@@ -18,6 +18,10 @@ class ApiUser implements UserInterface, \Stringable
     #[ORM\Column(length: 180, unique: true)]
     private ?string $name = null;
 
+    // Name of the app shown to players in their history
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $displayName = null;
+
     #[ORM\Column(length: 64, unique: true)]
     private string $apiKeyHash;
 
@@ -42,6 +46,24 @@ class ApiUser implements UserInterface, \Stringable
         $this->name = $name;
 
         return $this;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(?string $displayName): static
+    {
+        $trimmed = null === $displayName ? null : trim($displayName);
+        $this->displayName = '' === $trimmed ? null : $trimmed;
+
+        return $this;
+    }
+
+    public function getPublicName(): ?string
+    {
+        return $this->displayName ?? $this->name;
     }
 
     /**

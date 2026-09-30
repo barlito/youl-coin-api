@@ -22,11 +22,16 @@ class TransactionTypeEnumTest extends TestCase
      */
     public static function appTypes(): iterable
     {
-        yield 'purchase' => [TransactionTypeEnum::PURCHASE, 'Achat'];
+        yield 'purchase' => [TransactionTypeEnum::PURCHASE, 'Achat en boutique'];
         yield 'reward' => [TransactionTypeEnum::REWARD, 'Récompense'];
-        yield 'market payment' => [TransactionTypeEnum::MARKET_PAYMENT, 'Marché — paiement'];
-        yield 'market payout' => [TransactionTypeEnum::MARKET_PAYOUT, 'Marché — vente'];
-        yield 'market refund' => [TransactionTypeEnum::MARKET_REFUND, 'Marché — remboursement'];
+        yield 'market payment' => [TransactionTypeEnum::MARKET_PAYMENT, 'Achat au marché'];
+        yield 'market payout' => [TransactionTypeEnum::MARKET_PAYOUT, 'Vente au marché'];
+        yield 'market refund' => [TransactionTypeEnum::MARKET_REFUND, 'Remboursement marché'];
+    }
+
+    public function testAPlayerTransferIsLabelledAsATransfer(): void
+    {
+        $this->assertSame('Virement', TransactionTypeEnum::CLASSIC->getLabel());
     }
 
     public function testEveryLabelIsUnique(): void

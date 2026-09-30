@@ -42,6 +42,7 @@ class DeliverWebhookHandler
             'transactionId' => $message->transactionId,
             'type' => $transaction->getType()?->value,
             'amount' => $transaction->getAmount(),
+            'description' => $transaction->getDescription(),
             'createdAt' => \DateTimeImmutable::createFromInterface($transaction->getCreatedAt())->setTimezone(new \DateTimeZone('UTC'))->format(\DATE_ATOM),
             'wallets' => array_map(
                 static fn (Wallet $wallet): array => ['discordId' => $wallet->getDiscordId(), 'balance' => $wallet->getAmount()],

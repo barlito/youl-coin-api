@@ -14,7 +14,7 @@ use App\Enum\WalletTypeEnum;
 use App\Security\Voter\WalletHistoryVoter;
 use App\State\WalletTransactionProvider;
 
-// Read-only projection of a Transaction from one wallet's point of view: never externalIdentifier, issuer, reason or initiatedBy
+// Read-only projection of a Transaction from one wallet's point of view: never externalIdentifier, reason or initiatedBy, the issuer only as its public app name
 #[ApiResource(operations: [
     new GetCollection(
         uriTemplate: '/user/{discordId}/transactions',
@@ -34,6 +34,8 @@ final readonly class WalletTransactionView
         public ?WalletTypeEnum $counterpartType,
         public ?string $counterpartDiscordId,
         public \DateTimeInterface $createdAt,
+        public ?string $description = null,
+        public ?string $app = null,
     ) {
     }
 
@@ -51,6 +53,8 @@ final readonly class WalletTransactionView
             counterpartType: $counterpart?->getType(),
             counterpartDiscordId: WalletTypeEnum::USER === $counterpart?->getType() ? $counterpart->getDiscordUser()?->getDiscordId() : null,
             createdAt: $transaction->getCreatedAt() ?? throw new \LogicException('Transaction without a createdAt cannot be viewed.'),
+            description: $transaction->getDescription(),
+            app: $transaction->getIssuer()?->getPublicName(),
         );
     }
 }

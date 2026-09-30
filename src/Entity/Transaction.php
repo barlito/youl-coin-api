@@ -54,6 +54,8 @@ class Transaction
     use IdUuidTrait;
     use TimestampableEntity;
 
+    public const int DESCRIPTION_MAX_LENGTH = 140;
+
     #[Groups('transaction:notification')]
     #[Assert\NotBlank]
     #[CustomAssert\Entity\Transaction\Amount]
@@ -100,6 +102,11 @@ class Transaction
     #[ORM\ManyToOne(targetEntity: DiscordUser::class)]
     #[ORM\JoinColumn(referencedColumnName: 'discord_id', nullable: true)]
     private ?DiscordUser $initiatedBy = null;
+
+    // Free text shown to players, never interpreted: cosmetic, so it is not part of the idempotent replay comparison
+    #[Assert\Length(max: self::DESCRIPTION_MAX_LENGTH)]
+    #[ORM\Column(type: 'string', length: self::DESCRIPTION_MAX_LENGTH, nullable: true)]
+    private ?string $description = null;
 
     public function getAmount(): ?string
     {
@@ -193,6 +200,19 @@ class Transaction
     public function setReason(?string $reason): self
     {
         $this->reason = null === $reason ? null : trim($reason);
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $trimmed = null === $description ? null : trim($description);
+        $this->description = '' === $trimmed ? null : $trimmed;
 
         return $this;
     }
