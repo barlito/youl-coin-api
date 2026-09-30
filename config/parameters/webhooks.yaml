@@ -1,0 +1,6 @@
+parameters:
+    # Apps notified on every transaction touching a player; an empty url disables the subscriber
+    app.webhooks:
+        - name: 'ytcg'
+          url: '%env(YTCG_WEBHOOK_URL)%'
+          secret: '%env(YTCG_WEBHOOK_SECRET)%'

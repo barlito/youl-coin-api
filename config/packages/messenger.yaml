@@ -46,3 +46,4 @@ framework:
             'App\Message\TransactionMessage': async_transaction
             'App\Entity\Transaction': transaction_notification
             'App\Message\TransactionCommitted': outbox
+            'App\Message\DeliverWebhook': outbox

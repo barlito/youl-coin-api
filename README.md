@@ -26,6 +26,25 @@ Two ways in, one code path:
 
 Both paths end in the same `TransactionHandler`: it takes a global lock (`symfony/lock`) to serialize concurrent transactions, re-validates, moves the amount between wallets with `brick/money` (amounts stored as minor units — no floats), and persists atomically. It then publishes the transaction to `transaction_notification_exchange` for the bot to consume, and posts a rich embed to a Discord channel via webhook (`symfony/discord-notifier`). Failed messages trigger a Discord error notification plus a critical log.
 
+### Webhooks
+
+Every transaction touching a player wallet (source and/or destination) is pushed to each subscribed app, so balances can be shown live even when coins move outside the app (admin, bot, bonus). Mint/Burn and bank-only transactions send nothing.
+
+`POST {url}` with a JSON body, `wallets` being the touched **player** wallets with their balance at sending time (amounts are strings of minor units):
+
+```
+POST /webhooks/youl-coin
+Content-Type: application/json
+X-Youl-Timestamp: 1790000000
+X-Youl-Signature: sha256=<hex>
+
+{"event":"transaction.committed","transactionId":"<uuid>","type":"classic","amount":"2500000000","createdAt":"2026-09-30T14:04:40+00:00","wallets":[{"discordId":"188967949963362304","balance":"700000000000"}]}
+```
+
+`<hex> = hash_hmac('sha256', "<timestamp>.<raw body>", secret)`; receivers should compare in constant time and reject old timestamps. A 2xx answer means delivered; anything else (or a timeout) is retried by the `outbox` transport, then lands in the `failed` transport (admin « Notifications en échec »). Each subscriber gets its own message, so one failing app never replays the others or the Discord notification.
+
+Subscribers are declared in `config/parameters/webhooks.yaml` (`app.webhooks`: `name`, `url`, `secret`); an empty URL disables one. youl-tcg is configured with `YTCG_WEBHOOK_URL` / `YTCG_WEBHOOK_SECRET`.
+
 ### Data model
 
 | Entity | Role |
