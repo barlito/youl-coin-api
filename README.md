@@ -26,6 +26,21 @@ Two ways in, one code path:
 
 Both paths end in the same `TransactionHandler`: it takes a global lock (`symfony/lock`) to serialize concurrent transactions, re-validates, moves the amount between wallets with `brick/money` (amounts stored as minor units — no floats), and persists atomically. It then publishes the transaction to `transaction_notification_exchange` for the bot to consume, and posts a rich embed to a Discord channel via webhook (`symfony/discord-notifier`). Failed messages trigger a Discord error notification plus a critical log.
 
+### Transaction types
+
+| Type | Direction | Label |
+|---|---|---|
+| `classic` | any | Transfert classique |
+| `air_drop`, `season_reward` | bank → player | Air drop, Récompense de saison |
+| `regulation` | involves the bank | Régulation |
+| `purchase` | player → bank | Achat |
+| `reward` | bank → player | Récompense |
+| `market_payment` | player → bank (buyer pays the escrow) | Marché — paiement |
+| `market_payout` | bank → player (seller paid) | Marché — vente |
+| `market_refund` | bank → player (buyer refunded) | Marché — remboursement |
+
+`mint`, `burn` and `welcome_bonus` are system-only and never accepted through the API. A wrong direction answers 422 with a message naming the type. Apps read the bank wallet id with `GET /api/bank/wallet` (`ROLE_WALLET_READ`, same output as `GET /api/user/{id}/wallet`).
+
 ### Webhooks
 
 Every transaction touching a player wallet (source and/or destination) is pushed to each subscribed app, so balances can be shown live even when coins move outside the app (admin, bot, bonus). Mint/Burn and bank-only transactions send nothing.

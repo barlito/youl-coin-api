@@ -11,6 +11,7 @@ use ApiPlatform\Symfony\Action\NotFoundAction;
 use App\Entity\Traits\IdUlidTrait;
 use App\Enum\WalletTypeEnum;
 use App\Repository\WalletRepository;
+use App\State\BankWalletProvider;
 use App\Validator as CustomAssert;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -39,6 +40,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['wallet:read', 'default']],
             security: 'is_granted("ROLE_WALLET_READ")',
             name: 'wallet_by_discord_user',
+        ),
+        new Get(
+            uriTemplate: '/bank/wallet.{_format}',
+            normalizationContext: ['groups' => ['wallet:read', 'default']],
+            security: 'is_granted("ROLE_WALLET_READ")',
+            name: 'bank_wallet',
+            provider: BankWalletProvider::class,
         )],
 )]
 #[ORM\UniqueConstraint(name: 'wallet_unique_bank_type', fields: ['type'], options: ['where' => "((type)::text = '" . WalletTypeEnum::BANK->value . "'::text)"])]

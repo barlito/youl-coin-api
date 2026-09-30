@@ -15,6 +15,14 @@ enum TransactionTypeEnum: string
     case BURN = 'burn';
     // System-only: bank to a fresh player wallet, granted at login (DiscordAuthenticator)
     case WELCOME_BONUS = 'welcome_bonus';
+    // Apps (youl-tcg): a player pays the bank
+    case PURCHASE = 'purchase';
+    // Apps: the bank rewards a player
+    case REWARD = 'reward';
+    // Apps market, escrowed by the bank: the buyer pays the bank, the bank pays the seller or refunds the buyer
+    case MARKET_PAYMENT = 'market_payment';
+    case MARKET_PAYOUT = 'market_payout';
+    case MARKET_REFUND = 'market_refund';
 
     public function isSupplyChange(): bool
     {
@@ -35,6 +43,11 @@ enum TransactionTypeEnum: string
             self::MINT => 'Mint',
             self::BURN => 'Burn',
             self::WELCOME_BONUS => 'Bonus de bienvenue',
+            self::PURCHASE => 'Achat',
+            self::REWARD => 'Récompense',
+            self::MARKET_PAYMENT => 'Marché — paiement',
+            self::MARKET_PAYOUT => 'Marché — vente',
+            self::MARKET_REFUND => 'Marché — remboursement',
         };
     }
 }

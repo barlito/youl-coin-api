@@ -32,6 +32,12 @@ class TransactionConstraint extends Constraint
     public const INITIATED_BY_REQUIRED = 'Mint and Burn Transactions must have an initiating admin.';
     public const WELCOME_BONUS_WRONG_WALLETS = 'Welcome Bonus Transaction must go from the Bank Wallet to a user Wallet.';
 
+    public const PURCHASE_WRONG_WALLETS = 'Purchase Transaction must go from a user Wallet to the Bank Wallet.';
+    public const REWARD_WRONG_WALLETS = 'Reward Transaction must go from the Bank Wallet to a user Wallet.';
+    public const MARKET_PAYMENT_WRONG_WALLETS = 'Market Payment Transaction must go from a user Wallet to the Bank Wallet.';
+    public const MARKET_PAYOUT_WRONG_WALLETS = 'Market Payout Transaction must go from the Bank Wallet to a user Wallet.';
+    public const MARKET_REFUND_WRONG_WALLETS = 'Market Refund Transaction must go from the Bank Wallet to a user Wallet.';
+
     #[\Override]
     public function getTargets(): string
     {

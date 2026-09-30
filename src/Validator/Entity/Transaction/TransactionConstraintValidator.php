@@ -58,6 +58,7 @@ class TransactionConstraintValidator extends ConstraintValidator
         $this->validateAirDropType($value, $constraint, $walletFrom);
         $this->validateRegulationType($value, $constraint, $walletFrom, $walletTo);
         $this->validateWelcomeBonusType($value, $constraint, $walletFrom, $walletTo);
+        $this->validateAppTypes($value, $constraint, $walletFrom, $walletTo);
     }
 
     // Mint credits the bank out of nowhere (no balance check), Burn debits it
@@ -162,6 +163,25 @@ class TransactionConstraintValidator extends ConstraintValidator
             $this->context->buildViolation($constraint::WELCOME_BONUS_WRONG_WALLETS)
                 ->addViolation()
             ;
+        }
+    }
+
+    private function validateAppTypes(Transaction $transaction, TransactionConstraint $constraint, Wallet $walletFrom, Wallet $walletTo): void
+    {
+        $playerToBank = WalletTypeEnum::USER === $walletFrom->getType() && WalletTypeEnum::BANK === $walletTo->getType();
+        $bankToPlayer = WalletTypeEnum::BANK === $walletFrom->getType() && WalletTypeEnum::USER === $walletTo->getType();
+
+        $violation = match ($transaction->getType()) {
+            TransactionTypeEnum::PURCHASE => $playerToBank ? null : $constraint::PURCHASE_WRONG_WALLETS,
+            TransactionTypeEnum::MARKET_PAYMENT => $playerToBank ? null : $constraint::MARKET_PAYMENT_WRONG_WALLETS,
+            TransactionTypeEnum::REWARD => $bankToPlayer ? null : $constraint::REWARD_WRONG_WALLETS,
+            TransactionTypeEnum::MARKET_PAYOUT => $bankToPlayer ? null : $constraint::MARKET_PAYOUT_WRONG_WALLETS,
+            TransactionTypeEnum::MARKET_REFUND => $bankToPlayer ? null : $constraint::MARKET_REFUND_WRONG_WALLETS,
+            default => null,
+        };
+
+        if (null !== $violation) {
+            $this->context->buildViolation($violation)->addViolation();
         }
     }
 }
