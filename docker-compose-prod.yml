@@ -13,17 +13,27 @@ services:
             JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
             JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
             JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
+        # Caddy only, never PHP/DB: migrations run after the update, a schema-dependent check would roll it back
+        healthcheck:
+            test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:2019/metrics"]
+            interval: 10s
+            timeout: 3s
+            retries: 3
+            start_period: 30s
+            start_interval: 2s
         deploy:
             replicas: 1
+            # start-first: the old task keeps serving until the new one is healthy
             update_config:
-                order: stop-first
+                order: start-first
                 parallelism: 1
-                monitor: 30s
+                monitor: 60s
                 failure_action: rollback
                 max_failure_ratio: 0
             rollback_config:
                 parallelism: 1
-                order: stop-first
+                order: start-first
+                monitor: 30s
             labels:
                 - traefik.enable=true
 
@@ -56,13 +66,27 @@ services:
             JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
         tty: true
         stop_grace_period: 60s
+        # Exec form: a shell wrapper would match its own pgrep pattern; process check only, no HTTP/DB
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "messenger:consume"]
+            interval: 10s
+            timeout: 3s
+            retries: 3
+            start_period: 30s
+            start_interval: 2s
         deploy:
             replicas: 2
+            # stop-first on purpose: queue consumers need no overlap, messages wait in RabbitMQ
             update_config:
                 order: stop-first
                 parallelism: 1
                 monitor: 30s
                 failure_action: rollback
+                max_failure_ratio: 0
+            rollback_config:
+                parallelism: 1
+                order: stop-first
+                monitor: 30s
         networks:
             - yc_api_internal
             - traefik_traefik_proxy
