@@ -5,6 +5,21 @@ services:
             - "8081:80"
         volumes:
             - ~/.composer/cache/files:/home/www/.composer/cache/files
+        # GHA layer cache (needs the buildx builder + runtime token set up by the workflow)
+        build:
+            cache_from:
+                - type=gha,scope=php-dev
+            cache_to:
+                - type=gha,scope=php-dev,mode=max,ignore-error=true
+
+    # frankenphp_worker_dev extends frankenphp_dev: reuse the php layers, store only its own scope
+    message-worker:
+        build:
+            cache_from:
+                - type=gha,scope=php-dev
+                - type=gha,scope=worker-dev
+            cache_to:
+                - type=gha,scope=worker-dev,mode=max,ignore-error=true
 
     db:
         container_name: youl_coin_db
