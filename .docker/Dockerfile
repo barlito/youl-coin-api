@@ -86,13 +86,15 @@ USER www
 ### Worker Dev Image ###############################################################
 FROM frankenphp_dev AS frankenphp_worker_dev
 COPY --link ./.docker/supervisor.d /etc/supervisor
+# Exec form: the shell form's sh -c command line matches its own pattern, so it always passed
 HEALTHCHECK --start-period=10s --interval=30s --timeout=10s --retries=3 \
-  CMD pgrep -f "messenger:consume" > /dev/null || exit 1
+  CMD ["pgrep", "-f", "messenger:consume"]
 CMD ["/usr/bin/supervisord"]
 
 ### Worker Prod Image ###############################################################
 FROM frankenphp_prod AS frankenphp_worker_prod
 COPY --link ./.docker/supervisor.d /etc/supervisor
+# Exec form: the shell form's sh -c command line matches its own pattern, so it always passed
 HEALTHCHECK --start-period=10s --interval=30s --timeout=10s --retries=3 \
-  CMD pgrep -f "messenger:consume" > /dev/null || exit 1
+  CMD ["pgrep", "-f", "messenger:consume"]
 CMD ["/usr/bin/supervisord"]
