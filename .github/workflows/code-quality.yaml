@@ -42,13 +42,14 @@ jobs:
         run: USER_ID=$(id -u) GROUP_ID=$(id -g) make deploy.ci github_token=${{ secrets.GITHUB_TOKEN }}
 
       # /app is bind-mounted: the tools write their caches on the runner, as the runner uid
+      # phpcs resolves its cache next to the barlito/utils ruleset, not in the cwd
       - name: Cache quality tools
         uses: actions/cache@v6
         with:
           path: |
             var/cache/phpstan
             .php-cs-fixer.cache
-            .phpcs-cache
+            vendor/barlito/utils/config/.phpcs-cache
           key: quality-${{ hashFiles('composer.lock', 'phpstan.dist.neon', 'phpstan-baseline.neon') }}-${{ github.sha }}
           restore-keys: |
             quality-${{ hashFiles('composer.lock', 'phpstan.dist.neon', 'phpstan-baseline.neon') }}-
