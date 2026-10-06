@@ -50,43 +50,12 @@ db.backup:
 		echo "ℹ  DB container introuvable, backup skippé (1er deploy ?)"; \
 	fi
 
-# Swarm rollbacks exit 0: require $(TAG) in the spec, no rollback, and every running task healthy and still up after assert_settle
+# Swarm rollbacks exit 0: fail unless the service really runs the tag, healthy (php-make-rules castor task)
 assert_service=php
 assert_image_name=$(image_name)
 assert_settle=10
 deploy.assert_image:
-	@expected="$(assert_image_name):$(TAG)"; service="$(stack_name)_$(assert_service)"; \
-	deadline=$$(( $$(date +%s) + $(assert_timeout) )); \
-	while :; do \
-		state="$$(docker service inspect $$service --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}')"; \
-		case "$$state" in updating|rollback_started) ;; *) break;; esac; \
-		[ $$(date +%s) -lt $$deadline ] || break; \
-		echo "… $$service update state: $$state"; sleep 5; \
-	done; \
-	image="$$(docker service inspect $$service --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}')"; \
-	case "$$image" in "$$expected"|"$$expected"@*) ;; *) echo "❌ $$service runs $$image instead of $$expected (update state: $${state:-none})"; exit 1;; esac; \
-	case "$$state" in rollback_*|paused|updating) echo "❌ $$service update state: $$state"; exit 1;; esac; \
-	stable=""; \
-	while :; do \
-		tasks="$$(echo $$(docker service ps $$service --filter desired-state=running -q | sort))"; \
-		ok=""; report=""; \
-		for task in $$tasks; do \
-			info="$$(docker inspect $$task --format '{{.Status.State}} {{.Spec.ContainerSpec.Image}}')"; \
-			cid="$$(docker inspect $$task --format '{{if .Status.ContainerStatus}}{{.Status.ContainerStatus.ContainerID}}{{end}}')"; \
-			health=""; [ -z "$$cid" ] || health="$$(docker inspect $$cid --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' 2>/dev/null)"; \
-			report="$$report $$task: $$info, health: $${health:-unknown};"; \
-			case "$$info" in "running $$expected"|"running $$expected@"*) ;; *) ok=no; continue;; esac; \
-			case "$$health" in healthy|none) ;; *) ok=no;; esac; \
-		done; \
-		if [ -n "$$tasks" ] && [ -z "$$ok" ]; then \
-			[ "$$stable" = "$$tasks" ] && break; \
-			stable="$$tasks"; sleep $(assert_settle); continue; \
-		fi; \
-		stable=""; \
-		if [ $$(date +%s) -ge $$deadline ]; then echo "❌ $$service not healthy on $$expected:$${report:- no task}"; exit 1; fi; \
-		echo "… $$service:$${report:- no task}"; sleep 5; \
-	done; \
-	echo "✓ $$service runs $$expected, tasks $$tasks healthy (update state: $${state:-none})"
+	castor barlito:castor:assert-deployed $(stack_name)_$(assert_service) $(assert_image_name):$(TAG) --timeout=$(assert_timeout) --settle=$(assert_settle)
 
 # Removes the stack's stopped containers (old tasks); prune never touches running ones
 deploy.prune:
