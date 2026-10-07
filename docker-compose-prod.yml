@@ -13,21 +13,35 @@ services:
             JWT_PUBLIC_KEY: "${JWT_PUBLIC_KEY}"
             JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
             JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
+        # Caddy only, never PHP/DB: migrations run after the update, a schema-dependent check would roll it back
+        healthcheck:
+            test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:2019/metrics"]
+            interval: 10s
+            timeout: 3s
+            retries: 3
+            start_period: 30s
+            start_interval: 2s
         deploy:
             replicas: 1
+            # start-first: the old task keeps serving until the new one is healthy
             update_config:
-                order: stop-first
+                order: start-first
                 parallelism: 1
-                monitor: 30s
+                # watched once healthy: boot failures are already caught by the healthcheck
+                monitor: 20s
                 failure_action: rollback
                 max_failure_ratio: 0
             rollback_config:
                 parallelism: 1
-                order: stop-first
+                order: start-first
+                monitor: 20s
             labels:
                 - traefik.enable=true
 
                 - traefik.http.services.youlcoin.loadbalancer.server.port=80
+                # Route through the Swarm VIP (no stale task IP during start-first);
+                # drop it if Traefik-side balancing is ever needed (sticky sessions, per-replica weights)
+                - traefik.swarm.lbswarm=true
 
                 - traefik.http.routers.youlcoin.rule=Host(`yc.youlz.fr`) || Host(`yc.barlito.fr`)
                 - traefik.http.routers.youlcoin.entrypoints=http
@@ -56,13 +70,28 @@ services:
             JWT_PASSPHRASE: "${JWT_PASSPHRASE}"
         tty: true
         stop_grace_period: 60s
+        # Exec form: a shell wrapper would match its own pgrep pattern; process check only, no HTTP/DB
+        healthcheck:
+            test: ["CMD", "pgrep", "-f", "messenger:consume"]
+            interval: 10s
+            timeout: 3s
+            retries: 3
+            start_period: 30s
+            start_interval: 2s
         deploy:
             replicas: 2
+            # stop-first on purpose: queue consumers need no overlap, messages wait in RabbitMQ
             update_config:
                 order: stop-first
                 parallelism: 1
-                monitor: 30s
+                # watched once healthy: boot failures are already caught by the healthcheck
+                monitor: 20s
                 failure_action: rollback
+                max_failure_ratio: 0
+            rollback_config:
+                parallelism: 1
+                order: stop-first
+                monitor: 20s
         networks:
             - yc_api_internal
             - traefik_traefik_proxy
@@ -99,6 +128,9 @@ services:
                 - traefik.enable=true
 
                 - traefik.http.services.youlcoin_adminer.loadbalancer.server.port=8080
+                # Route through the Swarm VIP (no stale task IP during start-first);
+                # drop it if Traefik-side balancing is ever needed (sticky sessions, per-replica weights)
+                - traefik.swarm.lbswarm=true
 
                 - traefik.http.routers.youlcoin_adminer.rule=Host(`yc-adminer.barlito.fr`)
                 - traefik.http.routers.youlcoin_adminer.entrypoints=http
@@ -123,6 +155,9 @@ services:
                 - traefik.enable=true
 
                 - traefik.http.services.youlcoin_rabbitmq.loadbalancer.server.port=15672
+                # Route through the Swarm VIP (no stale task IP during start-first);
+                # drop it if Traefik-side balancing is ever needed (sticky sessions, per-replica weights)
+                - traefik.swarm.lbswarm=true
 
                 - traefik.http.routers.youlcoin_rabbitmq.rule=Host(`yc-rabbitmq.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq.entrypoints=http

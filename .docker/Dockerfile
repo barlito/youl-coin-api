@@ -1,25 +1,18 @@
-FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
+FROM dunglas/frankenphp:1.13.0-php8.4 AS frankenphp_upstream
 
 ### Base Image ###############################################################
 FROM frankenphp_upstream AS frankenphp_base
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     vim \
 	acl \
     supervisor \
     procps \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Create non-root user with configurable UID/GID
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-
-RUN groupadd -g ${GROUP_ID} www && \
-    useradd -u ${USER_ID} -g www -m -s /bin/bash www && \
-    chown -R www:www /app /data /config /home/www
-
+# uid-independent layers first, so CI (runner uid) and local/prod (1000) share them
 # add additional extensions here:
 RUN install-php-extensions \
     @composer \
@@ -34,6 +27,14 @@ RUN install-php-extensions \
 
 ENV COMPOSER_HOME=/home/www/.composer
 ENV SERVER_NAME=":80"
+
+# Create non-root user with configurable UID/GID
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
+RUN groupadd -g ${GROUP_ID} www && \
+    useradd -u ${USER_ID} -g www -m -s /bin/bash www && \
+    chown -R www:www /app /data /config /home/www
 
 COPY --link .docker/php/app.ini $PHP_INI_DIR/conf.d/
 COPY --link .docker/franken/Caddyfile /etc/caddy/Caddyfile
@@ -85,13 +86,15 @@ USER www
 ### Worker Dev Image ###############################################################
 FROM frankenphp_dev AS frankenphp_worker_dev
 COPY --link ./.docker/supervisor.d /etc/supervisor
+# Exec form: the shell form's sh -c command line matches its own pattern, so it always passed
 HEALTHCHECK --start-period=10s --interval=30s --timeout=10s --retries=3 \
-  CMD pgrep -f "messenger:consume" > /dev/null || exit 1
+  CMD ["pgrep", "-f", "messenger:consume"]
 CMD ["/usr/bin/supervisord"]
 
 ### Worker Prod Image ###############################################################
 FROM frankenphp_prod AS frankenphp_worker_prod
 COPY --link ./.docker/supervisor.d /etc/supervisor
+# Exec form: the shell form's sh -c command line matches its own pattern, so it always passed
 HEALTHCHECK --start-period=10s --interval=30s --timeout=10s --retries=3 \
-  CMD pgrep -f "messenger:consume" > /dev/null || exit 1
+  CMD ["pgrep", "-f", "messenger:consume"]
 CMD ["/usr/bin/supervisord"]

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       re-deploy:
-        description: "Full re-deploy (undeploy + redeploy) au lieu d'un rolling update"
+        description: "Stack deploy complet (applique tout docker-compose-prod.yml, rolling update avec rollback) au lieu de la seule mise à jour d'image"
         required: true
         type: boolean
         default: false
@@ -12,6 +12,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # A crash-looping container must not keep the job spinning
+    timeout-minutes: 15
 
     env:
       DOCKER_HOST: ssh://${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_HOST }}:${{ vars.SERVER_PORT }}
@@ -52,11 +54,8 @@ jobs:
 
       - name: Re-Deploy Stack
         if: inputs.re-deploy
-        run: |
-          # `|| true` pour tolérer "rien à supprimer" sur le tout premier deploy
-          # (docker stack rm exit non-zero si le stack n'existe pas encore)
-          make undeploy || true
-          TAG=$GITHUB_REF_NAME make deploy.prod
+        # No `stack rm`: deploy.prod rolls the existing stack (creates it on a first deploy)
+        run: TAG=$GITHUB_REF_NAME make deploy.prod
 
       - name: Drain & stop worker
         if: ${{ ! inputs.re-deploy }}
@@ -67,7 +66,7 @@ jobs:
         run: |
           make db.backup
           make docker.service.update args="--image barlito/youl-coin-api:$GITHUB_REF_NAME youl_coin_php"
-          castor barlito:castor:wait-php-container
+          TAG=$GITHUB_REF_NAME make deploy.assert_image
           make doctrine.migrate
 
       - name: Update & restart worker
@@ -75,7 +74,12 @@ jobs:
         run: |
           make docker.service.update args="--image barlito/youl-coin-worker:$GITHUB_REF_NAME youl_coin_message_worker"
           docker service scale youl_coin_message_worker=2
+          TAG=$GITHUB_REF_NAME make deploy.assert_image assert_service=message_worker assert_image_name=barlito/youl-coin-worker
 
       - name: Smoke test
         if: ${{ ! inputs.re-deploy }}
         run: make smoke.test
+
+      - name: Remove stopped containers
+        if: ${{ ! inputs.re-deploy }}
+        run: make deploy.prune
