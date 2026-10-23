@@ -103,11 +103,14 @@ services:
                 - traefik.http.routers.youlcoin_rabbitmq-secure.rule=Host(`yc-rabbitmq.local.barlito.fr`)
                 - traefik.http.routers.youlcoin_rabbitmq-secure.entrypoints=https
                 - traefik.http.routers.youlcoin_rabbitmq-secure.tls=true
+        # check_running, not ping: ping only proves the Erlang node is up, it stayed healthy
+        # while the rabbit app itself failed to boot (corrupted metadata store)
         healthcheck:
-            test: rabbitmq-diagnostics -q ping
+            test: rabbitmq-diagnostics -q check_running
             interval: 30s
             timeout: 30s
             retries: 3
+            start_period: 60s
         networks:
             - yc_api_internal
             - traefik_traefik_proxy
