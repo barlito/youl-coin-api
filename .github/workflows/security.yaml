@@ -1,0 +1,22 @@
+name: security
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [frankenphp_prod, frankenphp_worker_prod]
+    uses: barlito/ci/.github/workflows/image-scan.yaml@v1
+    with:
+      dockerfile: .docker/Dockerfile
+      target: ${{ matrix.target }}

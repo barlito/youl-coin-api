@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  php-ci:
+    if: ${{ github.event_name == 'push' }}
+    uses: barlito/ci/.github/workflows/php-ci.yaml@v1
+    with:
+      tests: jwt.generate phpunit behat
+    secrets: inherit
+
+  docker-check:
+    if: ${{ github.event_name == 'pull_request' }}
+    uses: barlito/ci/.github/workflows/docker-check.yaml@v1
+    with:
+      dockerfile: .docker/Dockerfile
+      targets: frankenphp_prod frankenphp_worker_prod
+      compose-env: |
+        TAG=v0.0.0
+        APP_SECRET=x
+        YTCG_WEBHOOK_SECRET=x

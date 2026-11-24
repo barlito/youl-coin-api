@@ -1,0 +1,28 @@
+name: rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to roll back to
+        type: string
+        required: true
+      restore-database:
+        description: Restore the latest database dump taken under that tag instead of reverting migrations
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  rollback:
+    uses: barlito/ci/.github/workflows/swarm-rollback.yaml@v1
+    with:
+      tag: ${{ inputs.tag }}
+      restore: ${{ inputs.restore-database && '1' || '' }}
+      images: barlito/youl-coin-api barlito/youl-coin-worker
+      env-secrets: DB_USER DB_PASSWORD AMQP_USER AMQP_PASS DISCORD_DSN OAUTH_DISCORD_CLIENT_ID OAUTH_DISCORD_CLIENT_SECRET JWT_PUBLIC_KEY JWT_SECRET_KEY JWT_PASSPHRASE APP_SECRET YTCG_WEBHOOK_SECRET
+      castor: true
+    secrets: inherit
