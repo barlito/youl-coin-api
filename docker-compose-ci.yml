@@ -1,9 +1,6 @@
 services:
     php:
         container_name: youl_coin_php
-        # php-make-rules finds containers by their Swarm service label
-        labels:
-            com.docker.swarm.service.name: youl_coin_php
         ports:
             - "8081:80"
         volumes:
@@ -26,8 +23,6 @@ services:
 
     db:
         container_name: youl_coin_db
-        labels:
-            com.docker.swarm.service.name: youl_coin_db
 
 networks:
     traefik_traefik_proxy:
